@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Page Not Found - Skintiq Admin</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #ecf0f1;
+      display: flex;
+      height: 100vh;
+    }
+
+    .sidebar {
+      width: 250px;
+      background-color: #2c3e50;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .sidebar h2 {
+      text-align: center;
+      padding: 1rem 0;
+      background-color: #1a252f;
+      margin: 0;
+    }
+
+    .nav-links {
+      flex-grow: 1;
+    }
+
+    .nav-links a {
+      display: block;
+      padding: 1rem;
+      text-decoration: none;
+      color: #fff;
+      transition: background 0.3s;
+    }
+
+    .nav-links a:hover {
+      background-color: #34495e;
+    }
+
+    .bottom-links {
+      padding: 1rem;
+      border-top: 1px solid #34495e;
+    }
+
+    .bottom-links a {
+      display: block;
+      padding: 0.5rem 0;
+      text-decoration: none;
+      color: #fff;
+      transition: background 0.3s;
+    }
+
+    .bottom-links a:hover {
+      background-color: #34495e;
+    }
+
+    .main-content {
+      flex-grow: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    .error-box {
+      background: white;
+      padding: 3rem;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .error-box h1 {
+      font-size: 5rem;
+      color: #2c3e50;
+      margin: 0;
+    }
+
+    .error-box p {
+      font-size: 1.2rem;
+      color: #34495e;
+      margin-top: 1rem;
+    }
+
+    .error-box a {
+      margin-top: 2rem;
+      display: inline-block;
+      padding: 10px 20px;
+      background-color: #2c3e50;
+      color: white;
+      text-decoration: none;
+      border-radius: 4px;
+      transition: background 0.3s;
+    }
+
+    .error-box a:hover {
+      background-color: #34495e;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="sidebar">
+    <div>
+      <h2>Admin Panel</h2>
+      <div class="nav-links">
+        <a href="#">Dashboard</a>
+        <a href="#">Customers</a>
+        <a href="#">Category</a>
+        <a href="#">Brands</a>
+        <a href="#">Add Product</a>
+        <a href="#">Products</a>
+        <a href="#">Coupon</a>
+        <a href="#">Banner</a>
+        <a href="#">Orders</a>
+      </div>
+    </div>
+    <div class="bottom-links">
+      <a href="#">Logout</a>
+    </div>
+  </div>
+
+  <div class="main-content">
+    <div class="error-box">
+      <h1>404</h1>
+      <p>Oops! The page you're looking for doesn't exist.</p>
+      <a href="/admin">Go Back to Dashboard</a>
+    </div>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order Details - Skintiq Admin</title>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body {
+      display: flex;
+      min-height: 100vh;
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+        .sidebar {
+      width: 250px;
+      background-color: #1a252f;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.3s ease-in-out;
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      z-index: 1000;
+      overflow-y: auto;
+    }
+
+    .sidebar h2 {
+      background-color: #1a252f;
+      color: white;
+      padding: 1.2rem;
+      text-align: center;
+      margin: 0;
+      font-size: 32px;
+      letter-spacing: 1px;
+    }
+
+    .sidebar:hover {
+      background-color: #1f2d3a;
+    }
+    .logo {
+    font-family: 'Yeseva One', serif;
+  font-size: 44px;
+  color: #607D8B;
+    }
+    .nav-links {
+      flex-grow: 1;
+      padding-top: 1rem;
+    }
+    .nav-links a,
+    .bottom-links a {
+      display: flex;
+      align-items: center;
+      padding: 1rem 1.2rem;
+      gap: 12px;
+      color: #fff;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      font-size: 16px;
+    }
+    .nav-links a:hover,
+    .bottom-links a:hover {
+      background-color: #34495e;
+      padding-left: 1.7rem;
+    }
+    .nav-links a.active,
+    .bottom-links a.active {
+      background-color: #4b5563;
+      padding-left: 1.7rem;
+    }
+    .bottom-links {
+      padding: 1rem;
+      border-top: 1px solid #34495e;
+    }
+    .main-content {
+      flex-grow: 1;
+      padding: 2rem;
+      overflow-y: auto;
+      background-color: #f3f4f6;
+    }
+    @media screen and (max-width: 768px) {
+      body {
+        flex-direction: column;
+      }
+      .sidebar {
+        width: 100%;
+        min-width: 100%;
+        max-width: 100%;
+        flex-direction: row;
+        overflow-x: auto;
+        justify-content: start;
+      }
+      .sidebar h2 {
+        display: none;
+      }
+      .nav-links, .bottom-links {
+        flex-direction: row;
+        padding: 0;
+        gap: 5px;
+      }
+      .nav-links a, .bottom-links a {
+        padding: 0.8rem;
+        font-size: 14px;
+        white-space: nowrap;
+      }
+      .main-content {
+        padding: 1rem;
+      }
+    }
+  </style>
+</head>
+<body class="bg-gray-100 min-h-screen font-sans">
+<!-- Sidebar -->
+  <div class="sidebar">
+    <div>
+      <div class="logo">
+                <h2>SKINTIQ</h2>
+      </div>
+      <div class="nav-links">
+        <a href="/admin"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+        <a href="/admin/users"><i class="fas fa-users"></i> Customers</a>
+        <a href="/admin/Category"><i class="fas fa-th-list"></i> Category</a>
+        <a href="/admin/brand"><i class="fas fa-tags"></i> Brand</a>
+        <a href="/admin/addProducts"><i class="fas fa-plus-square"></i> Add-Product</a>
+        <a href="/admin/products"><i class="fas fa-box-open"></i> Products</a>
+        <a href="/admin/coupon"><i class="fas fa-ticket-alt"></i> Coupon</a>
+        <a href="/admin/order"><i class="fas fa-shopping-cart"></i> Orders</a>
+        <a href="/admin/sales"><i class="fas fa-chart-line"></i> Sales</a>
+      </div>
+    </div>
+    <div class="bottom-links">
+      <a href="/admin/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </div>
+  </div>
+  <div class="main-content">
+    <div class="bg-white rounded-xl shadow-lg p-6 max-w-3xl mx-auto" role="main" aria-label="Order Details">
+      <h2 class="text-lg font-semibold text-gray-800 border-b border-blue-600 pb-2 mb-4">Order ID: <%= order.orderId %></h2>
+      <div class="space-y-3">
+        <p><strong class="text-gray-800">User:</strong> <%= order.userId.name %> (<%= order.userId.email %>)</p>
+        <p><strong class="text-gray-800">Product:</strong> <%= order.productName %></p>
+        <p><strong class="text-gray-800">Quantity:</strong> <%= order.quantity %></p>
+        <p><strong class="text-gray-800">Total Price:</strong> ₹<%= order.finalAmount.toFixed(2) %></p>
+        <p><strong class="text-gray-800">Status:</strong> <%= order.status.charAt(0).toUpperCase() + order.status.slice(1).replace(/-/g, ' ') %></p>
+        <p><strong class="text-gray-800">Payment Method:</strong> <%= order.paymentMethod %></p>
+        <p><strong class="text-gray-800">Invoice Date:</strong> <%= order.invoiceDate.toLocaleDateString() %></p>
+       
+        <% if (order.deliveredOn) { %>
+          <p><strong class="text-gray-800">Delivered On:</strong> <%= order.deliveredOn.toLocaleDateString() %></p>
+        <% } %>
+        <% if (order.cancelReason) { %>
+          <p><strong class="text-gray-800">Cancellation Reason:</strong> <%= order.cancelReason %></p>
+        <% } %>
+        <% if (order.returnReason) { %>
+          <p><strong class="text-gray-800">Return Reason:</strong> <%= order.returnReason %></p>
+        <% } %>
+        <h2 class="text-lg font-semibold text-gray-800 border-b border-blue-600 pb-2 mt-6 mb-4">Shipping Address</h2>
+        <p><strong class="text-gray-800">Name:</strong> <%= order.address.name %></p>
+        <p><strong class="text-gray-800">Phone:</strong> <%= order.address.phone %></p>
+        <p><strong class="text-gray-800">Address:</strong> <%= order.address.address %>, <%= order.address.locality %>, <%= order.address.city %>, <%= order.address.state %> - <%= order.address.pincode %></p>
+        <% if (order.address.landmark) { %>
+          <p><strong class="text-gray-800">Landmark:</strong> <%= order.address.landmark %></p>
+        <% } %>
+        <p><strong class="text-gray-800">Address Type:</strong> <%= order.address.addressType %></p>
+      </div>
+      <div class="flex flex-col sm:flex-row sm:space-x-4 space-y-3 sm:space-y-0 mt-6">
+        <a href="/admin/order" class="inline-flex items-center justify-center bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" role="button" aria-label="Back to Orders">
+          Back to Orders
+        </a>
+      
+      </div>
+    </div>
+  </div>
+  <script>
+    // Sidebar active link
+    const currentPath = window.location.pathname;
+    const links = document.querySelectorAll('.nav-links a, .bottom-links a');
+    links.forEach(link => {
+      const linkPath = new URL(link.href).pathname;
+      if (linkPath === currentPath || (linkPath === '/admin/order' && currentPath.startsWith('/admin/order'))) {
+        link.classList.add('active');
+      }
+    });
+
+    async function updateStatus(orderId) {
+      const { value: status } = await Swal.fire({
+        title: 'Update Order Status',
+        input: 'select',
+        inputOptions: {
+          'pending': 'Pending',
+          'Shipping': 'Shipping',
+          'Delivered': 'Delivered'
+        },
+        inputPlaceholder: 'Select status',
+        showCancelButton: true,
+        inputValidator: (value) => {
+          if (!value) {
+            return 'You need to select a status!';
+          }
+        }
+      });
+
+      if (status) {
+        try {
+          const response = await fetch('/admin/orders/update-status', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ orderId, status }),
+          });
+
+          const data = await response.json();
+          
+          if (data.success) {
+            await Swal.fire({
+              icon: 'success',
+              title: 'Success',
+              text: 'Order status updated successfully',
+              timer: 1500
+            });
+            location.reload();
+          } else {
+            throw new Error(data.message);
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          await Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: error.message || 'Failed to update status'
+          });
+        }
+      }
+    }
+
+    async function cancelOrder(orderId) {
+      const result = await Swal.fire({
+        title: 'Are you sure?',
+        text: 'Do you want to cancel this order?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, cancel it!'
+      });
+
+      if (result.isConfirmed) {
+        try {
+          const response = await fetch('/order/cancel', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ orderId })
+          });
+          const result = await response.json();
+          if (result.success) {
+            await Swal.fire({
+              icon: 'success',
+              title: 'Cancelled',
+              text: result.message,
+              timer: 1500
+            });
+            location.reload();
+          } else {
+            await Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: result.message || 'Failed to cancel order'
+            });
+          }
+        } catch (err) {
+          console.error(err);
+          await Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Error cancelling order.'
+          });
+        }
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>User Profile - Advanced E-commerce</title>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
+    }
+    body {
+      background: linear-gradient(180deg, #ffffff 0%, #f8f8f8 100%);
+      color: #2a2a2a;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: min(2rem, 5vw);
+      overflow-x: hidden; /* Prevent horizontal overflow */
+    }
+    h1 {
+      font-size: clamp(1.75rem, 5vw, 2.5rem);
+      font-weight: 700;
+      color: #7e6b00;
+      text-align: center;
+      margin: clamp(1.5rem, 4vw, 2.5rem) 0;
+      letter-spacing: 0.05em;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .profile-container {
+      width: min(100%, 800px);
+      display: flex;
+      flex-direction: column;
+      gap: clamp(1.5rem, 4vw, 2rem);
+      padding: 0 1rem;
+    }
+    .profile-card, .address-card {
+      background: linear-gradient(145deg, #ffffff, #f5f5f5);
+      border: 1px solid #ccc;
+      border-radius: 12px;
+      padding: clamp(1rem, 3vw, 2rem);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      transition: all 0.3s ease;
+    }
+    .profile-card:hover, .address-card:hover {
+      border-color: #7e6b00;
+      box-shadow: 0 6px 16px rgba(126, 107, 0, 0.15);
+      transform: translateY(-2px);
+    }
+    .profile-image {
+      width: clamp(70px, 15vw, 100px);
+      height: clamp(70px, 15vw, 100px);
+      border-radius: 50%;
+      object-fit: cover;
+      border: 4px solid #7e6b00;
+      margin: 0 auto clamp(1rem, 2vw, 1.5rem);
+      display: block;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .profile-details h2 {
+      font-size: clamp(1.3rem, 3.5vw, 1.75rem);
+      font-weight: 700;
+      color: #2a2a2a;
+      text-align: center;
+      margin-bottom: clamp(0.75rem, 2vw, 1.25rem);
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+      overflow-wrap: break-word;
+    }
+    .profile-details p {
+      font-size: clamp(0.85rem, 2.5vw, 1rem);
+      color: #4a4a4a;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      overflow-wrap: break-word;
+    }
+    .profile-details p strong {
+      color: #2a2a2a;
+      font-weight: 600;
+    }
+    .btn-copy {
+      background: linear-gradient(90deg, #7e6b00, #a68c00);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: clamp(0.4rem, 1.5vw, 0.6rem) clamp(0.8rem, 2vw, 1.5rem);
+      font-size: clamp(0.85rem, 2vw, 0.95rem);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin: 0.5rem;
+      box-shadow: 0 2px 6px rgba(126, 107, 0, 0.2);
+    }
+    .btn-copy:hover {
+      background: linear-gradient(90deg, #655700, #8c7500);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 10px rgba(126, 107, 0, 0.3);
+    }
+    .btn-edit {
+      background: linear-gradient(90deg, #7e6b00, #a68c00);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: clamp(0.4rem, 1.5vw, 0.6rem) clamp(0.8rem, 2vw, 1.5rem);
+      font-size: clamp(0.85rem, 2vw, 0.95rem);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 6px rgba(126, 107, 0, 0.2);
+      display: block;
+      margin: clamp(0.5rem, 2vw, 1rem) auto 0;
+    }
+    .btn-edit:hover {
+      background: linear-gradient(90deg, #655700, #8c7500);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 10px rgba(126, 107, 0, 0.3);
+    }
+    .address-card {
+      padding: clamp(1rem, 3vw, 2rem);
+    }
+    .address-header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: clamp(0.75rem, 2vw, 1.25rem);
+    }
+    .address-header h3 {
+      font-size: clamp(1.15rem, 3vw, 1.5rem);
+      font-weight: 700;
+      color: #7e6b00;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    }
+    .address-header svg {
+      width: clamp(16px, 4vw, 22px);
+      height: clamp(16px, 4vw, 22px);
+      fill: #7e6b00;
+    }
+    .address-content {
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      padding: clamp(0.75rem, 2vw, 1.25rem);
+      background: #fefefe;
+      text-align: center;
+      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+    .address-item p {
+      font-size: clamp(0.85rem, 2.5vw, 1rem);
+      color: #4a4a4a;
+      margin-bottom: 0.6rem;
+      overflow-wrap: break-word;
+    }
+    .address-item p strong {
+      color: #2a2a2a;
+      font-weight: 600;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+      background: linear-gradient(145deg, #ffffff, #f5f5f5);
+      border-radius: 12px;
+      padding: clamp(1rem, 3vw, 2rem);
+      width: min(90%, 450px);
+      border: 1px solid #ccc;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+    }
+    .modal-content h3 {
+      font-size: clamp(1.15rem, 3vw, 1.5rem);
+      font-weight: 700;
+      color: #7e6b00;
+      margin-bottom: clamp(0.75rem, 2vw, 1.25rem);
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    }
+    .modal-content input {
+      width: 100%;
+      padding: clamp(0.4rem, 1.5vw, 0.6rem);
+      margin-bottom: clamp(0.75rem, 2vw, 1.25rem);
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: clamp(0.85rem, 2.5vw, 1rem);
+      outline: none;
+      transition: all 0.3s ease;
+      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+    .modal-content input:focus {
+      border-color: #7e6b00;
+      box-shadow: 0 0 6px rgba(126, 107, 0, 0.2);
+    }
+    .modal-content button {
+      background: linear-gradient(90deg, #7e6b00, #a68c00);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: clamp(0.4rem, 1.5vw, 0.6rem) clamp(0.8rem, 2vw, 1.25rem);
+      font-size: clamp(0.85rem, 2vw, 0.95rem);
+      font-weight: 600;
+      cursor: pointer;
+      margin-right: 0.5rem;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 6px rgba(126, 107, 0, 0.2);
+    }
+    .modal-content button:hover {
+      background: linear-gradient(90deg, #655700, #8c7500);
+      box-shadow: 0 4px 10px rgba(126, 107, 0, 0.3);
+    }
+    .modal-content .btn-close {
+      background: linear-gradient(90deg, #6c757d, #8a9399);
+      box-shadow: 0 2px 6px rgba(108, 117, 125, 0.2);
+    }
+    .modal-content .btn-close:hover {
+      background: linear-gradient(90deg, #5a6268, #767e84);
+      box-shadow: 0 4px 10px rgba(108, 117, 125, 0.3);
+    }
+    .modal-content p {
+      color: #4a4a4a;
+      font-size: clamp(0.85rem, 2vw, 0.95rem);
+      margin-bottom: clamp(0.75rem, 2vw, 1.25rem);
+    }
+    footer {
+      margin-top: clamp(2rem, 5vw, 3rem);
+      font-size: clamp(0.85rem, 2vw, 0.95rem);
+      color: #4a4a4a;
+      text-align: center;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    }
+    @media (max-width: 768px) {
+      body {
+        padding: min(1.5rem, 4vw);
+      }
+      h1 {
+        font-size: clamp(1.5rem, 4vw, 2rem);
+        margin-bottom: clamp(1rem, 3vw, 1.5rem);
+      }
+      .profile-card, .address-card {
+        padding: clamp(1rem, 3vw, 1.5rem);
+      }
+      .profile-image {
+        width: clamp(60px, 12vw, 80px);
+        height: clamp(60px, 12vw, 80px);
+      }
+      .profile-details h2 {
+        font-size: clamp(1.2rem, 3vw, 1.5rem);
+      }
+      .profile-details p {
+        font-size: clamp(0.8rem, 2vw, 0.9rem);
+      }
+      .btn-copy, .btn-edit {
+        padding: clamp(0.4rem, 1.5vw, 0.5rem) clamp(0.8rem, 2vw, 1rem);
+        font-size: clamp(0.8rem, 2vw, 0.9rem);
+      }
+      .address-header h3 {
+        font-size: clamp(1.1rem, 2.5vw, 1.3rem);
+      }
+      .address-header svg {
+        width: clamp(14px, 3.5vw, 18px);
+        height: clamp(14px, 3.5vw, 18px);
+      }
+      .address-content, .address-item p {
+        font-size: clamp(0.8rem, 2vw, 0.9rem);
+      }
+      .modal-content {
+        padding: clamp(1rem, 3vw, 1.5rem);
+        width: min(95%, 400px);
+      }
+    }
+    @media (max-width: 480px) {
+      body {
+        padding: min(1rem, 3vw);
+      }
+      h1 {
+        font-size: clamp(1.3rem, 3.5vw, 1.75rem);
+        margin-bottom: clamp(0.75rem, 2.5vw, 1rem);
+      }
+      .profile-card, .address-card {
+        padding: clamp(0.8rem, 2.5vw, 1rem);
+      }
+      .profile-image {
+        width: clamp(50px, 10vw, 70px);
+        height: clamp(50px, 10vw, 70px);
+      }
+      .profile-details h2 {
+        font-size: clamp(1.1rem, 2.5vw, 1.3rem);
+      }
+      .profile-details p {
+        font-size: clamp(0.75rem, 2vw, 0.85rem);
+      }
+      .btn-copy, .btn-edit {
+        padding: clamp(0.3rem, 1vw, 0.4rem) clamp(0.6rem, 1.5vw, 0.8rem);
+        font-size: clamp(0.75rem, 1.5vw, 0.85rem);
+      }
+      .address-header h3 {
+        font-size: clamp(1rem, 2vw, 1.15rem);
+      }
+      .address-header svg {
+        width: clamp(12px, 3vw, 16px);
+        height: clamp(12px, 3vw, 16px);
+      }
+      .address-content, .address-item p {
+        font-size: clamp(0.75rem, 2vw, 0.85rem);
+      }
+      .modal-content {
+        padding: clamp(0.8rem, 2vw, 1rem);
+        width: min(90%, 350px);
+      }
+    }
+    @media (max-width: 320px) {
+      body {
+        padding: min(0.8rem, 2.5vw);
+      }
+      .profile-container {
+        padding: 0 0.5rem;
+      }
+      .modal-content {
+        width: min(90%, 300px);
+      }
+    }
+  </style>
+</head>
+<body>
+  <%- include("../../views/partials/user/sidebar.ejs") %>
+  <h1>User Profile</h1>
+  <div class="profile-container">
+    <div class="profile-card" aria-label="User profile details">
+      <img src="<%= user.profilePhoto || '/Uploads/profile/default.jpg' %>" alt="Profile Image" class="profile-image" />
+      <div class="profile-details">
+        <h2>Welcome, <%= user.name %></h2>
+        <p>Email: <strong id="userEmail"><%= user.email %></strong></p>
+        <p>Phone: <strong><%= user.phone || 'Not provided' %></strong></p>
+        <%if(user.referalCode){%>
+        <p>Referral Code: <strong><%= user.referalCode %></strong> <button class="btn-copy" onclick="copyToClipboard('<%= user.referalCode %>')">Copy</button></p>
+         <%}%>
+        <button class="btn-edit" onclick="window.location.href='/edit-profile'">Edit Profile</button>
+      </div>
+    </div>
+    <div class="address-card" aria-label="User addresses">
+      <div class="address-header">
+        <h3>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5 14.5 7.62 14.5 9 13.38 11.5 12 11.5z"/>
+          </svg>
+          Primary Address
+        </h3>
+      </div>
+      <div class="address-content">
+        <% if (address) { %>
+          <div class="address-item">
+            <p><strong>Name:</strong> <%= address.name %></p>
+            <p><strong>City:</strong> <%= address.city %></p>
+            <p><strong>Landmark:</strong> <%= address.landMark %></p>
+            <p><strong>State:</strong> <%= address.state %></p>
+            <p><strong>Pincode:</strong> <%= address.pincode %></p>
+            <p><strong>Phone:</strong> <%= address.phone %></p>
+            <p><strong>Alternate Phone:</strong> <%= address.altPhone || 'N/A' %></p>
+          </div>
+        <% } else { %>
+          <p>No addresses found. Please add one in the <a href="/addresses">address section</a>.</p>
+        <% } %>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    function copyToClipboard(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        Swal.fire({
+          icon: 'success',
+          title: 'Copied!',
+          text: 'Referral code copied to clipboard!',
+          timer: 1500,
+          showConfirmButton: false
+        });
+      }).catch(err => {
+        console.error('Could not copy text: ', err);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Failed to copy referral code.',
+        });
+      });
+    }
+  </script>
+</body>
+</html>

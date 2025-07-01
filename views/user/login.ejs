@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Skintiq</title>
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Quicksand:wght@300;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        body {
+            display: flex;
+            height: 100vh;
+            background-color: #f3f5f6;
+        }
+        .container {
+            display: flex;
+            width: 100%;
+            max-width: 1200px;
+            margin: auto;
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        .form-section {
+            padding: 40px;
+            width: 50%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .form-section h2 {
+            font-size: 28px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .form-section .input-group {
+            margin: 10px 0;
+            position: relative;
+        }
+        .form-section label {
+            display: block;
+            font-size: 14px;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        .form-section input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .form-section input.error {
+            border-color: #d9534f;
+        }
+        .form-section input.valid {
+            border-color: #5cb85c;
+        }
+        .form-section button {
+            width: 100%;
+            padding: 12px;
+            background-color: #2c3e50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px 0;
+        }
+        .form-section button:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
+        }
+        .form-section button:hover:not(:disabled) {
+            background-color: #34495e;
+        }
+        .google-login {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin: 10px 0;
+            cursor: pointer;
+        }
+        .google-login img {
+            width: 20px;
+            margin-right: 10px;
+        }
+        .google-login span {
+            font-size: 16px;
+            color: #333;
+        }
+        .form-section p {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        .form-section a {
+            color: #2c3e50;
+            text-decoration: none;
+        }
+        .logo-container {
+            width: 50%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: rgba(240, 245, 182, 0.24);
+            padding: 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .logo-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.3), transparent);
+            opacity: 0.5;
+            z-index: 1;
+        }
+        .logo-inner {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            padding: 2.5rem;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            border: 2px solid transparent;
+            border-image: black;
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+        }
+        .logo-inner:hover {
+            transform: scale(1.05);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+        }
+        .logo-title {
+            font-family: 'Libre Baskerville', sans-serif;
+            font-size: 3.5rem;
+            color: #181a18;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            animation: pulse 2s infinite ease-in-out;
+        }
+        .logo-tagline {
+            font-family: 'Quicksand', sans-serif;
+            font-size: 1.3rem;
+            color: #3e4245;
+            margin-top: 0.8rem;
+            letter-spacing: 2.5px;
+            font-style: italic;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+        .warning-message {
+            color: #d9534f;
+            background-color: #f2dede;
+            border: 1px solid #d9534f;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+        .error-message {
+            color: #d9534f;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+        .forgot-password-link {
+            font-size: 0.875rem;
+            color: #007bff;
+            text-decoration: none;
+            display: block;
+            text-align: right;
+            margin: 10px 0;
+        }
+        .forgot-password-link:hover {
+            color: #063f7c;
+            text-decoration: underline;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.9; }
+        }
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            .form-section, .logo-container {
+                width: 100%;
+            }
+            .logo-container {
+                height: 300px;
+                padding: 2rem;
+            }
+            .logo-inner {
+                padding: 1.5rem;
+            }
+            .logo-title {
+                font-size: 2.8rem;
+            }
+            .logo-tagline {
+                font-size: 1.1rem;
+            }
+        }
+        @media (max-width: 480px) {
+            .form-section {
+                padding: 20px;
+            }
+            .logo-container {
+                padding: 1rem;
+            }
+            .logo-inner {
+                padding: 1rem;
+            }
+            .logo-title {
+                font-size: 2.2rem;
+            }
+            .logo-tagline {
+                font-size: 0.95rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="form-section">
+            <h2>Welcome Back</h2>
+            <% if (locals.message && message.length > 0) { %>
+                <div class="warning-message"><%= message %></div>
+            <% } %>
+            <form id="loginForm" action="/login" method="POST">
+                <div class="input-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" placeholder="Email address">
+                    <div class="error-message" id="emailError">Please enter a valid email address</div>
+                </div>
+                <div class="input-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Password">
+                    <div class="error-message" id="passwordError">Password must be at least 8 characters with at least one letter and one number</div>
+                </div>
+                <a href="/forgot-password" class="forgot-password-link">Forgot password?</a>
+                <button type="submit" id="submitBtn" disabled>Log in</button>
+            </form>
+            <div class="google-login">
+                <a href="/auth/google">
+                    <img src="https://www.google.com/favicon.ico" alt="Google Icon">
+                    <span>Login with Google</span>
+                </a>
+            </div>
+            <p>Don't have an account? <a href="/signup">Sign up</a></p>
+        </div>
+        <div class="logo-container">
+            <div class="logo-inner">
+                <h1 class="logo-title">SKINTIQ</h1>
+                <p class="logo-tagline">– the art of boutique skincare –</p>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const isBlocked = urlParams.get('blocked');
+        if (isBlocked === 'true') {
+            Swal.fire({
+                icon: 'error',
+                title: 'Blocked',
+                text: 'Your account has been blocked by the admin.',
+            });
+        }
+        const form = document.getElementById('loginForm');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const submitBtn = document.getElementById('submitBtn');
+        const emailError = document.getElementById('emailError');
+        const passwordError = document.getElementById('passwordError');
+        let isEmailValid = false;
+        let isPasswordValid = false;
+        function validateEmail() {
+            const email = emailInput.value.trim();
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            isEmailValid = emailRegex.test(email);
+            if (email === '') {
+                emailInput.classList.remove('error', 'valid');
+                emailError.style.display = 'none';
+            } else if (isEmailValid) {
+                emailInput.classList.remove('error');
+                emailInput.classList.add('valid');
+                emailError.style.display = 'none';
+            } else {
+                emailInput.classList.remove('valid');
+                emailInput.classList.add('error');
+                emailError.style.display = 'block';
+            }
+            updateSubmitButton();
+        }
+        function validatePassword() {
+            const password = passwordInput.value;
+            const passwordRegex = /^(?=.*\d).{8,}$/;
+            isPasswordValid = passwordRegex.test(password);
+            if (password === '') {
+                passwordInput.classList.remove('error', 'valid');
+                passwordError.style.display = 'none';
+            } else if (isPasswordValid) {
+                passwordInput.classList.remove('error');
+                passwordInput.classList.add('valid');
+                passwordError.style.display = 'none';
+            } else {
+                passwordInput.classList.remove('valid');
+                passwordInput.classList.add('error');
+                passwordError.style.display = 'block';
+            }
+            updateSubmitButton();
+        }
+        function updateSubmitButton() {
+            submitBtn.disabled = !(isEmailValid && isPasswordValid);
+        }
+        emailInput.addEventListener('input', validateEmail);
+        passwordInput.addEventListener('input', validatePassword);
+        form.addEventListener('submit', (e) => {
+            if (!isEmailValid || !isPasswordValid) {
+                e.preventDefault();
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Invalid Input',
+                    text: 'Please correct the errors in the form before submitting.',
+                });
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Order Confirmation</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+    <style>
+      @keyframes bounceIn {
+        0% { transform: scale(0.3); opacity: 0; }
+        50% { transform: scale(1.05); opacity: 1; }
+        70% { transform: scale(0.9); }
+        100% { transform: scale(1); }
+      }
+
+      .animate-bounce-in {
+        animation: bounceIn 0.6s ease-out;
+      }
+
+      .fade-in {
+        animation: fadeIn 1s ease-in-out;
+      }
+
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      .summary-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+      }
+
+      .summary-label {
+        font-weight: 500;
+        color: #6b7280;
+      }
+
+      .summary-value {
+        font-weight: 500;
+        color: #1f2937;
+      }
+
+      .total-label {
+        font-weight: 600;
+        font-size: 1.1rem;
+        color: #1f2937;
+      }
+
+      .total-value {
+        font-weight: 600;
+        font-size: 1.1rem;
+        color: #1f2937;
+      }
+
+      .tooltip {
+        position: relative;
+        cursor: pointer;
+      }
+
+      .tooltip .tooltip-text {
+        visibility: hidden;
+        width: 160px;
+        background-color: #374151;
+        color: white;
+        text-align: center;
+        border-radius: 0.5rem;
+        padding: 0.5rem;
+        position: absolute;
+        z-index: 1;
+        bottom: 125%;
+        left: 50%;
+        transform: translateX(-50%);
+        opacity: 0;
+        transition: opacity 0.3s;
+        font-size: 0.75rem;
+      }
+
+      .tooltip:hover .tooltip-text {
+        visibility: visible;
+        opacity: 1;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100 font-sans leading-relaxed tracking-wide">
+    <div class="container mx-auto p-4 max-w-3xl">
+      
+      <!-- Success Message -->
+      <div class="bg-white rounded-lg shadow-md p-6 text-center fade-in">
+        <% if (error) { %>
+          <div class="text-red-500 mb-4">
+            <p><%= error %></p>
+          </div>
+        <% } else { %>
+          <div class="animate-bounce-in text-green-500 w-16 h-16 mx-auto">
+            <svg class="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <h1 class="text-3xl font-bold text-gray-800 mt-4">Order Placed Successfully!</h1>
+          <p class="text-gray-600 mt-2">Thank you for your purchase. Your order is being processed.</p>
+          <p class="text-gray-700 mt-2 text-sm">Order ID: <span class="font-semibold"><%= orderId %></span></p>
+        <% } %>
+      </div>
+
+      <!-- Order Details -->
+      <% if (orders && orders.length > 0) { %>
+        <div class="bg-white rounded-lg shadow-md p-6 mt-6 fade-in">
+          <h2 class="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">Order Items</h2>
+          <div class="space-y-4">
+            <% orders.forEach(order => { %>
+              <div class="flex items-center border rounded-md p-3 hover:shadow-sm transition">
+                <img src="<%= order.productImages && order.productImages.length > 0 ? order.productImages[0] : '/images/placeholder.png' %>" alt="<%= order.productName || 'Product' %>" class="w-20 h-20 object-cover rounded mr-4">
+                <div>
+                  <h3 class="text-lg font-medium text-gray-800"><%= order.productName || 'Unknown Product' %></h3>
+                  <p class="text-sm text-gray-600">Qty: <%= order.quantity %></p>
+                  <p class="text-sm text-gray-600">Price: ₹<%= order.price.toFixed(2) %></p>
+                  <p class="text-sm text-gray-600 font-semibold">Total: ₹<%= order.totalPrice.toFixed(2) %></p>
+                </div>
+              </div>
+            <% }) %>
+          </div>
+        </div>
+
+        <!-- Shipping & Payment -->
+        <div class="bg-white rounded-lg shadow-md p-6 mt-6 fade-in">
+          <h2 class="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">Shipping & Payment</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Shipping Address -->
+            <div>
+              <h3 class="text-lg font-medium text-gray-700 mb-1">Shipping Address</h3>
+              <% if (address) { %>
+                <p class="text-gray-600 text-sm"><%= address.name || 'N/A' %></p>
+                <p class="text-gray-600 text-sm"><%= address.address || 'N/A' %></p>
+                <p class="text-gray-600 text-sm"><%= address.city || '' %>, <%= address.state || '' %> <%= address.pincode || '' %></p>
+                <p class="text-gray-600 text-sm">Phone: <%= address.phone || 'N/A' %></p>
+              <% } else { %>
+                <p class="text-gray-600 text-sm">No address provided</p>
+              <% } %>
+            </div>
+            <!-- Payment Method -->
+            <div>
+              <h3 class="text-lg font-medium text-gray-700 mb-1">Payment Method</h3>
+              <p class="text-gray-600 text-sm"><%= paymentMethod || 'N/A' %></p>
+              <h3 class="text-lg font-medium text-gray-700 mt-4 mb-2">Order Summary</h3>
+              <div class="summary-item">
+                <span class="summary-label">Subtotal:</span>
+                <span class="summary-value">₹<%= totalPrice.toFixed(2) %></span>
+              </div>
+              <div class="summary-item">
+                <span class="tooltip summary-label">
+                  Discount
+                  <span class="tooltip-text">10% off for orders above ₹1500</span>
+                </span>
+                <span class="summary-value">₹<%= discount.toFixed(2) %></span>
+              </div>
+              <div class="summary-item">
+                <span class="summary-label">Coupon Discount:</span>
+                <span class="summary-value">₹<%= couponDiscount.toFixed(2) %></span>
+              </div>
+              <div class="summary-item">
+                <span class="tooltip summary-label">
+                  GST
+                  <span class="tooltip-text">₹10 for orders above ₹2000</span>
+                </span>
+                <span class="summary-value">₹<%= gst.toFixed(2) %></span>
+              </div>
+              <div class="summary-item">
+                <span class="tooltip summary-label">
+                  Shipping
+                  <span class="tooltip-text">Fixed ₹20 shipping charge per order</span>
+                </span>
+                <span class="summary-value">₹20.00</span>
+              </div>
+              <div class="summary-item mt-2 pt-2 border-t border-gray-200">
+                <span class="total-label">Order Total:</span>
+                <span class="total-value">₹<%= totalAmount.toFixed(2) %></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% } %>
+      
+      <!-- Continue Shopping and View Order Details Buttons -->
+      <div class="text-center mt-8">
+        <a href="/shop" class="inline-block bg-gradient-to-r from-green-500 to-blue-500 text-white px-6 py-2 rounded-md shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105">
+          Continue Shopping
+        </a>
+        <a href="/orders" class="inline-block bg-gradient-to-r from-blue-500 to-purple-500 text-white px-6 py-2 rounded-md shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 ml-4">
+          View Orders 
+        </a>
+      </div>
+    </div>
+  </body>
+</html>

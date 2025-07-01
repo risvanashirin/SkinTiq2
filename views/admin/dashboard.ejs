@@ -1,0 +1,500 @@
+<%- include("../partials/admin/header") %>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - Skintiq</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 min-h-screen font-sans">
+  <style>
+    :root {
+      --light-gray: #dfe6e9;
+      --background-color: #f5f6fa;
+      --white: #ffffff;
+      --shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+      --transition: all 0.3s ease;
+    }
+    body {
+      margin: 0;
+      margin-left: 250px;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      background-color: #f3f4f6;
+    }
+    body.modal-open {
+    overflow: auto !important;
+}
+    #dashboardForm .grid { align-items: start; }
+    #dashboardForm label { font-size: 0.9rem; margin-bottom: 0.5rem; }
+    #dashboardForm select { font-size: 0.9rem; padding: 0.5rem; max-width: 100%; box-sizing: border-box; }
+    .overflow-x-auto table { width: 100%; border-collapse: collapse; }
+    .overflow-x-auto th, .overflow-x-auto td { padding: 0.75rem 0.5rem; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px; }
+    .overflow-x-auto th { font-size: 0.85rem; }
+    .chart-container { position: relative; }
+    .loading-spinner { display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); border: 4px solid rgba(59, 130, 246, 0.2); border-top: 4px solid #3b82f6; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
+    .point-glow { filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.5)); }
+    @media (max-width: 768px) {
+      body { margin-left: 0; }
+      #dashboardForm .mt-4.flex.justify-end.space-x-3 { flex-direction: column; gap: 0.5rem; align-items: stretch; }
+      .overflow-x-auto th, .overflow-x-auto td { padding: 0.5rem 0.3rem; font-size: 0.85rem; max-width: 100px; }
+      .text-3xl { font-size: 1.5rem; }
+      .text-xl { font-size: 1.25rem; }
+      .container.mx-auto.px-4.py-8 { padding: 0.75rem; }
+    }
+    @media (max-width: 576px) {
+      .overflow-x-auto th, .overflow-x-auto td { padding: 0.4rem 0.2rem; font-size: 0.8rem; max-width: 80px; }
+      .text-3xl { font-size: 1.25rem; }
+      .text-xl { font-size: 1.1rem; }
+      .container.mx-auto.px-4.py-8 { padding: 0.5rem; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .loading-spinner, .point-glow, canvas { animation: none !important; transition: none !important; }
+    }
+  </style>
+
+  <div class="container mx-auto px-4 py-8">
+    <!-- Chart Section -->
+    <div class="bg-white rounded-xl shadow-lg mb-6">
+      <div class="p-6 border-b">
+        <h1 class="text-3xl font-bold text-gray-800">Admin Dashboard</h1>
+      </div>
+      <div class="p-6">
+        <form id="dashboardForm" class="space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1" for="reportType">Report Type</label>
+              <select name="reportType" id="reportType" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700">
+                <option value="daily" <%= reportType === 'daily' ? 'selected' : '' %>>Daily</option>
+                <option value="weekly" <%= reportType === 'weekly' ? 'selected' : '' %>>Weekly</option>
+                <option value="monthly" <%= reportType === 'monthly' ? 'selected' : '' %>>Monthly</option>
+                <option value="yearly" <%= reportType === 'yearly' ? 'selected' : '' %>>Yearly</option>
+                <option value="custom" <%= reportType === 'custom' ? 'selected' : '' %>>Custom Range</option>
+              </select>
+            </div>
+            <div class="custom-dates <%= reportType === 'custom' ? '' : 'hidden' %>">
+              <label class="block text-sm font-medium text-gray-700 mb-1" for="startDate">Start Date</label>
+              <input type="date" name="startDate" id="startDate" value="<%= startDate || '' %>" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700">
+            </div>
+            <div class="custom-dates <%= reportType === 'custom' ? '' : 'hidden' %>">
+              <label class="block text-sm font-medium text-gray-700 mb-1" for="endDate">End Date</label>
+              <input type="date" name="endDate" id="endDate" value="<%= endDate || '' %>" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700">
+            </div>
+          </div>
+          <div class="flex justify-end space-x-3 mt-4">
+            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+              Update Chart
+            </button>
+          </div>
+        </form>
+        <div id="chartError" class="text-red-500 mt-4 hidden">Error loading chart data: <span id="chartErrorMessage">Please try again.</span></div>
+        <div class="chart-container" style="position: relative; height: 400px; width: 100%;">
+          <div class="loading-spinner" id="chartLoading"></div>
+          <canvas id="salesChart" style="max-height: 400px; width: 100%;" aria-label="Sales revenue chart over selected period"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top 10 Products -->
+    <div class="bg-white rounded-xl shadow-lg mb-6">
+      <div class="p-6 border-b">
+        <h2 class="text-xl font-semibold text-gray-800">Top 10 Best Selling Products</h2>
+      </div>
+      <div class="p-6">
+        <% if (topProducts && topProducts.length > 0) { %>
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity Sold</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Revenue</th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-200">
+                <% topProducts.forEach(product => { %>
+                  <tr>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><%= product.productName %></td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><%= product.totalSold %></td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₹<%= Math.round(product.revenue).toLocaleString() %></td>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+        <% } else { %>
+          <p class="text-gray-600 text-center py-4">No product data available.</p>
+        <% } %>
+      </div>
+    </div>
+
+    <!-- Top Categories -->
+    <div class="bg-white rounded-xl shadow-lg mb-6">
+      <div class="p-6 border-b">
+        <h2 class="text-xl font-semibold text-gray-800">Top 10 Best Selling Categories</h2>
+      </div>
+      <div class="p-6">
+        <% if (topCategories && topCategories.length > 0) { %>
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity Sold</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Revenue</th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-200">
+                <% topCategories.forEach(category => { %>
+                  <tr>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><%= category.name %></td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><%= category.totalSold %></td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₹<%= Math.round(category.revenue).toLocaleString() %></td>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+        <% } else { %>
+          <p class="text-gray-600 text-center py-4">No category data available.</p>
+        <% } %>
+      </div>
+    </div>
+
+    <!-- Top Brands -->
+    <div class="bg-white rounded-xl shadow-lg mb-6">
+      <div class="p-6 border-b">
+        <h2 class="text-xl font-semibold text-gray-800">Top 10 Best Selling Brands</h2>
+      </div>
+      <div class="p-6">
+        <% if (topBrands && topBrands.length > 0) { %>
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Brand</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity Sold</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Revenue</th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-200">
+                <% topBrands.forEach(brand => { %>
+                  <tr>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><%= brand.brandName %></td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><%= brand.totalSold %></td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₹<%= Math.round(brand.revenue).toLocaleString() %></td>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+        <% } else { %>
+          <p class="text-gray-600 text-center py-4">No brand data available.</p>
+        <% } %>
+      </div>
+    </div>
+
+    <!-- Ledger Book -->
+    <div class="bg-white rounded-xl shadow-lg">
+      <div class="p-6 border-b">
+        <h2 class="text-xl font-semibold text-gray-800">Ledger Book</h2>
+      </div>
+      <div class="p-6">
+        <div class="flex justify-end space-x-3 mb-4">
+          <button onclick="generateLedger('pdf')" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+            Download Ledger Book
+          </button>
+        </div>
+        <div id="ledgerError" class="text-red-500 hidden mb-4">Error loading ledger data. Please try again.</div>
+        <div class="overflow-x-auto">
+          <table id="ledgerTable" class="w-full hidden">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order ID</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Discount</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200"></tbody>
+          </table>
+          <p id="noLedgerData" class="text-gray-600 text-center py-4 hidden">No ledger data available.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
+  <script>
+    // Load Chart.js with fallback to local copy if CDN fails
+    let chartJsLoaded = false;
+    function loadChartJs(callback) {
+      const script = document.createElement('script');
+      script.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js';
+      script.onload = () => {
+        chartJsLoaded = true;
+        // Register annotation plugin
+        if (window.Chart && window['chartjs-plugin-annotation']) {
+          Chart.register(window['chartjs-plugin-annotation'].AnnotationPlugin);
+          console.log('Chart.js and annotation plugin loaded successfully');
+        } else {
+          console.error('Annotation plugin not available');
+        }
+        callback();
+      };
+      script.onerror = () => {
+        console.error('Failed to load Chart.js from CDN, attempting local copy');
+        const fallbackScript = document.createElement('script');
+        fallbackScript.src = '/js/chart.umd.min.js';
+        fallbackScript.onload = () => {
+          chartJsLoaded = true;
+          if (window.Chart && window['chartjs-plugin-annotation']) {
+            Chart.register(window['chartjs-plugin-annotation'].AnnotationPlugin);
+            console.log('Chart.js and annotation plugin loaded from fallback');
+          } else {
+            console.error('Annotation plugin not available on fallback');
+          }
+          callback();
+        };
+        fallbackScript.onerror = () => {
+          console.error('Failed to load Chart.js');
+          document.getElementById('chartError').classList.remove('hidden');
+          document.getElementById('chartErrorMessage').textContent = 'Chart library failed to load.';
+        };
+        document.head.appendChild(fallbackScript);
+      };
+      document.head.appendChild(script);
+    }
+
+    // Disable animations for reduced motion
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      if (window.Chart) Chart.defaults.animation = false;
+    }
+
+    // Chart filter handling
+    document.querySelector('select[name="reportType"]').addEventListener('change', function(e) {
+      const customDates = document.querySelectorAll('.custom-dates');
+      customDates.forEach(el => el.classList.toggle('hidden', e.target.value !== 'custom'));
+    });
+
+    // Form submission for chart update
+    document.getElementById('dashboardForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      await fetchChartData();
+      await fetchLedgerData();
+    });
+
+    // Fetch chart data
+    async function fetchChartData() {
+      const chartError = document.getElementById('chartError');
+      const chartErrorMessage = document.getElementById('chartErrorMessage');
+      const chartLoading = document.getElementById('chartLoading');
+      chartError.classList.add('hidden');
+      chartLoading.style.display = 'block';
+      try {
+        const formData = new FormData(document.getElementById('dashboardForm'));
+        const params = new URLSearchParams(formData);
+        console.log('Fetching chart data with params:', params.toString());
+        const response = await fetch(`/admin/api/chart-data?${params.toString()}`, {
+          headers: { 'Accept': 'application/json' }
+        });
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('Chart data fetch failed:', response.status, errorText);
+          throw new Error(`HTTP error: ${response.status} - ${errorText}`);
+        }
+        const data = await response.json();
+        console.log('Chart data received:', data);
+        if (data.error) {
+          console.error('API returned error:', data.error);
+          throw new Error(data.error);
+        }
+        if (!data.labels || !data.values || data.labels.length === 0) {
+          console.warn('Chart data missing or empty:', data);
+          updateChartData({ labels: ['No Data'], values: [0] });
+          chartErrorMessage.textContent = 'No sales data available for the selected period.';
+          chartError.classList.remove('hidden');
+          return;
+        }
+        updateChartData(data);
+      } catch (error) {
+        console.error('Error fetching chart data:', error.message, error.stack);
+        chartErrorMessage.textContent = error.message || 'Failed to fetch chart data.';
+        chartError.classList.remove('hidden');
+      } finally {
+        chartLoading.style.display = 'none';
+      }
+    }
+
+    // Update chart
+    function updateChartData(data) {
+      const canvas = document.getElementById('salesChart');
+      if (!canvas || !canvas.getContext('2d')) {
+        console.error('Canvas or context not found');
+        document.getElementById('chartError').classList.remove('hidden');
+        document.getElementById('chartErrorMessage').textContent = 'Chart initialization failed.';
+        return;
+      }
+      const ctx = canvas.getContext('2d');
+      // Create gradient fill
+      const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+      gradient.addColorStop(0, 'rgba(59, 130, 246, 0.3)');
+      gradient.addColorStop(1, 'rgba(59, 130, 246, 0.05)');
+
+      // Destroy existing chart safely
+      if (window.salesChart && typeof window.salesChart.destroy === 'function') {
+        console.log('Destroying existing chart');
+        window.salesChart.destroy();
+        window.salesChart = null;
+      }
+
+      try {
+        console.log('Creating new chart with data:', data);
+        window.salesChart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: data.labels,
+            datasets: [{
+              label: 'Sales (₹)',
+              data: data.values,
+              borderColor: '#3b82f6',
+              backgroundColor: gradient,
+              fill: true,
+              tension: 0.4,
+              pointRadius: 4,
+              pointHoverRadius: 8,
+              pointBackgroundColor: '#ffffff',
+              pointBorderColor: '#3b82f6',
+              pointBorderWidth: 2,
+              pointHoverBackgroundColor: '#3b82f6',
+              pointHoverBorderColor: '#ffffff',
+              pointStyle: 'circle'
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: {
+              duration: 1000,
+              easing: 'easeOutQuart'
+            },
+            scales: {
+              x: {
+                title: { display: true, text: 'Date' },
+                ticks: { maxRotation: 45, minRotation: 45 }
+              },
+              y: {
+                title: { display: true, text: 'Revenue' },
+                beginAtZero: true,
+                ticks: {
+                  callback: function(value) { return '₹' + Math.round(value).toLocaleString(); }
+                }
+              }
+            },
+            plugins: {
+              legend: { display: true, position: 'top' },
+              tooltip: {
+                callbacks: {
+                  label: function(context) { return `₹${Math.round(context.parsed.y).toLocaleString()}`; }
+                }
+              },
+              annotation: {
+                annotations: data.values.length > 0 && data.values.some(v => v > 0) ? {
+                  peak: {
+                    type: 'point',
+                    xValue: data.labels[data.values.indexOf(Math.max(...data.values))],
+                    yValue: Math.max(...data.values),
+                    backgroundColor: '#ef4444',
+                    radius: 10,
+                    label: {
+                      enabled: true,
+                      content: 'Peak Sales',
+                      position: 'top',
+                      backgroundColor: 'rgba(239, 68, 68, 0.8)',
+                      color: '#ffffff',
+                      padding: 6
+                    }
+                  }
+                } : {}
+              }
+            },
+            interaction: {
+              mode: 'nearest',
+              intersect: false
+            }
+          }
+        });
+        console.log('Chart created successfully');
+      } catch (error) {
+        console.error('Error creating chart:', error.message, error.stack);
+        document.getElementById('chartError').classList.remove('hidden');
+        document.getElementById('chartErrorMessage').textContent = 'Chart rendering failed: ' + error.message;
+      }
+    }
+
+    // Fetch ledger data
+    async function fetchLedgerData() {
+      const ledgerTable = document.getElementById('ledgerTable');
+      const ledgerBody = ledgerTable.querySelector('tbody');
+      const noLedgerData = document.getElementById('noLedgerData');
+      const ledgerError = document.getElementById('ledgerError');
+      ledgerTable.classList.add('hidden');
+      noLedgerData.classList.add('hidden');
+      ledgerError.classList.add('hidden');
+      try {
+        const formData = new FormData(document.getElementById('dashboardForm'));
+        const params = new URLSearchParams(formData);
+        console.log('Fetching ledger data with params:', params.toString());
+        const response = await fetch(`/admin/api/ledger?${params.toString()}&format=json`, {
+          headers: { 'Accept': 'application/json' }
+        });
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('Ledger fetch failed:', response.status, errorText);
+          throw new Error(`HTTP error: ${response.status} - ${errorText}`);
+        }
+        const orders = await response.json();
+        ledgerBody.innerHTML = '';
+        if (orders && orders.length > 0) {
+          orders.forEach(order => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-600">${new Date(order.invoiceDate).toISOString().split('T')[0]}</td>
+              <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-600">${order.orderId.slice(-12)}</td>
+              <td class="px-4 py-2 text-sm text-gray-600">${order.product?.productName || 'Unknown'}</td>
+              <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-600">₹${Math.round(order.finalAmount).toLocaleString()}</td>
+              <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-600">₹${Math.round(order.discount).toLocaleString()}</td>
+            `;
+            ledgerBody.appendChild(row);
+          });
+          ledgerTable.classList.remove('hidden');
+        } else {
+          noLedgerData.classList.remove('hidden');
+        }
+      } catch (error) {
+        console.error('Error fetching ledger data:', error.message, error.stack);
+        ledgerError.classList.remove('hidden');
+      }
+    }
+
+    // Ledger book download
+    function generateLedger() {
+      const formData = new FormData(document.getElementById('dashboardForm'));
+      const params = new URLSearchParams(formData);
+      params.append('format', 'pdf');
+      console.log('Generating ledger PDF with params:', params.toString());
+      window.location.href = `/admin/api/ledger?${params.toString()}`;
+    }
+
+    // Initialize dashboard
+    function initializeDashboard() {
+      console.log('Initializing dashboard...');
+      fetchChartData();
+      fetchLedgerData();
+    }
+
+    // Load Chart.js and initialize
+    loadChartJs(initializeDashboard);
+  </script>
+<%- include("../partials/admin/footer") %>
+</body>

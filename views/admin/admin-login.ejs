@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin-Login</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <style>
+    body,
+    html {
+      height: 100%;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #2C3E50; /* Specified dark blue background */
+      font-family: 'Nunito Sans', sans-serif;
+      color: #FFFFFF;
+    }
+    .login-container {
+      width: 100%;
+      max-width: 400px; /* Compact width for better focus */
+      padding: 30px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+      background-color: #2C3E50; /* Consistent dark blue for container */
+      border-radius: 12px;
+      margin: 20px;
+      border: 1px solid #FFFFFF; /* White border for contrast */
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    .form-group label {
+      color: #FFFFFF;
+      font-weight: 600;
+      margin-bottom: 8px;
+      display: block;
+    }
+    .form-control {
+      background-color: #FFFFFF;
+      color: #2C3E50;
+      border: 1px solid #FFFFFF;
+      border-radius: 6px;
+      padding: 10px;
+    }
+    .form-control:focus {
+      border-color: #FFFFFF;
+      box-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+      outline: none;
+    }
+    .btn-primary {
+      background-color: #a8995b;  /* Updated color */
+  color: #2C3E50;
+  border: none;
+  border-radius: 6px;
+  padding: 12px;
+  font-weight: 600;
+  font-size: 12px;           /* Added font size */
+  width: 100%;
+  transition: background-color 0.3s ease;
+    }
+    .btn-primary:hover {
+        background-color: #92884f; /* Slightly lighter for hover */
+    }
+    .error-message {
+      color: #F87171; /* Light red for errors */
+      font-size: 0.875rem;
+      margin-top: 5px;
+    }
+    .alert-danger {
+      background-color: #7F1D1D;
+      color: #FFFFFF;
+      border: none;
+      border-radius: 6px;
+      padding: 10px;
+      margin-bottom: 20px;
+    }
+    .text-center {
+      color: #FFFFFF;
+      font-weight: 700;
+      margin-bottom: 25px;
+      text-align: center;
+    }
+    
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <h2 class="text-center">Admin Login</h2>
+    <% if (message) { %>
+    <div class="alert alert-danger text-center"><%= message %></div>
+    <% } %>
+    <form id="adminLoginForm" method="post" action="/admin/login">
+      <div class="form-group">
+        <label for="adminEmail">Email address</label>
+        <input
+          type="email"
+          class="form-control"
+          id="adminEmail"
+          name="email"
+          required
+        />
+        <div id="emailError" class="error-message"></div>
+      </div>
+      <div class="form-group">
+        <label for="adminPassword">Password</label>
+        <input
+          type="password"
+          class="form-control"
+          id="adminPassword"
+          name="password"
+          required
+        />
+        <div id="passwordError" class="error-message"></div>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">Log In</button>
+    </form>
+  </div>
+  <script src="/js/jquery.min.js"></script>
+  <script src="/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const adminLoginForm = document.getElementById("adminLoginForm");
+      const emailField = document.getElementById("adminEmail");
+      const passwordField = document.getElementById("adminPassword");
+      const emailError = document.getElementById("emailError");
+      const passwordError = document.getElementById("passwordError");
+
+      adminLoginForm.addEventListener("submit", function (event) {
+        let isValid = true;
+        const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+        if (!emailPattern.test(emailField.value)) {
+          emailError.textContent = "Invalid email format";
+          isValid = false;
+        } else {
+          emailError.textContent = "";
+        }
+        if (passwordField.value.length < 8) {
+          passwordError.textContent =
+            "Password should contain at least 8 characters";
+          isValid = false;
+        } else {
+          passwordError.textContent = "";
+        }
+
+        if (!isValid) {
+          event.preventDefault();
+        }
+      });
+    });
+  </script>
+</body>
+</html>

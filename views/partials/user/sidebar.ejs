@@ -1,0 +1,345 @@
+<style>
+  body {
+    overflow-x: hidden; /* Prevent horizontal overflow */
+  }
+  .sidebar-partial {
+    background: linear-gradient(145deg, #ffffff, #f5f5f5);
+    border: none;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    user-select: none;
+    width: min(250px, 80vw);
+    font-family: 'Poppins', sans-serif;
+    position: fixed;
+    top: 4vh;
+    left: 0;
+    height: calc(92vh - 2rem);
+    z-index: 50;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    will-change: transform; /* Optimize animation */
+  }
+  .sidebar-partial:hover {
+    box-shadow: 0 6px 16px rgba(126, 107, 0, 0.15);
+    transform: translateY(-2px);
+  }
+  .sidebar-partial nav {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .sidebar-partial nav a {
+    text-decoration: none;
+    font-weight: 600;
+    color: #2a2a2a;
+    padding: 0.75rem 1.25rem;
+    border-radius: 8px;
+    border: none;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: #fff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  }
+  .sidebar-partial nav a:hover,
+  .sidebar-partial nav a.active {
+    background: linear-gradient(90deg, #7e6b00, #a68c00);
+    color: #fff;
+    box-shadow: 0 4px 10px rgba(126, 107, 0, 0.3);
+  }
+  .sidebar-partial nav a svg {
+    fill: #2a2a2a;
+    transition: fill 0.3s ease;
+    width: 18px;
+    height: 18px;
+  }
+  .sidebar-partial nav a:hover svg,
+  .sidebar-partial nav a.active svg {
+    fill: #fff;
+  }
+  .sidebar-partial nav a[href="/logout"] {
+    color: #b34747;
+  }
+  .sidebar-partial nav a[href="/logout"]:hover,
+  .sidebar-partial nav a[href="/logout"].active {
+    background: linear-gradient(90deg, #b34747, #d9534f);
+    color: #fff;
+    box-shadow: 0 4px 10px rgba(185, 71, 71, 0.3);
+  }
+  .sidebar-partial nav a[href="/logout"] svg {
+    fill: #b34747;
+  }
+  .sidebar-partial nav a[href="/logout"]:hover svg,
+  .sidebar-partial nav a[href="/logout"].active svg {
+    fill: #fff;
+  }
+  .sidebar-close {
+    display: none;
+    color: #1e1b1b;
+    border: none;
+    border-radius: 8px;
+    padding: 0.6rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 6px rgba(185, 71, 71, 0.2);
+    transition: all 0.3s ease;
+  }
+  .sidebar-close:hover {
+    box-shadow: 0 4px 10px rgba(185, 71, 71, 0.3);
+  }
+  .sidebar-close svg {
+    width: 18px;
+    height: 18px;
+    fill: #1a1717;
+  }
+  @media (max-width: 768px) {
+    .sidebar-partial {
+      transform: translateX(-100%); /* Ensure fully hidden */
+      width: min(220px, 70vw);
+      padding: 1.5rem;
+      border-radius: 10px;
+      top: 10vh;
+      height: calc(90vh - 2rem);
+    }
+    .sidebar-partial.open {
+      transform: translateX(0);
+    }
+    .sidebar-partial nav a {
+      font-size: 0.9rem;
+      padding: 0.6rem 1rem;
+    }
+    .sidebar-partial nav a svg {
+      width: 16px;
+      height: 16px;
+    }
+    .sidebar-close {
+      display: block;
+    }
+  }
+  @media (max-width: 480px) {
+    .sidebar-partial {
+      width: min(180px, 65vw);
+      padding: 1rem;
+      border-radius: 8px;
+      top: 8vh;
+      height: calc(88vh - 2rem);
+    }
+    .sidebar-partial nav a {
+      font-size: 0.85rem;
+      padding: 0.5rem 0.8rem;
+    }
+    .sidebar-partial nav a svg {
+      width: 14px;
+      height: 14px;
+    }
+    .sidebar-close {
+      padding: 0.5rem;
+      font-size: 0.8rem;
+    }
+  }
+  @media (max-width: 320px) {
+    .sidebar-partial {
+      width: min(160px, 60vw);
+      padding: 0.8rem;
+      border-radius: 6px;
+    }
+    .sidebar-partial nav a {
+      font-size: 0.8rem;
+      padding: 0.4rem 0.6rem;
+    }
+    .sidebar-partial nav a svg {
+      width: 12px;
+      height: 12px;
+    }
+  }
+  .sidebar-toggle {
+    display: none;
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    z-index: 60;
+    background: linear-gradient(90deg, #7e6b00, #a68c00);
+    color: #fff;
+    padding: 0.6rem;
+    border-radius: 8px;
+    border: none;
+    box-shadow: 0 2px 6px rgba(126, 107, 0, 0.2);
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+  .sidebar-toggle:hover {
+    background: linear-gradient(90deg, #655700, #8c7500);
+    box-shadow: 0 4px 10px rgba(126, 107, 0, 0.3);
+  }
+  .sidebar-toggle svg {
+    width: 20px;
+    height: 20px;
+    fill: #fff;
+  }
+  @media (max-width: 768px) {
+    .sidebar-toggle {
+      display: block;
+    }
+    .sidebar-partial.open ~ .sidebar-toggle {
+      display: none;
+    }
+    .profile-container {
+      margin-left: 0;
+      transition: margin-left 0.3s ease;
+      padding-left: 1rem;
+    }
+    .profile-container.sidebar-open {
+      margin-left: min(220px, 70vw);
+    }
+  }
+  @media (max-width: 480px) {
+    .profile-container.sidebar-open {
+      margin-left: min(180px, 65vw);
+    }
+    .sidebar-toggle {
+      padding: 0.5rem;
+    }
+    .sidebar-toggle svg {
+      width: 18px;
+      height: 18px;
+    }
+  }
+  @media (max-width: 320px) {
+    .profile-container.sidebar-open {
+      margin-left: min(160px, 60vw);
+    }
+  }
+</style>
+
+<aside class="sidebar-partial" aria-label="User navigation" id="sidebar">
+  <button class="sidebar-close" aria-label="Close sidebar">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+    </svg>
+  </button>
+  <nav>
+    <a href="/userProfile" tabindex="0" title="Profile">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+      </svg>
+      Profile
+    </a>
+    <a href="/shop" tabindex="0" title="Shop">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M20 6h-2.18c.11-.31.18-.65.18-1 0-1.66-1.34-3-3-3-1.05 0-1.96.54-2.5 1.35l-.5.67-.5-.68C10.96 2.54 10.05 2 9 2 7.34 2 6 3.34 6 5c0 .35.07.69.18 1H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-5-2c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm-6 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm11 15H4V8h16v11z"/>
+      </svg>
+      Shop
+    </a>
+    <a href="/orders" tabindex="0" title="Orders">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M3 6h18v2H3V6zm0 5h18v2H3v-2zm0 5h18v2H3v-2z"/>
+      </svg>
+      Orders
+    </a>
+    <a href="/addresses" tabindex="0" title="Address">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5 14.5 7.62 14.5 9 13.38 11.5 12 11.5z"/>
+      </svg>
+      Address
+    </a>
+    <a href="/cart" tabindex="0" title="Cart">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-1.99.9-1.99 2S15.9 22 17 22s2-.9 2-2-.9-2-2-2zM7.16 14h9.48l1.61-7H6.6l.56 4h9.15"/>
+      </svg>
+      Cart
+    </a>
+    <a href="/checkout" tabindex="0" title="Checkout">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M20 7H7.83l5.58-5.59L12 1 4 9l8 8 1.41-1.41L7.83 11H20v-4z"/>
+      </svg>
+      Checkout
+    </a>
+    <a href="/edit-profile" tabindex="0" title="Edit Profile">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M14.06 9.02l.92.92L6.91 17H6v-.91l8.06-7.07m4.28-3.77c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 1.41 1.41 1.83-1.83c.39-.39.39-1.02 0-1.41M3 17.25V21h3.75l11.06-11.06-3.75-3.75L3 17.25z"/>
+      </svg>
+      Edit Profile
+    </a>
+    <a href="/wallet" tabindex="0" title="Wallet">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M21 7H6c-1.1 0-2 .9-2 2v6h17V7zm0-4H5v2h16V3zM3 17h18v2H3z"/>
+      </svg>
+      Wallet
+    </a>
+    <a href="/logout" tabindex="0" title="Logout" style="color: #b34747;">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M16 13v-2H7V8l-5 4 5 4v-3h9zM18 19h3v-14h-3v3h-2v-5h7v18h-7v-5h2v3z"/>
+      </svg>
+      Logout
+    </a>
+  </nav>
+</aside>
+
+<button class="sidebar-toggle" aria-label="Toggle sidebar">
+  <svg viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M3 6h18v2H3V6zm0 5h18v2H3v-2zm0 5h18v2H3v-2z"/>
+  </svg>
+</button>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const navLinks = document.querySelectorAll('.sidebar-partial nav a');
+    const currentPath = window.location.pathname;
+    const toggleButton = document.querySelector('.sidebar-toggle');
+    const closeButton = document.querySelector('.sidebar-close');
+    const sidebar = document.querySelector('.sidebar-partial');
+    const profileContainer = document.querySelector('.profile-container');
+
+    // Ensure sidebar is hidden and toggle is visible on load for mobile
+    if (window.innerWidth <= 768) {
+      sidebar.classList.remove('open');
+      profileContainer.classList.remove('sidebar-open');
+      toggleButton.style.display = 'block'; // Ensure toggle is visible
+    }
+
+    // Set active link based on current path
+    navLinks.forEach(link => {
+      link.classList.remove('active');
+      if (link.getAttribute('href') === currentPath) {
+        link.classList.add('active');
+      }
+    });
+
+    // Toggle sidebar open
+    if (toggleButton && sidebar && profileContainer) {
+      toggleButton.addEventListener('click', () => {
+        sidebar.classList.add('open');
+        profileContainer.classList.add('sidebar-open');
+        toggleButton.style.display = 'none'; // Hide toggle immediately
+      });
+    }
+
+    // Close sidebar
+    if (closeButton && sidebar && profileContainer) {
+      closeButton.addEventListener('click', () => {
+        sidebar.classList.remove('open');
+        profileContainer.classList.remove('sidebar-open');
+        toggleButton.style.display = 'block'; // Show toggle immediately
+        // Force layout recalculation to avoid transition delay
+        sidebar.offsetHeight; // Trigger reflow
+      });
+    }
+
+    // Handle window resize to maintain consistent state
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 768) {
+        sidebar.classList.remove('open');
+        profileContainer.classList.remove('sidebar-open');
+        toggleButton.style.display = 'none';
+      } else {
+        if (!sidebar.classList.contains('open')) {
+          toggleButton.style.display = 'block';
+        }
+      }
+    });
+  });
+</script>

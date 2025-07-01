@@ -1,0 +1,229 @@
+<%- include("../../views/partials/user/header.ejs") %>
+
+<style>
+  /* Wishlist Container */
+  .wishlist-container {
+    margin: 2rem auto;
+    padding: 2rem;
+  }
+
+  /* Wishlist Heading */
+  .wishlist-container h2 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #333;
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  /* Wishlist Item */
+  .wishlist-item {
+    border: none;
+    transition: transform 0.3s;
+    margin-bottom: 1rem;
+  }
+  .wishlist-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  }
+  .wishlist-item img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 5px;
+  }
+  .wishlist-item .details {
+    flex-grow: 1;
+    margin-left: 1.5rem;
+    padding: 1rem;
+  }
+  .wishlist-item .details h5 {
+    font-size: 1.1rem;
+    color: #333;
+    margin-bottom: 0.5rem;
+  }
+  .wishlist-item .details p {
+    font-size: 0.9rem;
+    color: #666;
+    margin: 0.3rem 0;
+  }
+
+  /* Buttons */
+  .btn-add-to-cart {
+    font-size: 14px;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+  }
+  .btn-add-to-cart:disabled {
+    background-color: #6c757d;
+    border-color: #6c757d;
+    cursor: not-allowed;
+  }
+  .btn-remove {
+    font-size: 14px;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    margin-left: 0.5rem;
+  }
+
+  /* Alert */
+  .alert-info {
+    background: #f8f9fa;
+    color: #666;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 1rem;
+    text-align: center;
+    font-size: 1rem;
+  }
+
+  /* Responsive Adjustments */
+  @media (max-width: 768px) {
+    .wishlist-item .details h5 {
+      font-size: 1rem;
+    }
+    .wishlist-item img {
+      width: 80px;
+      height: 80px;
+    }
+    .btn-add-to-cart,
+    .btn-remove {
+      padding: 0.4rem 0.8rem;
+      font-size: 13px;
+    }
+  }
+  @media (max-width: 576px) {
+    .wishlist-item {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .wishlist-item img {
+      width: 100%;
+      height: auto;
+      max-width: 150px;
+    }
+    .wishlist-item .details {
+      margin-left: 0;
+      margin-top: 1rem;
+    }
+    .btn-add-to-cart,
+    .btn-remove {
+      width: 100%;
+      margin: 0.5rem 0;
+    }
+  }
+</style>
+
+<section class="ftco-section bg-light">
+  <div class="container wishlist-container">
+    <h2>Your Wishlist</h2>
+    <% if (error) { %>
+      <div class="alert alert-info">
+        <h3><%= error %></h3>
+      </div>
+    <% } else if (wishlist && wishlist.products && wishlist.products.length > 0) { %>
+      <% wishlist.products.forEach(item => { %>
+        <% if (item.ProductId) { %>
+          <div class="wishlist-item card">
+            <div class="d-flex align-items-center p-3">
+              <img src="<%= item.ProductId.productImage && item.ProductId.productImage[0] ? item.ProductId.productImage[0] : '/images/default-placeholder.png' %>" alt="<%= item.ProductId.productName || 'Product' %>">
+              <div class="details">
+                <h5><%= item.ProductId.productName || 'Unknown Product' %></h5>
+                <p>Price: ₹<%= item.ProductId.salePrice ? item.ProductId.salePrice.toFixed(2) : 'N/A' %></p>
+                <p>Added: <%= item.addedOn ? new Date(item.addedOn).toLocaleDateString() : 'N/A' %></p>
+              </div>
+              <div class="d-flex">
+                <button class="btn btn-outline-primary btn-add-to-cart" onclick="addToCart('<%= item.ProductId._id %>')" <%= item.ProductId.quantity === 0 ? 'disabled' : '' %>>
+                  <%= item.ProductId.quantity === 0 ? 'Out of Stock' : 'Add to Cart' %>
+                </button>
+                <button class="btn btn-outline-danger btn-remove" onclick="removeFromWishlist('<%= item.ProductId._id %>')">Remove</button>
+              </div>
+            </div>
+          </div>
+        <% } %>
+      <% }) %>
+    <% } else { %>
+      <div class="alert alert-info">
+        <h3>Your wishlist is empty. Add some products from the <a href="/shop">shop!</a></h3>
+      </div>
+    <% } %>
+  </div>
+</section>
+
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+  async function addToCart(productId) {
+    try {
+      const response = await fetch('/wishlist/add-to-cart', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productId })
+      });
+      const result = await response.json();
+
+      if (result.status) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Added to Cart',
+          text: 'Item has been moved to your cart!',
+          confirmButtonColor: '#6739e6'
+        }).then(() => {
+          window.location.reload();
+        });
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: result.message || 'Failed to add to cart',
+          confirmButtonColor: '#6739e6'
+        });
+      }
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'An error occurred while adding to cart',
+        confirmButtonColor: '#6739e6'
+      });
+    }
+  }
+
+  async function removeFromWishlist(productId) {
+    try {
+      const response = await fetch('/wishlist/remove', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productId })
+      });
+      const result = await response.json();
+
+      if (result.status) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Removed from Wishlist',
+          text: 'The item has been removed from your wishlist!',
+          confirmButtonColor: '#6739e6'
+        }).then(() => {
+          window.location.reload();
+        });
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: result.message || 'Failed to remove from wishlist',
+          confirmButtonColor: '#6739e6'
+        });
+      }
+    } catch (error) {
+      console.error('Error removing from wishlist:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'An error occurred while removing from wishlist',
+        confirmButtonColor: '#6739e6'
+      });
+    }
+  }
+</script>

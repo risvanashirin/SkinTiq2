@@ -1,0 +1,436 @@
+<%- include("../../views/partials/user/header.ejs") %>
+
+<!-- Hero Banner Section -->
+<div class="hero-wrap hero-bread" style="background-image: url('/images/bggg1.jpg');">
+  <div class="container">
+    <div class="row no-gutters slider-text align-items-center justify-content-center">
+      <div class="col-md-9 ftco-animate text-center">
+        <p class="breadcrumbs">
+          <span class="mr-2"><a href="/">Home</a></span> 
+          <span>Shop</span>
+        </p>
+        <h1 class="mb-0 bread">Shop</h1>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Shop Section -->
+<section class="ftco-section bg-light">
+  <div class="container">
+    <!-- Filter Form -->
+    <div class="filter-form-wrapper mb-5">
+      <form id="filter-form" method="get" class="filter-form d-flex flex-wrap align-items-center gap-3">
+        <!-- Sort Dropdown -->
+        <select name="sort" aria-label="Sort products" class="form-select">
+          <option value="">Sort By</option>
+          <option value="lowToHigh" <%= sort === "lowToHigh" ? "selected" : "" %>>Price: Low to High</option>
+          <option value="highToLow" <%= sort === "highToLow" ? "selected" : "" %>>Price: High to Low</option>
+          <option value="aToZ" <%= sort === "aToZ" ? "selected" : "" %>>A-Z</option>
+          <option value="zToA" <%= sort === "zToA" ? "selected" : "" %>>Z-A</option>
+          <option value="newArrivals" <%= sort === "newArrivals" ? "selected" : "" %>>New Arrivals</option>
+        </select>
+
+        <!-- Category Dropdown -->
+        <select name="category" aria-label="Filter by category" class="form-select">
+          <option value="">All Categories</option>
+          <% categories.forEach(cat => { %>
+            <option value="<%= cat._id %>" <%= category === cat._id.toString() ? "selected" : "" %>><%= cat.name %></option>
+          <% }) %>
+        </select>
+
+        <!-- Brand Dropdown -->
+        <select name="brand" aria-label="Filter by brand" class="form-select">
+          <option value="">All Brands</option>
+          <% brands.forEach(brand => { %>
+            <option value="<%= brand._id %>" <%= currentBrand === brand._id.toString() ? "selected" : "" %>><%= brand.brandName %></option>
+          <% }) %>
+        </select>
+
+        <!-- Price Range Dropdowns -->
+        <select name="minPrice" aria-label="Minimum price" class="form-select">
+          <option value="">Min Price</option>
+          <% priceRanges.from.forEach(price => { %>
+            <option value="<%= price %>" <%= minPrice == price ? "selected" : "" %>><%= price %></option>
+          <% }) %>
+        </select>
+        <select name="maxPrice" aria-label="Maximum price" class="form-select">
+          <option value="">Max Price</option>
+          <% priceRanges.to.forEach(price => { %>
+            <option value="<%= price %>" <%= maxPrice == price ? "selected" : "" %>><%= price %></option>
+          <% }) %>
+        </select>
+
+        <!-- Search Box -->
+        <input type="text" name="search" placeholder="Search Products..." value="<%= search || '' %>" class="form-control">
+
+        <!-- Submit and Reset Buttons -->
+        <button type="submit" class="btn btn-primary">Apply</button>
+        <button type="reset" class="btn btn-secondary" onclick="resetFilters()">Clear</button>
+      </form>
+    </div>
+
+    <!-- Products Grid -->
+    <div class="row">
+      <% if (products.length > 0) { %>
+        <% products.forEach(product => { %>
+          <div class="col-sm-6 col-md-4 col-lg-3 mb-4">
+            <div class="product card h-100">
+              <a href="/productDetails?id=<%= product._id %>" class="img-prod">
+                <img class="card-img-top img-fluid" src="<%= product.productImage && product.productImage.length > 0 ? product.productImage[0] : '/images/default-product.jpg' %>" alt="<%= product.productName %>">
+                <% if (product.quantity < 1) { %>
+                  <span class="out-of-stock">Out of Stock</span>
+                <% } else if (product.maxOffer > 0) { %>
+                  <span class="offer-badge"><%= product.maxOffer %>% OFF</span>
+                <% } %>
+                <div class="overlay"></div>
+              </a>
+
+              <div class="card-body d-flex flex-column">
+                <div class="cat mb-2">
+                  <span class="text-muted"><%= product.category && product.category.name ? product.category.name : 'Uncategorized' %></span>
+                </div>
+
+                <h3 class="card-title"><a href="/productDetails?id=<%= product._id %>"><%= product.productName %></a></h3>
+
+                <div class="pricing mb-3">
+                  <p class="price m-0">
+                    <% if (product.maxOffer > 0) { %>
+                      <span class="price-sale">₹<%= product.salePrice.toFixed(2) %></span>
+                      <span class="price-original"><del>₹<%= product.regularPrice.toFixed(2) %></del></span>
+                    <% } else { %>
+                      <span class="price-sale">₹<%= product.salePrice.toFixed(2) %></span>
+                    <% } %>
+                  </p>
+                </div>
+
+                <div class="bottom-area d-flex gap-2 mt-auto">
+                  <% if (cart && cart.cart.some(item => item.productId && item.productId._id.toString() === product._id.toString())) { %>
+                    <a href="/cart" class="btn btn-outline-primary flex-fill">
+                      Go to Cart <i class="ion-ios-cart ml-1"></i>
+                    </a>
+                  <% } else { %>
+                    <form action="/add-to-cart-shop/<%= product._id %>" method="POST" style="display: inline;">
+                      <button type="submit" class="btn btn-outline-primary flex-fill disabled:opacity-50 disabled:cursor-not-allowed" <%= product.quantity < 1 ? 'disabled' : '' %>>
+                        <span>Add to Cart <i class="ion-ios-add ml-1"></i></span>
+                      </button>
+                    </form>
+                  <% } %>
+                  <button type="button" class="btn btn-outline-danger flex-fill" onclick="addToWishlist('<%= product._id %>')">
+                    <i class="ion-ios-heart mr-1"></i> Wishlist
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% }) %>
+      <% } else { %>
+        <div class="col-12 text-center">
+          <h4>No Products Found</h4>
+        </div>
+      <% } %>
+    </div>
+
+    <!-- Pagination -->
+    <div class="row mt-5">
+      <div class="col text-center">
+        <nav aria-label="Page navigation">
+          <ul class="pagination justify-content-center">
+            <% if (currentPage > 1) { %>
+              <li class="page-item">
+                <a class="page-link" href="/shop?page=<%= currentPage - 1 %><%= filterParams %>">«</a>
+              </li>
+            <% } else { %>
+              <li class="page-item disabled">
+                <span class="page-link">«</span>
+              </li>
+            <% } %>
+
+            <% for (let i = 1; i <= totalPages; i++) { %>
+              <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                <a class="page-link" href="/shop?page=<%= i %><%= filterParams %>"><%= i %></a>
+              </li>
+            <% } %>
+
+            <% if (currentPage < totalPages) { %>
+              <li class="page-item">
+                <a class="page-link" href="/shop?page=<%= currentPage + 1 %><%= filterParams %>">»</a>
+              </li>
+            <% } else { %>
+              <li class="page-item disabled">
+                <span class="page-link">»</span>
+              </li>
+            <% } %>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+</section>
+
+<%- include("../../views/partials/user/footer.ejs") %>
+
+<script>
+  function resetFilters() {
+    const form = document.getElementById('filter-form');
+    form.reset();
+    window.location.href = "/shop";
+  }
+
+  document.querySelectorAll('form[action^="/add-to-cart-shop/"]').forEach(form => {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const action = form.getAttribute('action');
+      try {
+        const response = await fetch(action, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+        });
+        const data = await response.json();
+
+        if (data.success) {
+          Swal.fire({
+            title: 'Product added to cart!',
+            icon: 'success',
+            showCancelButton: true,
+            confirmButtonText: 'Go to Cart',
+            cancelButtonText: 'Continue Shopping',
+            confirmButtonColor: '#007bff'
+          }).then((result) => {
+            if (result.isConfirmed) {
+              window.location.href = '/cart';
+            } else {
+              window.location.reload(); // Refresh to update button states
+            }
+          });
+        } else if (data.error === 'out_of_stock') {
+          Swal.fire({
+            title: 'Out of stock!',
+            text: data.message || 'Not enough stock available.',
+            icon: 'error',
+            confirmButtonColor: '#007bff'
+          });
+        } else if (data.message === 'This item is already in your cart. You can update the quantity in your cart.') {
+          Swal.fire({
+            title: 'Item Already in Cart',
+            text: data.message,
+            icon: 'warning',
+            confirmButtonColor: '#007bff'
+          });
+        } else if (data.message === 'User not logged in') {
+          Swal.fire({
+            title: 'Log In Required',
+            text: 'Please log in to add items to your cart.',
+            icon: 'warning',
+            confirmButtonText: 'Log In',
+            confirmButtonColor: '#007bff'
+          }).then((result) => {
+            if (result.isConfirmed) {
+              window.location.href = '/login';
+            }
+          });
+        } else {
+          Swal.fire({
+            title: 'Error',
+            text: data.message || 'Failed to add product to cart.',
+            icon: 'error',
+            confirmButtonColor: '#007bff'
+          });
+        }
+      } catch (error) {
+        console.error('Error adding to cart:', error);
+        Swal.fire({
+          title: 'Error',
+          text: 'Something went wrong. Please try again.',
+          icon: 'error',
+          confirmButtonColor: '#007bff'
+        });
+      }
+    });
+  });
+
+  async function addToWishlist(productId) {
+    try {
+      const response = await fetch('/addToWishlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productId })
+      });
+      const result = await response.json();
+
+      if (result.status === true) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Added to Wishlist',
+          text: result.message || 'Product added to your wishlist!',
+          confirmButtonColor: '#007bff'
+        });
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: result.message || 'Failed to add to wishlist',
+          confirmButtonColor: '#007bff'
+        });
+      }
+    } catch (error) {
+      console.error('Error adding to wishlist:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'An error occurred while adding to wishlist',
+        confirmButtonColor: '#007bff'
+      });
+    }
+  }
+</script>
+
+<style>
+  /* Filter Form */
+  .filter-form-wrapper {
+    margin-bottom: 2rem;
+  }
+  .filter-form {
+    gap: 1rem;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .filter-form select,
+  .filter-form input,
+  .filter-form button {
+    height: 40px;
+    font-size: 14px;
+    border-radius: 5px;
+  }
+  .filter-form select,
+  .filter-form input {
+    min-width: 150px;
+  }
+  .filter-form button {
+    padding: 0 1.5rem;
+  }
+  /* Out of Stock Badge */
+  .out-of-stock {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(255, 255, 255, 0.8); /* Semi-transparent white background */
+    color: #dc3545; /* Red text (Tailwind danger) */
+    font-weight: bold;
+    font-size: 16px;
+    padding: 8px;
+    text-align: center;
+    z-index: 10;
+  }
+  /* Product Card */
+  .product.card {
+    border: none;
+    transition: transform 0.3s;
+  }
+  .product.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  }
+  .product .card-img-top {
+    aspect-ratio: 1/1;
+    object-fit: cover;
+  }
+  .product .offer-badge {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(128, 128, 128, 0.5); /* Semi-transparent grey background */
+    color: white;
+    font-weight: bold;
+    font-size: 16px;
+    padding: 8px;
+    text-align: center;
+    z-index: 10;
+  }
+  .product .card-body {
+    padding: 1.5rem;
+  }
+  .product .card-title {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+    min-height: 3rem;
+    color: #8B8000; /* Dark yellow for product name */
+  }
+  .product .card-title a {
+    color: #8B8000; /* Ensure the link color matches */
+  }
+  .product .bottom-area {
+    gap: 0.5rem;
+  }
+  .product .bottom-area .btn {
+    font-size: 14px;
+    padding: 0.5rem;
+  }
+  .product .pricing {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+  .product .price-sale {
+    font-size: 1.2rem;
+    color: #030a17c4; 
+    font-weight: bold;
+  }
+  .product .price-original {
+    font-size: 0.9rem;
+    color: #666;
+  }
+  .product .price-original del {
+    text-decoration: line-through;
+    text-decoration-thickness: 2px;
+  }
+
+  /* Pagination */
+  .pagination .page-link {
+    padding: 0.5rem 1rem;
+    margin: 0 0.2rem;
+    border-radius: 5px;
+  }
+  .pagination .page-item.active .page-link {
+    background-color: #007bff;
+    border-color: #007bff;
+  }
+
+  /* Responsive Adjustments */
+  @media (max-width: 768px) {
+    .filter-form select,
+    .filter-form input {
+      min-width: 120px;
+    }
+    .filter-form button {
+      padding: 0 1rem;
+    }
+    .product .card-title {
+      font-size: 1rem;
+    }
+    .product .offer-badge,
+    .product .out-of-stock {
+      font-size: 14px;
+      padding: 6px;
+    }
+  }
+  @media (max-width: 576px) {
+    .filter-form {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .filter-form select,
+    .filter-form input,
+    .filter-form button {
+      width: 100%;
+    }
+    .product .offer-badge,
+    .product .out-of-stock {
+      font-size: 12px;
+      padding: 5px;
+    }
+  }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

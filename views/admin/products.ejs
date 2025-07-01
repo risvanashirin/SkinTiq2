@@ -1,0 +1,536 @@
+<%- include("../../views/partials/admin/header") %>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.css">
+    <style>
+        body {
+            background-color: #f5f7fa;
+            font-family: 'Inter', sans-serif;
+            margin-left: 250px; /* Match sidebar width */
+        }
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        }
+        .search-container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .search-container .input-group {
+            border-radius: 50px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .table {
+            border-radius: 8px;
+            overflow: hidden;
+            background: #fff;
+            min-width: 1200px;
+            width: 100%;
+        }
+        .table thead {
+            background: #007bff;
+            color: white;
+        }
+        .table thead th {
+            font-weight: 600;
+            padding: 1rem;
+        }
+        .table tbody tr {
+            transition: background 0.2s;
+        }
+        .table tbody tr:hover {
+            background: #f1f3f5;
+        }
+        .btn {
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            font-weight: 500;
+        }
+        .btn-info {
+            background-color: #17a2b8;
+            border-color: #17a2b8;
+        }
+        .btn-danger, .btn-success, .btn-warning {
+            min-width: 90px;
+        }
+        .product-image {
+            width: 40px;
+            height: 40px;
+            object-fit: cover;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+        .no-image {
+            width: 40px;
+            height: 40px;
+            background-color: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            font-size: 12px;
+            color: #666;
+        }
+        .low-stock {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        .status-available {
+            color: #28a745;
+        }
+        .status-out-of-stock {
+            color: #dc3545;
+        }
+        .status-discontinued {
+            color: #6c757d;
+        }
+        .table-responsive {
+            overflow-x: auto;
+            max-width: 100%;
+            -webkit-overflow-scrolling: touch;
+        }
+        .table .offer-cell {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: nowrap;
+            padding: 5px;
+            font-size: 14px;
+        }
+        .table .offer-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            align-items: flex-start;
+        }
+        .table .offer-buttons .btn {
+            width: 90px;
+            padding: 0.25rem 0.5rem;
+            font-size: 14px;
+        }
+        .table th:nth-child(6), .table td:nth-child(6) {
+            min-width: 250px;
+        }
+        .first-product-badge {
+            background-color: #28a745;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-left: 8px;
+        }
+        @media (max-width: 768px) {
+            body {
+                margin-left: 0; /* Remove margin for mobile */
+            }
+            .search-container {
+                max-width: 100%;
+            }
+            .table-responsive {
+                border-radius: 8px;
+            }
+            .product-image, .no-image {
+                width: 30px;
+                height: 30px;
+                font-size: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container-fluid py-5">
+        <div class="content-header">
+            <h2 class="content-title fw-bold text-dark">Product Management</h2>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="search-container mb-4">
+                    <form action="/admin/products" method="get">
+                        <div class="input-group">
+                            <input type="text" class="form-control border-0" placeholder="Search products or brands" name="search" value="<%= searchQuery || '' %>">
+                            <button class="btn btn-primary" type="submit" style="background-color: #1958ec;">Search</button>
+                            <a href="/admin/products" class="btn btn-primary" style="background-color: #1958ec;">Clear</a>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th scope="col">Product Name</th>
+                                <th scope="col">Images</th>
+                                <th scope="col">Category</th>
+                                <th scope="col">Brand</th>
+                                <th scope="col">Regular Price</th>
+                                <th scope="col">Product Offer</th>
+                                <th scope="col">Category Offer</th>
+                                <th scope="col">Sale Price</th>
+                                <th scope="col">Quantity</th>
+                                <th scope="col">Status</th>
+                                <th scope="col">Action</th>
+                                <th scope="col">Edit</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% if (data && data.length > 0) { %>
+                                <% data.forEach((product, index) => { %>
+                                    <tr>
+                                        <td>
+                                            <%= product.productName %>
+                                            <% if (index === 0) { %>
+                                                <!-- <span class="first-product-badge">First</span> -->
+                                            <% } %>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex gap-2 justify-content-center flex-wrap">
+                                                <% if (product.productImage && product.productImage.length > 0) { %>
+                                                    <% for (let j = 0; j < Math.min(product.productImage.length, 3); j++) { %>
+                                                        <img src="<%= product.productImage[j] %>" class="product-image" alt="Product Image" onerror="this.style.display='none';">
+                                                    <% } %>
+                                                <% } else { %>
+                                                    <div class="no-image">No Image</div>
+                                                <% } %>
+                                            </div>
+                                        </td>
+                                        <td><%= product.category && product.category.name ? product.category.name : 'No Category' %></td>
+                                        <td><%= product.brand && product.brand.brandName ? product.brand.brandName : 'No Brand' %></td>
+                                        <td>₹<%= product.regularPrice.toFixed(2) %></td>
+                                        <td>
+                                            <div class="offer-cell">
+                                                <span class="offer-percentage">
+                                                    <% if (product.productOffer > 0) { %>
+                                                        <%= product.productOffer %>%
+                                                    <% } else { %>
+                                                        0%
+                                                    <% } %>
+                                                </span>
+                                                <% if (product.productOffer === 0) { %>
+                                                    <button class="btn btn-sm btn-info" onclick="addOffer('<%= product._id %>')">Add Offer</button>
+                                                <% } else { %>
+                                                    <div class="offer-buttons">
+                                                        <button class="btn btn-sm btn-warning" onclick="editOffer('<%= product._id %>', <%= product.productOffer %>)">Edit Offer</button>
+                                                        <button class="btn btn-sm btn-danger" onclick="removeOffer('<%= product._id %>')">Remove</button>
+                                                    </div>
+                                                <% } %>
+                                            </div>
+                                        </td>
+                                        <td><%= product.categoryOffer %>%</td>
+                                        <td>₹<%= product.salePrice.toFixed(2) %></td>
+                                        <td>
+                                            <%= product.quantity %>
+                                            <% if (product.quantity === 0) { %>
+                                                <span class="low-stock">(Out of Stock)</span>
+                                            <% } else if (product.quantity <= 10) { %>
+                                                <span class="low-stock">(Low Stock)</span>
+                                            <% } %>
+                                        </td>
+                                        <td class="status-<%= product.status.toLowerCase().replace(' ', '-') %>">
+                                            <%= product.status %>
+                                        </td>
+                                        <td>
+                                            <% if (product.isBlocked) { %>
+                                                <button class="btn btn-sm btn-success" onclick="unblockProduct('<%= product._id %>')">Unblock</button>
+                                            <% } else { %>
+                                                <button class="btn btn-sm btn-danger" onclick="blockProduct('<%= product._id %>')">Block</button>
+                                            <% } %>
+                                        </td>
+                                        <td>
+                                            <a href="/admin/editProducts?id=<%= product._id %>" class="btn btn-sm btn-warning">Edit</a>
+                                        </td>
+                                    </tr>
+                                <% }) %>
+                            <% } else { %>
+                                <tr>
+                                    <td colspan="12" class="text-center">No products found</td>
+                                </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <%- include('../../views/partials/admin/pagination', { 
+                    baseUrl: '/admin/products', 
+                    currentPage: currentPage, 
+                    totalPages: totalPages, 
+                    queryParams: searchQuery ? `&search=${searchQuery}` : '' 
+                }) %>
+
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+    <script>
+        function blockProduct(productId) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You want to block this product!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, block it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(`/admin/blockProduct?id=${productId}`, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status) {
+                            Swal.fire(
+                                'Blocked!',
+                                data.message || 'Product has been blocked.',
+                                'success'
+                            ).then(() => {
+                                window.location.reload();
+                            });
+                        } else {
+                            Swal.fire(
+                                'Error!',
+                                data.message || 'Failed to block product.',
+                                'error'
+                            );
+                        }
+                    })
+                    .catch(error => {
+                        Swal.fire(
+                            'Error!',
+                            'An error occurred while blocking the product.',
+                            'error'
+                        );
+                    });
+                }
+            });
+        }
+
+        function unblockProduct(productId) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You want to unblock this product!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, unblock it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(`/admin/unblockProduct?id=${productId}`, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status) {
+                            Swal.fire(
+                                'Unblocked!',
+                                data.message || 'Product has been unblocked.',
+                                'success'
+                            ).then(() => {
+                                window.location.reload();
+                            });
+                        } else {
+                            Swal.fire(
+                                'Error!',
+                                data.message || 'Failed to unblock product.',
+                                'error'
+                            );
+                        }
+                    })
+                    .catch(error => {
+                        Swal.fire(
+                            'Error!',
+                            'An error occurred while unblocking the product.',
+                            'error'
+                        );
+                    });
+                }
+            });
+        }
+
+        function addOffer(productId) {
+            Swal.fire({
+                title: 'Add Product Offer',
+                input: 'number',
+                inputLabel: 'Enter offer percentage (%)',
+                inputAttributes: {
+                    min: 0,
+                    max: 100,
+                    step: 0.01
+                },
+                showCancelButton: true,
+                confirmButtonText: 'Add Offer',
+                cancelButtonText: 'Cancel',
+                inputValidator: (value) => {
+                    if (!value || isNaN(value) || value < 0 || value > 100) {
+                        return 'Please enter a valid offer percentage between 0 and 100';
+                    }
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(`/admin/addProductOffer`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ productId, percentage: parseFloat(result.value) })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status) {
+                            Swal.fire(
+                                'Success!',
+                                data.message,
+                                'success'
+                            ).then(() => {
+                                window.location.reload();
+                            });
+                        } else {
+                            Swal.fire(
+                                'Error!',
+                                data.message || 'Failed to add product offer.',
+                                'error'
+                            );
+                        }
+                    })
+                    .catch(error => {
+                        Swal.fire(
+                            'Error!',
+                            'An error occurred while adding the offer.',
+                            'error'
+                        );
+                    });
+                }
+            });
+        }
+
+        function editOffer(productId, currentOffer) {
+            Swal.fire({
+                title: 'Edit Product Offer',
+                input: 'number',
+                inputLabel: 'Enter new offer percentage (%)',
+                inputValue: currentOffer,
+                inputAttributes: {
+                    min: 0,
+                    max: 100,
+                    step: 0.01
+                },
+                showCancelButton: true,
+                confirmButtonText: 'Update Offer',
+                cancelButtonText: 'Cancel',
+                inputValidator: (value) => {
+                    if (!value || isNaN(value) || value < 0 || value > 100) {
+                        return 'Please enter a valid offer percentage between 0 and 100';
+                    }
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(`/admin/editProductOffer`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ productId, percentage: parseFloat(result.value) })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status) {
+                            Swal.fire(
+                                'Success!',
+                                data.message,
+                                'success'
+                            ).then(() => {
+                                window.location.reload();
+                            });
+                        } else {
+                            Swal.fire(
+                                'Error!',
+                                data.message || 'Failed to update product offer.',
+                                'error'
+                            );
+                        }
+                    })
+                    .catch(error => {
+                        Swal.fire(
+                            'Error!',
+                            'An error occurred while updating the offer.',
+                            'error'
+                        );
+                    });
+                }
+            });
+        }
+
+        function removeOffer(productId) {
+            Swal.fire({
+                title: 'Remove Product Offer',
+                text: 'Are you sure you want to remove this product offer?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Remove Offer',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(`/admin/removeProductOffer`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ productId })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status) {
+                            Swal.fire(
+                                'Success!',
+                                data.message,
+                                'success'
+                            ).then(() => {
+                                window.location.reload();
+                            });
+                        } else {
+                            Swal.fire(
+                                'Error!',
+                                data.message || 'Failed to remove product offer.',
+                                'error'
+                            );
+                        }
+                    })
+                    .catch(error => {
+                        Swal.fire(
+                            'Error!',
+                            'An error occurred while removing the offer.',
+                            'error'
+                        );
+                    });
+                }
+            });
+        }
+    </script>
+</body>
+</html>

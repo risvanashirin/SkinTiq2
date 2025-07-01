@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include("../../views/partials/admin/header") %>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    function generateUUID() {
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        const r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+      });
+    }
+  </script>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      margin-left: 250px;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      background-color: #f3f4f6;
+    }
+
+    .table-container {
+      max-height: 600px;
+      overflow-y: auto;
+    }
+    .table-container thead {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .action-btn {
+      transition: all 0.2s ease-in-out;
+    }
+    .action-btn:hover {
+      transform: translateY(-1px);
+    }
+    #modal {
+      transition: opacity 0.3s ease-in-out;
+    }
+    #modal.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+    #modal:not(.hidden) {
+      opacity: 1;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        margin-left: 0;
+      }
+      .container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+      }
+    }
+  </style>
+</head>
+<body class="bg-gray-100 min-h-screen font-sans">
+  <div class="container mx-auto px-4 py-8">
+    <div class="bg-white rounded-xl shadow-lg mb-6">
+      <div class="p-6 border-b">
+        <h4 class="text-lg font-semibold text-gray-800">Search Orders</h4>
+      </div>
+      <div class="p-6">
+        <div class="flex flex-col sm:flex-row sm:space-x-2 space-y-2 sm:space-y-0">
+          <input 
+            type="text" 
+            id="search-input" 
+            class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700 placeholder-gray-400" 
+            placeholder="Search by Order ID" 
+            value="<%= search || '' %>"
+            aria-label="Search orders"
+          >
+          <select 
+            id="status-filter" 
+            class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
+          >
+            <option value="">All Statuses</option>
+            <option value="pending" <%= status === 'pending' ? 'selected' : '' %>>Pending</option>
+            <option value="shipped" <%= status === 'shipped' ? 'selected' : '' %>>Shipped</option>
+            <option value="delivered" <%= status === 'delivered' ? 'selected' : '' %>>Delivered</option>
+            <option value="cancelled" <%= status === 'cancelled' ? 'selected' : '' %>>Cancelled</option>
+            <option value="return request" <%= status === 'return request' ? 'selected' : '' %>>Return Request</option>
+            <option value="returned" <%= status === 'returned' ? 'selected' : '' %>>Returned</option>
+          </select>
+          <button 
+            id="clear-btn" 
+            class="px-4 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition focus:outline-none focus:ring-2 focus:ring-gray-500"
+          >
+            Clear
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <% if (search) { %>
+      <p class="mb-4 text-gray-600">Showing results for: <span class="font-semibold">"<%= search %>"</span></p>
+    <% } %>
+
+    <div class="table-container bg-white rounded-xl shadow-lg overflow-x-auto">
+      <table class="w-full min-w-[640px]" id="orders-table">
+        <thead class="bg-gray-800 text-white">
+          <tr>
+            <th class="py-4 px-6 text-left font-semibold" data-sort="orderId">Order ID</th>
+            <th class="py-4 px-6 text-left font-semibold" data-sort="userName">User</th>
+            <th class="py-4 px-6 text-left font-semibold" data-sort="productName">Product Name</th>
+            <th class="py-4 px-6 text-left font-semibold" data-sort="quantity">Quantity</th>
+            <th class="py-4 px-6 py-4 text-left font-semibold" data-sort="finalAmount">Total Price</th>
+            <th class="py-4 px-6 text-left font-semibold" data-sort="status">Status</th>
+            <th class="py-4 px-6 text-left font-semibold">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="orders-tbody">
+          <% orders.forEach(order => { %>
+            <tr class="hover:bg-gray-50 transition-colors" 
+                data-order-id="<%= order.orderId %>" 
+                data-user-name="<%= order.userId ? order.userId.name || 'Unknown' : 'Unknown User' %>"
+                data-user-email="<%= order.userId ? order.userId.email || 'N/A' : 'N/A' %>"
+                data-product-name="<%= order.productName || order.product?.name || 'N/A' %>"
+                data-quantity="<%= order.quantity || 0 %>"
+                data-final-amount="<%= order.finalAmount ? order.finalAmount.toFixed(2) : '0.00' %>"
+                data-status="<%= order.status || 'N/A' %>">
+              <td class="py-4 px-6 border-b text-gray-700"><%= order.orderId || 'N/A' %></td>
+              <td class="py-4 px-6 border-b text-gray-700"><%= order.userId ? `${order.userId.name || 'Unknown'} (${order.userId.email || 'N/A'})` : 'Unknown User' %></td>
+              <td class="py-4 px-6 border-b text-gray-700"><%= order.productName || order.product?.name || 'N/A' %></td>
+              <td class="py-4 px-6 border-b text-gray-700"><%= order.quantity || 0 %></td>
+              <td class="py-4 px-6 border-b text-gray-700">₹<%= order.finalAmount ? order.finalAmount.toFixed(2) : '0.00' %></td>
+              <td class="py-4 px-6 border-b text-gray-700"><%= order.status ? order.status.charAt(0).toUpperCase() + order.status.slice(1).replace(/-/g, ' ') : 'N/A' %></td>
+              <td class="py-4 px-6 border-b">
+                <div class="flex flex-col sm:flex-row sm:space-x-2 space-y-2 sm:space-y-0">
+                  <% if (order.status !== 'cancelled' && order.status !== 'delivered' && order.status !== 'returned' && order.status !== 'return request' && order.status !== 'failed') { %>
+                    <button class="action-btn inline-flex items-center bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500" onclick="openModal('update', '<%= order._id %>')">Update</button>
+                  <% } %>
+                  <% if (order.status !== 'cancelled' && order.status !== 'delivered' && order.status !== 'returned' && order.status !== 'return request' && order.status !== 'failed') { %>
+                    <button class="action-btn inline-flex items-center bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500" onclick="openModal('cancel', '<%= order._id %>')">Cancel</button>
+                  <% } %>
+                  <% if (order.status === 'return request') { %>
+                    <button class="action-btn inline-flex items-center bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500" onclick="openModal('return', '<%= order._id %>')">Return</button>
+                  <% } %>
+                  <button class="action-btn inline-flex items-center bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500" onclick="viewOrderDetails('<%= order._id %>')">View</button>
+                </div>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+
+    <% if (totalPages > 1) { %>
+      <% 
+        const queryParams = `&limit=${limit}${search ? `&search=${encodeURIComponent(search)}` : ''}${status ? `&status=${encodeURIComponent(status)}` : ''}${sort ? `&sort=${encodeURIComponent(sort)}` : ''}${direction ? `&direction=${encodeURIComponent(direction)}` : ''}`;
+      %>
+      <%- include('../partials/admin/pagination', { currentPage, totalPages, baseUrl: '/admin/order', queryParams, ariaLabel: 'Order list pagination' }) %>
+    <% } %>
+  </div>
+
+  <div id="modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center hidden">
+    <div class="bg-white rounded-lg p-6 max-w-sm w-full">
+      <h3 id="modal-title" class="text-lg font-semibold text-gray-800 mb-4"></h3>
+      <input type="hidden" id="modal-order-id">
+      <div id="modal-body" class="mb-6"></div>
+      <p id="modal-error" class="text-red-500 text-sm mb-4 hidden"></p>
+      <div class="flex justify-end space-x-4">
+        <button 
+          id="modal-submit" 
+          class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          Submit
+        </button>
+        <button 
+          class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400"
+          onclick="closeModal()"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function debounce(func, wait) {
+      let timeout;
+      return function executedFunction(...args) {
+        const later = () => {
+          clearTimeout(timeout);
+          func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+      };
+    }
+
+    function openModal(type, orderId) {
+      const modal = document.getElementById('modal');
+      const modalTitle = document.getElementById('modal-title');
+      const modalBody = document.getElementById('modal-body');
+      const modalError = document.getElementById('modal-error');
+      const modalSubmit = document.getElementById('modal-submit');
+
+      modal.classList.remove('hidden');
+      document.getElementById('modal-order-id').value = orderId;
+      modalError.classList.add('hidden');
+      modalSubmit.disabled = false;
+      modalSubmit.innerText = 'Submit';
+
+      if (type === 'update') {
+        modalTitle.innerText = 'Update Order Status';
+        modalBody.innerHTML = `
+          <select id="status" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700" required>
+            <option value="" disabled selected>Select Status</option>
+            <option value="pending">Pending</option>
+            <option value="confirmed">Confirmed</option>
+            <option value="shipped">Shipped</option>
+            <option value="delivered">Delivered</option>
+          </select>
+        `;
+        modalSubmit.onclick = debounce(() => {
+          const status = document.getElementById('status').value;
+          if (!status) {
+            modalError.innerText = 'Please select a status.';
+            modalError.classList.remove('hidden');
+            return;
+          }
+          modalSubmit.disabled = true;
+          modalSubmit.innerText = 'Updating...';
+          console.log(`Sending update status request for order ${orderId}`);
+          fetch('/admin/order/update-status', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ orderId, status })
+          })
+            .then(res => res.json())
+            .then(data => {
+              if (data.success) {
+                Swal.fire({
+                  icon: 'success',
+                  title: 'Success',
+                  text: 'Status updated successfully!',
+                  timer: 1500,
+                  showConfirmButton: false
+                }).then(() => window.location.reload());
+              } else {
+                Swal.fire({
+                  icon: 'error',
+                  title: 'Error',
+                  text: data.message || 'Failed to update status.'
+                });
+                modalSubmit.disabled = false;
+                modalSubmit.innerText = 'Submit';
+              }
+            })
+            .catch(err => {
+              Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Network error. Please try again.'
+              });
+              modalSubmit.disabled = false;
+              modalSubmit.innerText = 'Submit';
+            });
+        }, 500);
+      } else if (type === 'cancel') {
+        modalTitle.innerText = 'Cancel Order';
+        modalBody.innerHTML = `
+          <select id="reason" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700" required>
+            <option value="" disabled selected>Select Cancellation Reason</option>
+            <option value="Customer Request">Customer Request</option>
+            <option value="Out of Stock">Out of Stock</option>
+            <option value="Payment Issue">Payment Issue</option>
+            <option value="Incorrect Order">Incorrect Order</option>
+            <option value="Other">Other</option>
+          </select>
+          <div id="custom-reason-container" class="mt-2 hidden">
+            <textarea id="custom-reason" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700" placeholder="Enter custom reason"></textarea>
+          </div>
+        `;
+        const reasonSelect = document.getElementById('reason');
+        const customReasonContainer = document.getElementById('custom-reason-container');
+        reasonSelect.addEventListener('change', () => {
+          customReasonContainer.classList.toggle('hidden', reasonSelect.value !== 'Other');
+        });
+        modalSubmit.onclick = debounce(() => {
+          const reason = document.getElementById('reason').value;
+          const customReason = document.getElementById('custom-reason')?.value.trim();
+          if (!reason) {
+            modalError.innerText = 'Please select a cancellation reason.';
+            modalError.classList.remove('hidden');
+            return;
+          }
+          if (reason === 'Other' && (!customReason || customReason.length < 5)) {
+            modalError.innerText = 'Custom reason must be at least 5 characters long.';
+            modalError.classList.remove('hidden');
+            return;
+          }
+          const finalReason = reason === 'Other' ? customReason : reason;
+          modalSubmit.disabled = true;
+          modalSubmit.innerText = 'Cancelling...';
+          console.log(`Sending cancel request for order ${orderId}`);
+          fetch('/admin/order/cancel', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ orderId, reason: finalReason })
+          })
+            .then(res => res.json())
+            .then(data => {
+              if (data.success) {
+                Swal.fire({
+                  icon: 'success',
+                  title: 'Success',
+                  text: 'Order cancelled successfully!',
+                  timer: 1500,
+                  showConfirmButton: false
+                }).then(() => window.location.reload());
+              } else {
+                Swal.fire({
+                  icon: 'error',
+                  title: 'Error',
+                  text: data.message || 'Failed to cancel order.'
+                });
+                modalSubmit.disabled = false;
+                modalSubmit.innerText = 'Submit';
+              }
+            })
+            .catch(err => {
+              Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Network error. Please try again.'
+              });
+              modalSubmit.disabled = false;
+              modalSubmit.innerText = 'Submit';
+            });
+        }, 500);
+      } else if (type === 'return') {
+        modalTitle.innerText = 'Handle Return Request';
+        modalBody.innerHTML = `
+          <select id="return-action" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700" required>
+            <option value="" disabled selected>Select Action</option>
+            <option value="approve">Approve Return</option>
+            <option value="deny">Deny Return</option>
+          </select>
+        `;
+        const requestToken = generateUUID();
+        modalSubmit.onclick = debounce(() => {
+          const action = document.getElementById('return-action').value;
+          if (!action) {
+            modalError.innerText = 'Please select an action.';
+            modalError.classList.remove('hidden');
+            return;
+          }
+          modalSubmit.disabled = true;
+          modalSubmit.innerText = 'Processing...';
+          console.log(`Sending return request for order ${orderId} with token ${requestToken} at ${new Date().toISOString()}`);
+          fetch('/admin/order/return', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ orderId, action, requestToken })
+          })
+            .then(res => res.json())
+            .then(data => {
+              if (data.success) {
+                Swal.fire({
+                  icon: 'success',
+                  title: 'Success',
+                  text: `Return ${action}d successfully!`,
+                  timer: 1500,
+                  showConfirmButton: false
+                }).then(() => window.location.reload());
+              } else {
+                Swal.fire({
+                  icon: 'error',
+                  title: 'Error',
+                  text: data.message || 'Failed to process return.'
+                });
+                modalSubmit.disabled = false;
+                modalSubmit.innerText = 'Submit';
+              }
+            })
+            .catch(err => {
+              Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Network error. Please try again.'
+              });
+              modalSubmit.disabled = false;
+              modalSubmit.innerText = 'Submit';
+            });
+        }, 500);
+      }
+    }
+
+    function closeModal() {
+      document.getElementById('modal').classList.add('hidden');
+      document.getElementById('modal-error').classList.add('hidden');
+    }
+
+    function viewOrderDetails(id) {
+      window.location.href = `/admin/order/${id}`;
+    }
+
+    const searchInput = document.getElementById('search-input');
+    const statusFilter = document.getElementById('status-filter');
+    const clearBtn = document.getElementById('clear-btn');
+
+    function applyFilters() {
+      const searchTerm = searchInput.value.trim();
+      const status = statusFilter.value;
+      const sort = '<%= sort || "createdAt" %>';
+      const direction = '<%= direction || "desc" %>';
+      const url = new URL(window.location);
+      url.searchParams.set('search', searchTerm);
+      url.searchParams.set('status', status);
+      url.searchParams.set('sort', sort);
+      url.searchParams.set('direction', direction);
+      url.searchParams.set('page', 1);
+      window.location.href = url.toString();
+    }
+
+    searchInput.addEventListener('input', () => {
+      clearTimeout(searchInput.searchTimeout);
+      searchInput.searchTimeout = setTimeout(applyFilters, 500);
+    });
+
+    statusFilter.addEventListener('change', applyFilters);
+
+    clearBtn.addEventListener('click', () => {
+      searchInput.value = '';
+      statusFilter.value = '';
+      const url = new URL(window.location);
+      url.searchParams.delete('search');
+      url.searchParams.delete('status');
+      url.searchParams.set('sort', 'createdAt');
+      url.searchParams.set('direction', 'desc');
+      url.searchParams.set('page', 1);
+      window.location.href = url.toString();
+    });
+
+    const table = document.getElementById('orders-table');
+    const headers = table.querySelectorAll('th[data-sort]');
+    let currentSort = { column: '<%= sort || "createdAt" %>', direction: '<%= direction || "desc" %>' };
+
+    headers.forEach(header => {
+      header.addEventListener('click', () => {
+        const column = header.dataset.sort;
+        const url = new URL(window.location);
+        url.searchParams.set('sort', column);
+        url.searchParams.set('direction', currentSort.column === column && currentSort.direction === 'asc' ? 'desc' : 'asc');
+        url.searchParams.set('page', 1);
+        window.location.href = url.toString();
+      });
+    });
+
+    document.getElementById('modal').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('modal')) closeModal();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !document.getElementById('modal').classList.contains('hidden')) {
+        closeModal();
+      }
+    });
+  </script>
+</body>
+</html>

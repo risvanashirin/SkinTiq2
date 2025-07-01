@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard - Skintiq</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #ecf0f1;
+    }
+
+    .sidebar {
+      width: 250px;
+      background-color: #1a252f;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.3s ease-in-out;
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      z-index: 1000;
+      overflow-y: auto;
+    }
+
+    .sidebar h2 {
+      background-color: #1a252f;
+      color: white;
+      padding: 1.2rem;
+      text-align: center;
+      margin: 0;
+      font-size: 32px;
+      letter-spacing: 1px;
+    }
+
+    .nav-links {
+      flex-grow: 1;
+      padding-top: 1rem;
+    }
+
+    .nav-links a,
+    .bottom-links a {
+      display: flex;
+      align-items: center;
+      padding: 1rem 1.2rem;
+      gap: 12px;
+      color: #fff;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      font-size: 16px;
+    }
+
+    .nav-links a:hover,
+    .bottom-links a:hover {
+      background-color: #34495e;
+      padding-left: 1.7rem;
+    }
+
+    .nav-links a.active,
+    .bottom-links a.active {
+      background-color: rgb(107, 102, 102);
+      padding-left: 1.7rem;
+    }
+
+    .bottom-links {
+      padding: 1rem;
+      border-top: 1px solid #34495e;
+    }
+
+    @media screen and (max-width: 768px) {
+      .sidebar {
+        width: 100%;
+        flex-direction: row;
+        overflow-x: auto;
+        justify-content: start;
+        height: auto;
+        position: static;
+      }
+      .sidebar h2 {
+        display: none;
+      }
+      .nav-links, .bottom-links {
+        flex-direction: row;
+        padding: 0;
+        gap: 5px;
+      }
+      .nav-links a, .bottom-links a {
+        padding: 0.8rem;
+        font-size: 14px;
+        white-space: nowrap;
+      }
+      body {
+        margin-left: 0;
+      }
+    }
+    .logo {
+    font-family: 'Yeseva One', serif;
+  font-size: 44px;
+  color: #607D8B;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="sidebar">
+    <div>
+      <div class="logo">
+          <h2>SKINTIQ</h2>
+      </div>
+      <div class="nav-links">
+        <a href="/admin"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+        <a href="/admin/users"><i class="fas fa-users"></i> Customers</a>
+        <a href="/admin/category"><i class="fas fa-th-list"></i> Category</a>
+        <a href="/admin/brand"><i class="fas fa-tags"></i> Brand</a>
+        <a href="/admin/addProducts"><i class="fas fa-plus-square"></i> Add-Product</a>
+        <a href="/admin/products"><i class="fas fa-box-open"></i> Products</a>
+        <a href="/admin/coupon"><i class="fas fa-ticket-alt"></i> Coupon</a>
+        <a href="/admin/order"><i class="fas fa-shopping-cart"></i> Orders</a>
+        <a href="/admin/sales"><i class="fas fa-chart-line"></i> Sales</a>
+      </div>
+    </div>
+    <div class="bottom-links">
+      <a href="/admin/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </div>
+  </div>
+
+  <script>
+    // Get the current path
+    const currentPath = window.location.pathname;
+    const links = document.querySelectorAll('.nav-links a, .bottom-links a');
+
+    links.forEach(link => {
+      const linkPath = new URL(link.href).pathname;
+      if (linkPath === currentPath) {
+        link.classList.add('active');
+      }
+    });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Failed - Skintiq</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background: #f7f7f7;
+            margin: 0;
+            padding: 1rem;
+        }
+        .container {
+            max-width: 600px;
+            margin: 2rem auto;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .header {
+            padding: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+            text-align: center;
+        }
+        .message {
+            padding: 1.5rem;
+            text-align: center;
+        }
+        .illustration {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+        .order-details {
+            padding: 1rem 1.5rem;
+        }
+        .order-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .order-item img {
+            width: 48px;
+            height: 48px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+        .summary {
+            padding: 1rem 1.5rem;
+            background: #fafafa;
+            border-top: 1px solid #e5e7eb;
+        }
+        .summary div {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.25rem 0;
+            font-size: 0.875rem;
+        }
+        .summary .total {
+            font-weight: 600;
+            padding-top: 0.5rem;
+            border-top: 1px solid #e5e7eb;
+        }
+        .actions {
+            padding: 1.5rem;
+            text-align: center;
+            border-top: 1px solid #e5e7eb;
+        }
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+            padding: 0.5rem 1.5rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: background-color 0.2s;
+        }
+        .btn-primary:hover {
+            background: #2563eb;
+        }
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+            padding: 0.5rem 1.5rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: background-color 0.2s;
+        }
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+        .tooltip {
+            position: relative;
+            cursor: help;
+        }
+        .tooltip .tooltip-text {
+            visibility: hidden;
+            width: 140px;
+            background: #374151;
+            color: white;
+            text-align: center;
+            border-radius: 4px;
+            padding: 0.5rem;
+            position: absolute;
+            z-index: 10;
+            bottom: 130%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.75rem;
+        }
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+        @media (max-width: 600px) {
+            .container {
+                margin: 1rem;
+                border-left: none;
+                border-right: none;
+                border-radius: 0;
+            }
+            .order-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="container">
+        <section class="header">
+            <h1 class="text-lg font-semibold text-gray-900">Payment Failed</h1>
+        </section>
+        <section class="message">
+            <div class="illustration">
+                <svg width="100" height="100" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z" fill="#dc2626"/>
+                </svg>
+            </div>
+            <p class="text-gray-600 text-sm"><%= message %></p>
+        </section>
+        <% if (orders && orders.length > 0) { %>
+            <section class="order-details">
+                <h2 class="text-sm font-medium text-gray-700 mb-2">Order Details</h2>
+                <% 
+                    let totalPrice = orders.reduce((sum, order) => sum + (order.totalPrice || 0), 0);
+                    let baseDiscount = totalPrice > 1500 ? totalPrice * 0.1 : 0;
+                    let totalDiscount = orders.reduce((sum, order) => sum + (order.discount || 0), 0);
+                    let couponDiscount = totalDiscount - baseDiscount > 0 ? totalDiscount - baseDiscount : 0;
+                    let gst = totalPrice > 2000 ? 10 : 0;
+                    let shippingCharge = 20;
+                    let finalPrice = totalPrice - totalDiscount + gst + shippingCharge;
+                %>
+                <% orders.forEach(order => { %>
+                    <div class="order-item">
+                        <div>
+                            <% if (order.productImages && order.productImages.length > 0) { %>
+                                <img src="<%= order.productImages[0] %>" alt="<%= order.productName || 'Product' %>">
+                            <% } else { %>
+                                <div class="w-12 h-12 bg-gray-100 flex items-center justify-center rounded">
+                                    <span class="text-gray-400 text-xs">No Image</span>
+                                </div>
+                            <% } %>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-gray-900 text-sm font-medium"><%= order.productName %></p>
+                            <p class="text-gray-500 text-xs">Quantity: <%= order.quantity %></p>
+                        </div>
+                        <div class="text-gray-900 text-sm">₹<%= order.totalPrice.toFixed(2) %></div>
+                    </div>
+                <% }) %>
+            </section>
+            <section class="summary">
+                <div>
+                    <span class="text-gray-600">Subtotal</span>
+                    <span class="text-gray-900">₹<%= totalPrice.toFixed(2) %></span>
+                </div>
+                <div>
+                    <span class="tooltip text-gray-600">
+                        Discount
+                        <span class="tooltip-text">10% off for orders above ₹1500</span>
+                    </span>
+                    <span class="text-green-600">₹<%= baseDiscount.toFixed(2) %></span>
+                </div>
+                <% if (couponDiscount > 0 && orders[0].couponApplied && orders[0].couponCode) { %>
+                    <div>
+                        <span class="text-gray-600">Coupon (<%= orders[0].couponCode %>)</span>
+                        <span class="text-green-600">₹<%= couponDiscount.toFixed(2) %></span>
+                    </div>
+                <% } %>
+                <div>
+                    <span class="tooltip text-gray-600">
+                        GST
+                        <span class="tooltip-text">₹10 for orders above ₹2000</span>
+                    </span>
+                    <span class="text-gray-900">₹<%= gst.toFixed(2) %></span>
+                </div>
+                <div>
+                    <span class="tooltip text-gray-600">
+                        Shipping
+                        <span class="tooltip-text">Fixed ₹20 shipping charge per order</span>
+                    </span>
+                    <span class="text-gray-900">₹<%= shippingCharge.toFixed(2) %></span>
+                </div>
+                <div class="total">
+                    <span class="text-gray-900">Total</span>
+                    <span class="text-gray-900">₹<%= finalPrice.toFixed(2) %></span>
+                </div>
+            </section>
+        <% } else { %>
+            <section class="order-details">
+                <p class="text-gray-600 text-sm text-center">No order details available.</p>
+            </section>
+        <% } %>
+        <section class="actions">
+            <a href="/checkout" class="btn-primary mr-2">Retry Payment</a>
+            <% if (orders && orders.length > 0) { %>
+                <a href="/order-details/<%= orders[0].orderId %>" class="btn-secondary">View Order Details</a>
+            <% } %>
+        </section>
+    </main>
+</body>
+</html>

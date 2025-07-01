@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Order Details</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    :root {
+      --primary-bg: #ffffff;
+      --secondary-bg: #f8f8f8;
+      --accent-gradient: linear-gradient(90deg, #7e6b00, #a68c00);
+      --accent-hover: linear-gradient(90deg, #655700, #8c7500);
+      --danger-gradient: linear-gradient(90deg, #b34747, #d9534f);
+      --danger-hover: linear-gradient(90deg, #9e3e3e, #c44a47);
+      --text-primary: #2a2a2a;
+      --text-secondary: #4a4a4a;
+      --border-color: #ccc;
+    }
+
+    body {
+      background: linear-gradient(180deg, #ffffff 0%, #f8f8f8 100%);
+      color: var(--text-primary);
+      font-family: 'Poppins', sans-serif;
+      font-size: clamp(0.85rem, 2.5vw, 1rem);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    .main-content {
+      padding: clamp(1.5rem, 4vw, 2rem);
+      max-width: min(100%, 800px);
+      margin: 0 auto;
+    }
+
+    .orders-card {
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      background: linear-gradient(145deg, #ffffff, #f5f5f5);
+      margin-bottom: clamp(1rem, 3vw, 1.5rem);
+    }
+
+    .orders-card:hover {
+      box-shadow: 0 6px 16px rgba(126, 107, 0, 0.15);
+      transform: translateY(-2px);
+    }
+
+    .order-header {
+      background: linear-gradient(145deg, #ffffff, #f5f5f5);
+      padding: clamp(0.75rem, 2vw, 1rem);
+      color: #7e6b00;
+      border-top-left-radius: 12px;
+      border-top-right-radius: 12px;
+    }
+
+    .order-header .row {
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .order-header small {
+      font-size: clamp(0.75rem, 2vw, 0.8rem);
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      font-weight: 500;
+      display: block;
+    }
+
+    .order-header p {
+      margin-bottom: 0;
+      font-size: clamp(0.8rem, 2vw, 0.9rem);
+      font-weight: 500;
+    }
+
+    .order-header .button-group {
+      display: flex;
+      gap: clamp(0.5rem, 1.5vw, 0.75rem);
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      margin-top: clamp(0.5rem, 1.5vw, 0.75rem);
+    }
+
+    @media (max-width: 768px) {
+      .order-header .button-group {
+        justify-content: flex-start;
+      }
+    }
+
+    .order-body {
+      padding: clamp(1rem, 3vw, 1.5rem);
+    }
+
+    .section-title {
+      font-size: clamp(1rem, 2.5vw, 1.1rem);
+      font-weight: 600;
+      margin-bottom: clamp(0.75rem, 2vw, 1rem);
+      color: var(--text-primary);
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: clamp(0.4rem, 1.5vw, 0.5rem);
+    }
+
+    .product-image {
+      width: clamp(60px, 15vw, 80px);
+      height: clamp(60px, 15vw, 80px);
+      object-fit: cover;
+      border-radius: 5px;
+    }
+
+    .status-badge {
+      padding: clamp(4px, 1.5vw, 5px) clamp(8px, 2vw, 10px);
+      border-radius: 12px;
+      font-size: clamp(0.75rem, 2vw, 0.8rem);
+      color: #fff;
+      font-weight: 500;
+      display: inline-block;
+    }
+
+    .btn-outline-primary,
+    .btn-outline-danger,
+    .btn-outline-warning,
+    .btn-outline-success {
+      border: 1px solid;
+      font-size: clamp(0.75rem, 2vw, 0.85rem);
+      padding: clamp(0.3rem, 1vw, 0.4rem) clamp(0.6rem, 1.5vw, 0.8rem);
+      border-radius: 5px;
+      min-width: clamp(90px, 20vw, 100px);
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    .btn-outline-primary {
+      border-color: #7e6b00;
+      color: #7e6b00;
+    }
+
+    .btn-outline-primary:hover {
+      background: var(--accent-gradient);
+      color: #fff;
+      box-shadow: 0 4px 10px rgba(126, 107, 0, 0.3);
+    }
+
+    .btn-outline-danger,
+    .btn-outline-warning {
+      border-color: #b34747;
+      color: #b34747;
+    }
+
+    .btn-outline-danger:hover,
+    .btn-outline-warning:hover {
+      background: var(--danger-gradient);
+      color: #fff;
+      box-shadow: 0 4px 10px rgba(185, 71, 71, 0.3);
+    }
+
+    .btn-outline-success {
+      border-color: #7e6b00;
+      color: #7e6b00;
+    }
+
+    .btn-outline-success:hover {
+      background: var(--accent-gradient);
+      color: #fff;
+      box-shadow: 0 4px 10px rgba(126, 107, 0, 0.3);
+    }
+
+    .button-group {
+      display: flex;
+      gap: clamp(0.5rem, 1.5vw, 0.75rem);
+      flex-wrap: wrap;
+      margin-top: clamp(0.5rem, 1.5vw, 0.75rem);
+      justify-content: flex-end;
+    }
+
+    @media (max-width: 768px) {
+      .button-group {
+        justify-content: flex-start;
+      }
+    }
+
+    .order-body p {
+      font-size: clamp(0.8rem, 2vw, 0.9rem);
+      margin-bottom: clamp(0.4rem, 1.5vw, 0.5rem);
+      color: var(--text-primary);
+    }
+
+    .order-body h5 {
+      font-size: clamp(0.9rem, 2.5vw, 1rem);
+      font-weight: 600;
+      margin-bottom: clamp(0.5rem, 1.5vw, 0.75rem);
+    }
+
+    .text-center h3 {
+      font-size: clamp(1.2rem, 3vw, 1.5rem);
+      font-weight: 600;
+      margin-bottom: clamp(0.5rem, 1.5vw, 0.75rem);
+    }
+
+    .text-center p {
+      font-size: clamp(0.8rem, 2vw, 0.9rem);
+      color: var(--text-secondary);
+    }
+
+    .modal-content {
+      border-radius: 12px;
+      background: linear-gradient(145deg, #ffffff, #f5f5f5);
+    }
+
+    .modal-header {
+      background: linear-gradient(145deg, #ffffff, #f5f5f5);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .modal-title {
+      color: #7e6b00;
+      font-size: clamp(1rem, 2.5vw, 1.1rem);
+      font-weight: 600;
+    }
+
+    .modal-body p {
+      font-size: clamp(0.8rem, 2vw, 0.9rem);
+      margin-bottom: clamp(0.5rem, 1.5vw, 0.75rem);
+    }
+
+    .modal-body select,
+    .modal-body textarea {
+      width: 100%;
+      padding: clamp(0.3rem, 1vw, 0.4rem);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      font-size: clamp(0.75rem, 2vw, 0.85rem);
+    }
+
+    .modal-body textarea {
+      resize: vertical;
+      min-height: clamp(60px, 15vw, 80px);
+    }
+
+    #otherCancelReason,
+    #otherReturnReason,
+    #otherCancelAllReason {
+      display: none;
+    }
+
+    .modal-footer .btn {
+      font-size: clamp(0.75rem, 2vw, 0.85rem);
+      padding: clamp(0.3rem, 1vw, 0.4rem) clamp(0.6rem, 1.5vw, 0.8rem);
+      min-width: clamp(80px, 20vw, 90px);
+    }
+
+    .modal-footer .btn-danger,
+    .modal-footer .btn-warning {
+      background: var(--danger-gradient);
+      border: none;
+      box-shadow: 0 2px 6px rgba(185, 71, 71, 0.2);
+    }
+
+    .modal-footer .btn-danger:hover,
+    .modal-footer .btn-warning:hover {
+      background: var(--danger-hover);
+      box-shadow: 0 4px 10px rgba(185, 71, 71, 0.3);
+    }
+
+    .modal-footer .btn-secondary {
+      background: linear-gradient(90deg, #6c757d, #8a9399);
+      border: none;
+      box-shadow: 0 2px 6px rgba(108, 117, 125, 0.2);
+    }
+
+    .modal-footer .btn-secondary:hover {
+      background: linear-gradient(90deg, #5a6268, #767e84);
+      box-shadow: 0 4px 10px rgba(108, 117, 125, 0.3);
+    }
+
+    .product-item {
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: clamp(0.5rem, 1.5vw, 0.75rem);
+      margin-bottom: clamp(0.5rem, 1.5vw, 0.75rem);
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .product-item:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+      margin-bottom: 0;
+    }
+
+    .summary-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: clamp(0.3rem, 1vw, 0.4rem);
+      font-size: clamp(0.8rem, 2vw, 0.9rem);
+      width: 100%;
+    }
+
+    .summary-label {
+      font-weight: 500;
+      color: var(--text-primary);
+      flex: 1;
+    }
+
+    .summary-value {
+      font-weight: 500;
+      color: var(--text-primary);
+      text-align: right;
+      min-width: clamp(60px, 15vw, 80px);
+    }
+
+    .total-label {
+      font-weight: 600;
+      font-size: clamp(0.85rem, 2vw, 0.95rem);
+      color: var(--text-primary);
+    }
+
+    .total-value {
+      font-weight: 600;
+      font-size: clamp(0.85rem, 2vw, 0.95rem);
+      color: var(--text-primary);
+      text-align: right;
+      min-width: clamp(60px, 15vw, 80px);
+    }
+
+    .text-green-600 {
+      color: #16a34a;
+    }
+
+    .tooltip {
+      position: relative;
+      cursor: pointer;
+    }
+
+    .tooltip .tooltip-text {
+      visibility: hidden;
+      width: clamp(100px, 25vw, 120px);
+      background-color: #374151;
+      color: white;
+      text-align: center;
+      border-radius: 0.5rem;
+      padding: clamp(0.3rem, 1vw, 0.4rem);
+      position: absolute;
+      z-index: 1;
+      bottom: 125%;
+      left: 50%;
+      transform: translateX(-50%);
+      opacity: 0;
+      transition: opacity 0.3s;
+      font-size: clamp(0.7rem, 2vw, 0.75rem);
+    }
+
+    .tooltip:hover .tooltip-text {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    @media (max-width: 768px) {
+      .main-content {
+        padding: clamp(1rem, 3vw, 1.5rem);
+      }
+
+      .orders-card {
+        margin-bottom: clamp(0.75rem, 2vw, 1rem);
+      }
+
+      .order-header {
+        padding: clamp(0.5rem, 1.5vw, 0.75rem);
+      }
+
+      .order-header .row {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .order-header .col-md-3 {
+        width: 100%;
+        margin-bottom: clamp(0.4rem, 1vw, 0.5rem);
+      }
+
+      .order-body {
+        padding: clamp(0.75rem, 2vw, 1rem);
+      }
+
+      .section-title {
+        font-size: clamp(0.9rem, 2vw, 1rem);
+        margin-bottom: clamp(0.5rem, 1.5vw, 0.75rem);
+      }
+
+      .order-body h5 {
+        font-size: clamp(0.85rem, 2vw, 0.9rem);
+      }
+
+      .order-body p {
+        font-size: clamp(0.75rem, 2vw, 0.85rem);
+      }
+
+      .order-header p {
+        font-size: clamp(0.75rem, 2vw, 0.85rem);
+      }
+
+      .product-image {
+        width: clamp(50px, 12vw, 70px);
+        height: clamp(50px, 12vw, 70px);
+      }
+
+      .product-item {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .product-item .col-md-2,
+      .product-item .col-md-6,
+      .product-item .col-md-4 {
+        width: 100%;
+        text-align: left;
+      }
+
+      .text-center h3 {
+        font-size: clamp(1rem, 2.5vw, 1.25rem);
+      }
+    }
+
+    @media (max-width: 480px) {
+      .main-content {
+        padding: clamp(0.75rem, 2vw, 1rem);
+      }
+
+      .orders-card {
+        padding: clamp(0.5rem, 1.5vw, 0.75rem);
+      }
+
+      .modal-dialog {
+        width: min(95%, 360px);
+        margin: clamp(0.75rem, 2vw, 1rem) auto;
+      }
+
+      .modal-content {
+        padding: clamp(0.5rem, 1.5vw, 0.75rem);
+      }
+    }
+
+    @media (max-width: 320px) {
+      .main-content {
+        padding: clamp(0.5rem, 1.5vw, 0.75rem);
+      }
+
+      .modal-dialog {
+        width: min(90%, 300px);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="main-content">
+    <h1 class="mb-4" style="font-size: clamp(1.25rem, 3.5vw, 1.75rem); font-weight: 600; color: #7e6b00;">Order Details</h1>
+
+    <% if (message) { %>
+      <div class="alert alert-danger" role="alert">
+        <%= message %>
+      </div>
+    <% } else if (!orders || orders.length === 0) { %>
+      <div class="text-center py-4">
+        <div class="mb-3">
+          <i class="fas fa-shopping-bag fa-3x text-muted"></i>
+        </div>
+        <h3 style="font-size: clamp(1.2rem, 3vw, 1.5rem);">Order Not Found</h3>
+        <p class="text-muted" style="font-size: clamp(0.8rem, 2vw, 0.9rem);">The order you are looking for does not exist.</p>
+        <a href="/orders" class="btn btn-outline-primary mt-2">Back to Orders</a>
+      </div>
+    <% } else { %>
+      <div class="orders-card">
+        <!-- Order Header -->
+        <div class="order-header">
+          <div class="row">
+            <div class="col-md-3 col-sm-6 mb-2">
+              <small>Order Placed</small><br>
+              <p><%= new Date(orders[0].invoiceDate).toLocaleDateString() %></p>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-2">
+              <small>Total</small><br>
+              <p>₹<%= orders.reduce((sum, item) => sum + item.finalAmount, 0).toFixed(2) %></p>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-2">
+              <small>Order ID</small><br>
+              <p>#<%= orders[0].orderId %></p>
+            </div>
+            <div class="col-md-3 col-sm-12">
+              <div class="button-group">
+                <% if (orders.length > 1 && !orders.every(item => ['delivered', 'cancelled', 'returned', 'return request', 'failed'].includes(item.status))) { %>
+                  <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#cancelAllModal">Cancel All Orders</button>
+                <% } %>
+                <% 
+                  const now = new Date();
+                  const orderDate = new Date(orders[0].invoiceDate);
+                  const timeDiff = (now - orderDate) / (1000 * 60 * 60); // Time difference in hours
+                  if (orders.some(item => item.status === 'failed') && timeDiff <= 24) { 
+                %>
+                  <a href="/checkout/retry-order/<%= orders[0].orderId %>" class="btn btn-outline-primary">Retry Payment</a>
+                <% } %>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Order Body -->
+        <div class="order-body">
+          <!-- Product Details -->
+          <div class="mb-4">
+            <h5 class="section-title">Product Details</h5>
+            <% orders.forEach(item => { %>
+              <div class="product-item row align-items-center">
+                <div class="col-md-2 col-sm-4 mb-2 mb-sm-0">
+                  <% if (item.productImages && Array.isArray(item.productImages) && item.productImages.length > 0 && item.productImages[0] && typeof item.productImages[0] === 'string' && item.productImages[0].trim() !== '') { %>
+                    <img src="<%= item.productImages[0] %>" alt="<%= item.productName || 'Product' %>" class="product-image" onerror="this.src='/images/placeholder.jpg'" />
+                  <% } else { %>
+                    <img src="/images/placeholder.jpg" alt="No Image" class="product-image" />
+                  <% } %>
+                </div>
+                <div class="col-md-6 col-sm-8">
+                  <h5><%= item.productName || 'Unknown Product' %></h5>
+                  <p>Quantity: <%= item.quantity %></p>
+                  <p>Price: ₹<%= item.price.toFixed(2) %></p>
+                  <p>Final Amount: ₹<%= item.finalAmount.toFixed(2) %></p>
+                  <% if (item.couponApplied) { %>
+                    <p>Coupon: <%= item.couponCode %> (Discount: ₹<%= item.discount.toFixed(2) %>)</p>
+                  <% } %>
+                  <span class="status-badge 
+                    <%= item.status === 'delivered' ? 'bg-success' :
+                        item.status === 'cancelled' ? 'bg-danger' :
+                        item.status === 'returned' ? 'bg-danger' :
+                        item.status === 'shipped' ? 'bg-info' :
+                        item.status === 'failed' ? 'bg-danger' :
+                        'bg-warning' %> text-white">
+                    <%= item.status.toUpperCase() %>
+                  </span>
+                </div>
+                <div class="col-md-4 col-sm-12 text-md-end text-sm-start">
+                  <div class="button-group">
+                    <% if (item.status === 'delivered') { %>
+                      <button class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#returnModal_<%= item._id %>">Request Return</button>
+                      <button class="btn btn-outline-success" onclick="downloadInvoice('<%= item._id %>')">Download Invoice</button>
+                    <% } else if (item.status !== 'cancelled' && item.status !== 'returned' && item.status !== 'return request' && item.status !== 'failed') { %>
+                      <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#cancelModal_<%= item._id %>">Cancel Order</button>
+                    <% } %>
+                  </div>
+                </div>
+              </div>
+            <% }) %>
+          </div>
+
+          <!-- Shipping Address -->
+          <div class="mb-4">
+            <h5 class="section-title">Shipping Address</h5>
+            <p><%= orders[0].address.name %></p>
+            <p><%= orders[0].address.addressType %>, <%= orders[0].address.landmark || '' %></p>
+            <p><%= orders[0].address.city %>, <%= orders[0].address.state %> - <%= orders[0].address.pincode %></p>
+            <p>Phone: <%= orders[0].address.phone %></p>
+          </div>
+
+          <!-- Payment Method -->
+          <div class="mb-4">
+            <h5 class="section-title">Payment Method</h5>
+            <p><%= orders[0].paymentMethod %></p>
+          </div>
+
+          <!-- Order Summary -->
+          <div class="mb-4">
+            <h5 class="section-title">Order Summary</h5>
+            <% 
+              let totalPrice = orders.reduce((sum, item) => sum + (item.totalPrice || 0), 0);
+              let baseDiscount = totalPrice > 1500 ? totalPrice * 0.1 : 0;
+              let totalDiscount = orders.reduce((sum, item) => sum + (item.discount || 0), 0);
+              let couponDiscount = totalDiscount - baseDiscount > 0 ? totalDiscount - baseDiscount : 0;
+              let gst = totalPrice > 2000 ? 10 : 0;
+              let shippingCharge = 20;
+              let finalAmount = totalPrice - totalDiscount + gst + shippingCharge;
+            %>
+            <div class="summary-item">
+              <span class="summary-label">Subtotal</span>
+              <span class="summary-value">₹<%= totalPrice.toFixed(2) %></span>
+            </div>
+            <div class="summary-item">
+              <span class="summary-label">Discount <span class="tooltip"><i class="fas fa-info-circle"></i><span class="tooltip-text">10% off for orders above ₹1500</span></span></span>
+              <span class="summary-value text-green-600">-₹<%= baseDiscount.toFixed(2) %></span>
+            </div>
+            <div class="summary-item">
+              <span class="summary-label">Coupon Discount<%= orders[0].couponApplied && orders[0].couponCode ? ` (${orders[0].couponCode})` : '' %></span>
+              <span class="summary-value text-green-600">-₹<%= couponDiscount.toFixed(2) %></span>
+            </div>
+            <div class="summary-item">
+              <span class="summary-label">GST <span class="tooltip"><i class="fas fa-info-circle"></i><span class="tooltip-text">₹10 for orders above ₹2000</span></span></span>
+              <span class="summary-value">+₹<%= gst.toFixed(2) %></span>
+            </div>
+            <div class="summary-item">
+              <span class="summary-label">Shipping Charge <span class="tooltip"><i class="fas fa-info-circle"></i><span class="tooltip-text">Fixed ₹20 shipping charge per order</span></span></span>
+              <span class="summary-value">+₹<%= shippingCharge.toFixed(2) %></span>
+            </div>
+            <div class="summary-item mt-2 pt-2 border-top">
+              <span class="total-label">Order Total</span>
+              <span class="total-value">₹<%= finalAmount.toFixed(2) %></span>
+            </div>
+          </div>
+
+          <!-- Additional Details -->
+          <div class="mb-4">
+            <div class="row">
+              <% orders.forEach(item => { %>
+                <% if (item.status === 'delivered' && item.deliveredOn) { %>
+                  <div class="col-md-6 mb-3">
+                    <h6 style="font-size: clamp(0.8rem, 2vw, 0.9rem); font-weight: 500;">Delivered On (<%= item.productName || 'Unknown Product' %>)</h6>
+                    <p><%= new Date(item.deliveredOn).toLocaleDateString() %></p>
+                  </div>
+                <% } %>
+                <% if (item.cancelReason) { %>
+                  <div class="col-md-6 mb-3">
+                    <h6 style="font-size: clamp(0.8rem, 2vw, 0.9rem); font-weight: 500;">Cancellation Reason (<%= item.productName || 'Unknown Product' %>)</h6>
+                    <p><%= item.cancelReason %></p>
+                  </div>
+                <% } %>
+                <% if (item.returnReason) { %>
+                  <div class="col-md-6 mb-3">
+                    <h6 style="font-size: clamp(0.8rem, 2vw, 0.9rem); font-weight: 500;">Return Reason (<%= item.productName || 'Unknown Product' %>)</h6>
+                    <p><%= item.returnReason %></p>
+                  </div>
+                <% } %>
+              <% }) %>
+              <% if (!orders.some(item => item.deliveredOn || item.cancelReason || item.returnReason)) { %>
+                <div class="col-12">
+                </div>
+              <% } %>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <div class="button-group">
+        <a href="/orders" class="btn btn-outline-primary">Back to Orders</a>
+      </div>
+    <% } %>
+
+    <!-- Cancel Order Modals -->
+    <% orders.forEach(item => { %>
+      <div class="modal fade" id="cancelModal_<%= item._id %>" tabindex="-1" aria-labelledby="cancelModalLabel_<%= item._id %>" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="cancelModalLabel_<%= item._id %>">Cancel Order: <%= item.productName || 'Unknown Product' %></h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <p>Please select a reason for cancelling the order:</p>
+              <select id="cancelReason_<%= item._id %>" class="form-select mb-3" onchange="toggleOtherCancelReason('<%= item._id %>')">
+                <option value="Changed my mind">Changed my mind</option>
+                <option value="Ordered by mistake">Ordered by mistake</option>
+                <option value="Found a better deal">Found a better deal</option>
+                <option value="Other">Other</option>
+              </select>
+              <textarea id="otherCancelReason_<%= item._id %>" placeholder="Please specify the reason" class="form-control"></textarea>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-danger" onclick="submitCancelOrder('<%= item._id %>')">Submit Cancellation</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% }) %>
+
+    <!-- Cancel All Orders Modal -->
+    <div class="modal fade" id="cancelAllModal" tabindex="-1" aria-labelledby="cancelAllModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="cancelAllModalLabel">Cancel All Orders</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p>Please select a reason for cancelling all orders:</p>
+            <select id="cancelAllReason" class="form-select mb-3" onchange="toggleOtherCancelAllReason()">
+              <option value="Changed my mind">Changed my mind</option>
+              <option value="Ordered by mistake">Ordered by mistake</option>
+              <option value="Found a better deal">Found a better deal</option>
+              <option value="Other">Other</option>
+            </select>
+            <textarea id="otherCancelAllReason" placeholder="Please specify the reason" class="form-control"></textarea>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-danger" onclick="submitCancelAllOrders('<%= orders[0].orderId %>')">Submit Cancellation</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Return Request Modals -->
+    <% orders.forEach(item => { %>
+      <div class="modal fade" id="returnModal_<%= item._id %>" tabindex="-1" aria-labelledby="returnModalLabel_<%= item._id %>" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="returnModalLabel_<%= item._id %>">Request Return: <%= item.productName || 'Unknown Product' %></h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <p>Please select a reason for returning the order:</p>
+              <select id="returnReason_<%= item._id %>" class="form-select mb-3" onchange="toggleOtherReturnReason('<%= item._id %>')">
+                <option value="Defective product">Defective product</option>
+                <option value="Wrong item received">Wrong item received</option>
+                <option value="Not as described">Not as described</option>
+                <option value="Other">Other</option>
+              </select>
+              <textarea id="otherReturnReason_<%= item._id %>" placeholder="Please specify the reason" class="form-control"></textarea>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-warning" onclick="submitReturnOrder('<%= item._id %>')">Submit Return Request</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% }) %>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Toggle visibility of "Other" reason text area for cancellation
+    function toggleOtherCancelReason(itemId) {
+      const cancelReason = document.getElementById(`cancelReason_${itemId}`).value;
+      document.getElementById(`otherCancelReason_${itemId}`).style.display = cancelReason === 'Other' ? 'block' : 'none';
+    }
+
+    // Toggle visibility of "Other" reason text area for cancel all
+    function toggleOtherCancelAllReason() {
+      const cancelReason = document.getElementById(`cancelAllReason`).value;
+      document.getElementById(`otherCancelAllReason`).style.display = cancelReason === 'Other' ? 'block' : 'none';
+    }
+
+    // Toggle visibility of "Other" reason text area for return
+    function toggleOtherReturnReason(itemId) {
+      const returnReason = document.getElementById(`returnReason_${itemId}`).value;
+      document.getElementById(`otherReturnReason_${itemId}`).style.display = returnReason === 'Other' ? 'block' : 'none';
+    }
+
+    // Submit cancellation request
+    async function submitCancelOrder(orderId) {
+      const cancelReasonSelect = document.getElementById(`cancelReason_${orderId}`).value;
+      const otherReason = document.getElementById(`otherCancelReason_${orderId}`).value.trim();
+      const cancelReason = cancelReasonSelect === 'Other' && otherReason ? otherReason : cancelReasonSelect;
+
+      try {
+        const response = await fetch('/cancel-order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ orderId, cancelReason }),
+        });
+        const data = await response.json();
+        if (data.success) {
+          Swal.fire('Success', 'Order cancelled successfully', 'success').then(() => {
+            location.reload();
+          });
+        } else {
+          Swal.fire('Error', data.message || 'Failed to cancel order', 'error');
+        }
+      } catch (error) {
+        console.error('Error cancelling order:', error);
+        Swal.fire('Error', 'Server error: Unable to connect to server', 'error');
+      }
+    }
+
+    // Submit cancel all orders request
+    async function submitCancelAllOrders(orderId) {
+      const cancelReasonSelect = document.getElementById(`cancelAllReason`).value;
+      const otherReason = document.getElementById(`otherCancelAllReason`).value.trim();
+      const cancelReason = cancelReasonSelect === 'Other' && otherReason ? otherReason : cancelReasonSelect;
+
+      try {
+        const response = await fetch('/cancel-all-orders', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ orderId, cancelReason }),
+        });
+        const data = await response.json();
+        if (data.success) {
+          Swal.fire('Success', 'All orders cancelled successfully', 'success').then(() => {
+            location.href = data.redirect;
+          });
+        } else {
+          Swal.fire('Error', data.message || 'Failed to cancel all orders', 'error');
+        }
+      } catch (error) {
+        console.error('Error cancelling all orders:', error);
+        Swal.fire('Error', 'Server error: Unable to connect to server', 'error');
+      }
+    }
+
+    // Submit return request
+    async function submitReturnOrder(orderId) {
+      const returnReasonSelect = document.getElementById(`returnReason_${orderId}`).value;
+      const otherReason = document.getElementById(`otherReturnReason_${orderId}`).value.trim();
+      const returnReason = returnReasonSelect === 'Other' && otherReason ? otherReason : returnReasonSelect;
+
+      try {
+        const response = await fetch('/return-order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ orderId, returnReason }),
+        });
+        const data = await response.json();
+        if (data.success) {
+          Swal.fire('Success', 'Return request submitted successfully', 'success').then(() => {
+            location.reload();
+          });
+        } else {
+          Swal.fire('Error', data.message || 'Failed to submit return request', 'error');
+        }
+      } catch (error) {
+        console.error('Error submitting return request:', error);
+        Swal.fire('Error', 'Server error: Unable to connect to server', 'error');
+      }
+    }
+
+    // Download invoice
+    async function downloadInvoice(orderId) {
+      try {
+        const response = await fetch(`/download-invoice?orderId=${orderId}`, {
+          method: 'GET',
+          headers: { 'Accept': 'application/pdf' }
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to generate invoice');
+        }
+
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `invoice-${orderId}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+
+        Swal.fire('Success', 'Invoice downloaded successfully', 'success');
+      } catch (error) {
+        console.error('Error downloading invoice:', error);
+        Swal.fire('Error', 'Failed to download invoice', 'error');
+      }
+    }
+  </script>
+</body>
+</html>
