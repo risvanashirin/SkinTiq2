@@ -341,7 +341,7 @@
     <div class="edit-profile-card" aria-label="Profile image section">
       <div class="profile-image-container">
         <input type="file" id="profilePhotoInput" accept="image/*" style="display: none;" />
-        <img src="<%= user?.profilePhoto || '/Uploads/profile/default.jpg' %>" alt="Profile Image" class="profile-image" id="profileImage" />
+        <img src="<%= user?.profilePhoto || '/Uploads/profile/default.jpg' %>"  class="profile-image" id="profileImage" />
         <button type="button" class="camera-button" id="cameraButton" onclick="document.getElementById('profilePhotoInput').click()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
@@ -354,11 +354,13 @@
       <form class="edit-profile-form" id="editProfileForm">
         <label for="username">Username</label>
         <input type="text" id="username" name="username" value="<%= user?.name || '' %>" required />
+          <% if (user.password){%>
         <label for="email">Email</label>
         <input type="email" id="email" name="email" value="<%= user?.email || '' %>" readonly />
         <div class="action-buttons">
           <button type="button" class="btn-edit-email" onclick="openEmailModal()">Edit Email</button>
           <button type="button" class="btn-edit-password" onclick="openPasswordModal()">Edit Password</button>
+              <% } %>
           <button type="submit" class="btn-save">Save Changes</button>
         </div>
       </form>

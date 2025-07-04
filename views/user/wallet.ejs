@@ -4,39 +4,53 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Wallet</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <style>
-    :root {
-      --primary-bg: #ffffff;
-      --secondary-bg: #f9f9f9;
-      --accent-blue: #a1861f;
-      --text-primary: #1f2937;
-      --text-secondary: #6b7280;
-      --border-color: #e5e7eb;
+    body {
+      font-family: 'Poppins', sans-serif;
+      overflow-x: hidden;
+      background-color: #f3f4f6;
     }
 
-    body {
-      background-color: var(--secondary-bg);
-      color: var(--text-primary);
-      font-family: 'Inter', sans-serif;
+    :root {
+      --accent-gradient: linear-gradient(45deg, #44351c, #efe10a);
+      --accent-hover: linear-gradient(45deg, #3a2e17, #d6cc09);
+      --danger-color: #dc2626;
+      --danger-hover: #b91c1c;
+      --success-color: #16a34a;
+      --success-hover: #13843b;
+    }
+
+    .btn-gradient {
+      background: var(--accent-gradient);
+      border: none;
+      color: #ffffff;
+      transition: all 0.3s ease;
+    }
+
+    .btn-gradient:hover {
+      background: var(--accent-hover);
+      box-shadow: 0 4px 10px rgba(68, 53, 28, 0.3);
     }
 
     .sidebar {
       height: 100vh;
-      background-color: var(--primary-bg);
+      background: #ffffff;
       padding: 2rem 1.5rem;
-      border-right: 1px solid var(--border-color);
+      border-right: 1px solid #e5e7eb;
       position: fixed;
       top: 0;
       left: 0;
       width: 250px;
+      transition: transform 0.3s ease;
     }
 
     .sidebar a {
-      color: var(--text-primary);
+      color: #1f2937;
       text-decoration: none;
       padding: 1rem;
       margin: 0.5rem 0;
@@ -49,7 +63,7 @@
 
     .sidebar a:hover,
     .sidebar .active {
-      background: var(--accent-blue);
+      background: var(--accent-gradient);
       color: #fff;
       transform: translateX(5px);
     }
@@ -59,79 +73,166 @@
       text-align: center;
     }
 
+    .sidebar-toggle {
+      display: none;
+      position: fixed;
+      top: 1rem;
+      left: 1rem;
+      z-index: 60;
+      background: linear-gradient(90deg, #7e6b00, #a68c00);
+      color: #fff;
+      padding: 0.6rem;
+      border-radius: 8px;
+      border: none;
+      box-shadow: 0 2px 6px rgba(126, 107, 0, 0.2);
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .sidebar-toggle:hover {
+      background: linear-gradient(90deg, #655700, #8c7500);
+      box-shadow: 0 4px 10px rgba(126, 107, 0, 0.3);
+    }
+
+    .sidebar-toggle svg {
+      width: 20px;
+      height: 20px;
+      fill: #fff;
+    }
+
     .main-content {
-      margin-left: 250px;
+      background: linear-gradient(145deg, #ffffff, #f5f5f5);
+      border: none;
+      border-radius: 12px;
       padding: 2rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      transition: margin-left 0.3s ease, box-shadow 0.3s ease;
+      will-change: transform;
+      position: relative;
+      max-width: min(100%, 900px);
+      margin: 0 auto;
+      margin-top: 4vh;
+      min-height: calc(92vh - 2rem);
+      box-sizing: border-box;
+    }
+
+    .main-content:hover {
+      box-shadow: 0 6px 16px rgba(126, 107, 0, 0.15);
     }
 
     .wallet-card {
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
-      background: var(--primary-bg);
-      padding: 20px;
-      margin-bottom: 20px;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      background: var(--accent-gradient);
+      color: white;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      transition: box-shadow 0.3s ease;
+      width: 250px;
+    }
+
+    .wallet-card:hover {
+      box-shadow: 0 6px 16px rgba(126, 107, 0, 0.15);
     }
 
     .transaction-card {
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
-      background: var(--primary-bg);
-      margin-bottom: 20px;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      background: #ffffff;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      transition: box-shadow 0.3s ease;
+    }
+
+    .transaction-card:hover {
+      box-shadow: 0 6px 16px rgba(126, 107, 0, 0.15);
     }
 
     .transaction-header {
-      background: #f1f5f9;
-      padding: 10px;
-      color: var(--accent-blue);
-      border-top-left-radius: 8px;
-      border-top-right-radius: 8px;
+      background: black;
+      padding: 1rem;
+      color: #ffffff;
+      border-top-left-radius: 12px;
+      border-top-right-radius: 12px;
+      height: 48px;
     }
 
     .transaction-body {
-      padding: 20px;
+      padding: 1.5rem;
     }
 
     .status-badge {
-      padding: 5px 10px;
+      padding: 0.3rem 0.6rem;
       border-radius: 12px;
       font-size: 0.8rem;
       color: #fff;
     }
 
-    .btn-primary {
-      background-color: var(--accent-blue);
-      border-color: var(--accent-blue);
-    }
-
-    .btn-primary:hover {
-      background-color: #8c741a;
-      border-color: #8c741a;
-    }
-
-    .pagination {
+    .pagination-container {
+      display: flex;
       justify-content: center;
-      margin-top: 20px;
+      align-items: center;
+      gap: 1rem;
+      padding: 1.5rem 0;
     }
 
-    .page-item.active .page-link {
-      background-color: var(--accent-blue);
-      border-color: var(--accent-blue);
+    .pagination-container a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.5rem;
+      border-radius: 0.375rem;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      min-width: 2.25rem;
+      height: 2.25rem;
     }
 
-    .page-link {
-      color: var(--accent-blue);
+    .pagination-container a.nav-button {
+      background: var(--accent-gradient);
+      color: #ffffff;
     }
 
-    .page-link:hover {
-      color: #8c741a;
-      background-color: #f1f5f9;
+    .pagination-container a.nav-button:hover:not(.disabled) {
+      background: var(--accent-hover);
+      box-shadow: 0 4px 10px rgba(68, 53, 28, 0.3);
+    }
+
+    .pagination-container a.disabled {
+      background-color: #d1d5db;
+      color: #9ca3af;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    .pagination-container .page-indicator {
+      font-size: 0.875rem;
+      color: #374151;
+      font-weight: 500;
+    }
+
+    @media (max-width: 576px) {
+      .pagination-container {
+        gap: 0.5rem;
+        padding: 1rem 0;
+      }
+
+      .pagination-container a {
+        min-width: 2rem;
+        height: 2rem;
+        padding: 0.25rem;
+      }
+
+      .pagination-container .page-indicator {
+        font-size: 0.75rem;
+      }
     }
 
     .table th {
       cursor: pointer;
-      color: var(--text-primary);
+      color: #1f2937;
+      padding: 0.75rem;
     }
 
     .table th:hover {
@@ -139,44 +240,86 @@
     }
 
     .type-credit {
-      color: #10b981;
+      color: #16a34a;
       font-weight: 500;
     }
 
     .type-debit {
-      color: #dc3545;
+      color: #dc2626;
       font-weight: 500;
     }
 
     @media (max-width: 768px) {
       .sidebar {
-        width: 200px;
+        width: min(220px, 70vw);
         transform: translateX(-100%);
-        transition: transform 0.3s ease;
       }
 
       .sidebar.open {
         transform: translateX(0);
       }
 
-      .main-content {
-        margin-left: 0;
-      }
-
       .sidebar-toggle {
         display: block;
-        position: fixed;
-        top: 20px;
-        left: 20px;
-        z-index: 60;
-        background: var(--accent-blue);
-        color: #fff;
-        padding: 8px;
-        border-radius: 8px;
+      }
+
+      .sidebar-partial.open ~ .sidebar-toggle {
+        display: none;
+      }
+
+      .main-content {
+        margin: 0 auto;
+        padding: 1.5rem;
+        border-radius: 10px;
+        margin-top: 10vh;
+        min-height: calc(90vh - 2rem);
+        max-width: min(100%, 800px);
+      }
+
+      .main-content.sidebar-open {
+        margin-left: min(220px, 70vw);
+        max-width: min(100%, 800px);
       }
 
       .table-responsive {
         font-size: 0.9rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .main-content {
+        padding: 1rem;
+        border-radius: 8px;
+        margin-top: 8vh;
+        min-height: calc(88vh - 2rem);
+        max-width: min(100%, 800px);
+      }
+
+      .main-content.sidebar-open {
+        margin-left: min(180px, 65vw);
+        max-width: min(100%, 800px);
+      }
+
+      .sidebar-toggle {
+        padding: 0.5rem;
+      }
+
+      .sidebar-toggle svg {
+        width: 18px;
+        height: 18px;
+      }
+    }
+
+    @media (max-width: 320px) {
+      .main-content {
+        padding: 0.8rem;
+        border-radius: 6px;
+        max-width: min(100%, 800px);
+      }
+
+      .main-content.sidebar-open {
+        margin-left: min(160px, 60vw);
+        max-width: min(100%, 800px);
       }
     }
   </style>
@@ -184,17 +327,19 @@
 <body>
   <%- include("../partials/user/sidebar.ejs") %>
 
-  <button class="sidebar-toggle d-md-none fixed top-4 left-4 z-50 p-2">
-    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+  <button class="sidebar-toggle" aria-label="Toggle sidebar">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M3 6h18v2H3V6zm0 5h18v2H3v-2zm0 5h18v2H3v-2z"/>
     </svg>
   </button>
 
-  <div class="main-content p-4">
-    <h2 class="mb-4">Your Wallet</h2>
+  <div class="main-content mx-auto p-6">
+    <div class="flex flex-col items-center mb-6">
+      <h2 class="text-2xl font-bold text-gray-800 text-center">Your Wallet</h2>
+    </div>
 
     <% if (error) { %>
-      <div class="alert alert-danger" role="alert">
+      <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6" role="alert">
         <%= error %>
       </div>
     <% } %>
@@ -202,77 +347,98 @@
     <% if (!wallet || wallet.balance === undefined) { %>
       <div class="text-center py-5">
         <div class="mb-4">
-          <i class="fas fa-wallet fa-3x text-muted"></i>
+          <i class="fas fa-wallet fa-3x text-gray-400"></i>
         </div>
-        <h3>No wallet activity yet</h3>
-        <p class="text-muted">When you add funds or make transactions, they will appear here.</p>
-        <a href="/shop" class="btn btn-primary mt-3">Start Shopping</a>
+        <h3 class="text-xl font-semibold text-gray-800">No wallet activity yet</h3>
+        <p class="text-gray-600">When you add funds or make transactions, they will appear here.</p>
+        <a href="/shop" class="btn-gradient px-4 py-2 rounded text-white mt-4">Start Shopping</a>
       </div>
     <% } else { %>
       <!-- Wallet Balance Card -->
-      <div class="wallet-card mb-4">
-        <div class="row align-items-center">
-          <div class="col-md-6">
-            <h4 class="mb-2">Wallet Balance</h4>
-            <p class="text-3xl font-bold">₹<%= wallet.balance.toFixed(2) %></p>
+      <div class="wallet-card">
+        <div class="flex justify-between items-center">
+          <div>
+            <h4 class="text-lg font-semibold ">Wallet Balance</h4>
+            <p class="text-3xl font-bold ">₹<%= wallet.balance.toFixed(2) %></p>
           </div>
         </div>
       </div>
 
       <!-- Transaction History -->
       <div class="transaction-card">
-        <div class="transaction-header mb-3">
-          <h5 class="mb-0">Transaction History</h5>
+        <div class="transaction-header">
+          <h5 class="text-lg font-bold">Transaction History</h5>
         </div>
         <div class="transaction-body">
           <% if (!wallet.transactions || wallet.transactions.length === 0) { %>
             <div class="text-center py-3">
-              <p class="text-muted">No transactions yet.</p>
+              <p class="text-gray-600">No transactions yet.</p>
             </div>
           <% } else { %>
-           <div class="table-responsive">
-  <table class="table table-hover mb-0">
-    <thead>
-      <tr>
-        <th scope="col" onclick="sortTable(0)">Date</th>
-        <th scope="col" onclick="sortTable(1)">Type</th>
-        <th scope="col" onclick="sortTable(2)">Amount</th>
-        <th scope="col">Description</th>
-        <th scope="col" onclick="sortTable(4)">Status</th>
-      </tr>
-    </thead>
-    <tbody id="transaction-table-body">
-      <% wallet.transactions.forEach(transaction => { %>
-        <tr>
-          <td><%= new Date(transaction.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) %></td>
-          <td class="<%= transaction.type === 'Credit' ? 'type-credit' : 'type-debit' %>">
-            <%= transaction.type %>
-          </td>
-          <td>₹<%= transaction.amount.toFixed(2) %></td>
-          <td><%= transaction.description || 'N/A' %></td>
-          <td>
-            <span class="status-badge 
-              <%= transaction.status === 'Completed' ? 'bg-success' : 'bg-warning' %>">
-              <%= transaction.status %>
-            </span>
-          </td>
-        </tr>
-      <% }) %>
-    </tbody>
-  </table>
-</div>
+            <div class="table-responsive">
+              <table class="table table-hover mb-0">
+                <thead>
+                  <tr>
+                    <th scope="col" onclick="sortTable(0)">Date</th>
+                    <th scope="col" onclick="sortTable(1)">Type</th>
+                    <th scope="col" onclick="sortTable(2)">Amount</th>
+                    <th scope="col">Description</th>
+                    <th scope="col" onclick="sortTable(4)">Status</th>
+                  </tr>
+                </thead>
+                <tbody id="transaction-table-body">
+                  <% wallet.transactions.forEach(transaction => { %>
+                    <tr>
+                      <td><%= new Date(transaction.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) %></td>
+                      <td class="<%= transaction.type === 'Credit' ? 'type-credit' : 'type-debit' %>">
+                        <%= transaction.type %>
+                      </td>
+                      <td>₹<%= transaction.amount.toFixed(2) %></td>
+                      <td><%= transaction.description || 'N/A' %></td>
+                      <td>
+                        <span class="status-badge 
+                          <%= transaction.status === 'Completed' ? 'bg-success' : 'bg-warning' %>">
+                          <%= transaction.status %>
+                        </span>
+                      </td>
+                    </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
 
             <!-- Pagination -->
-            <nav aria-label="Transaction pagination">
-              <ul class="pagination justify-content-center mt-3">
-                <li class="page-item" id="prev-page">
-                  <a class="page-link" href="#" onclick="changePage(-1)" aria-label="Previous">« Previous</a>
-                </li>
-                <li class="page-item active"><span class="page-link" id="page-info">1</span></li>
-                <li class="page-item" id="next-page">
-                  <a class="page-link" href="#" onclick="changePage(1)" aria-label="Next">Next »</a>
-                </li>
-              </ul>
+            <nav class="pagination-container" role="navigation" aria-label="Pagination">
+              <% if (totalPages > 1) { %>
+                <!-- Left Arrow (Previous) -->
+                <a 
+                  href="<%= currentPage > 1 ? `${baseUrl}?page=${currentPage - 1}${queryParams}` : '#' %>" 
+                  class="nav-button <%= currentPage === 1 ? 'disabled' : '' %>"
+                  aria-label="Previous page"
+                  <%= currentPage === 1 ? 'aria-disabled="true"' : '' %>
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                  </svg>
+                </a>
+
+                <!-- Page Indicator -->
+                <span class="page-indicator">
+                  Page <%= currentPage %> of <%= totalPages %>
+                </span>
+
+                <!-- Right Arrow (Next) -->
+                <a 
+                  href="<%= currentPage < totalPages ? `${baseUrl}?page=${currentPage + 1}${queryParams}` : '#' %>" 
+                  class="nav-button <%= currentPage === totalPages ? 'disabled' : '' %>"
+                  aria-label="Next page"
+                  <%= currentPage === totalPages ? 'aria-disabled="true"' : '' %>
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                  </svg>
+                </a>
+              <% } %>
             </nav>
           <% } %>
         </div>
@@ -283,23 +449,54 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     // Sidebar toggle
-    document.querySelector('.sidebar-toggle').addEventListener('click', () => {
-      document.querySelector('.sidebar').classList.toggle('open');
+    document.addEventListener('DOMContentLoaded', () => {
+      const toggleButton = document.querySelector('.sidebar-toggle');
+      const sidebar = document.querySelector('.sidebar-partial');
+      const mainContent = document.querySelector('.main-content');
+
+      // Ensure sidebar is hidden and toggle is visible on load for mobile
+      if (window.innerWidth <= 768) {
+        sidebar.classList.remove('open');
+        mainContent.classList.remove('sidebar-open');
+        toggleButton.style.display = 'block';
+      }
+
+      // Toggle sidebar open
+      if (toggleButton && sidebar && mainContent) {
+        toggleButton.addEventListener('click', () => {
+          sidebar.classList.add('open');
+          mainContent.classList.add('sidebar-open');
+          toggleButton.style.display = 'none';
+        });
+      }
+
+      // Handle window resize
+      window.addEventListener('resize', () => {
+        if (window.innerWidth > 768) {
+          sidebar.classList.remove('open');
+          mainContent.classList.remove('sidebar-open');
+          toggleButton.style.display = 'none';
+        } else {
+          if (!sidebar.classList.contains('open')) {
+            toggleButton.style.display = 'block';
+          }
+        }
+      });
     });
 
     // Transaction table sorting and pagination
     let transactions = <%- JSON.stringify(wallet && wallet.transactions ? wallet.transactions : []) %>;
-    let currentPage = 1;
-    let rowsPerPage = 5; // Match orders.ejs pagination limit
+    let currentPage = <%= currentPage || 1 %>;
+    let rowsPerPage = 5;
     let sortColumn = 0;
-    let sortDirection = -1; // Default to descending for newest first
+    let sortDirection = -1;
 
     function sortTable(column) {
       if (sortColumn === column) {
         sortDirection *= -1;
       } else {
         sortColumn = column;
-        sortDirection = column === 0 ? -1 : 1; // Default to descending for date, ascending for others
+        sortDirection = column === 0 ? -1 : 1;
       }
 
       const keys = ['date', 'type', 'amount', null, 'status'];
@@ -307,13 +504,13 @@
         let valueA = a[keys[column]];
         let valueB = b[keys[column]];
 
-        if (column === 0) { // Date
+        if (column === 0) {
           valueA = new Date(valueA);
           valueB = new Date(valueB);
-        } else if (column === 2) { // Amount
+        } else if (column === 2) {
           valueA = parseFloat(valueA);
           valueB = parseFloat(valueB);
-        } else if (column === 1 || column === 4) { // Type, Status
+        } else if (column === 1 || column === 4) {
           valueA = valueA.toLowerCase();
           valueB = valueB.toLowerCase();
         }
@@ -330,7 +527,6 @@
       const tbody = document.getElementById('transaction-table-body');
       if (!tbody) return;
 
-      // Sort transactions by date (newest first) before pagination
       transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
 
       const start = (currentPage - 1) * rowsPerPage;
@@ -349,52 +545,8 @@
         `;
         tbody.appendChild(tr);
       });
-
-      updatePagination();
     }
 
-    function changePage(delta) {
-      const totalPages = Math.ceil(transactions.length / rowsPerPage);
-      currentPage = Math.min(Math.max(1, currentPage + delta), totalPages);
-      renderTable();
-    }
-
-    function updatePagination() {
-      const totalPages = Math.ceil(transactions.length / rowsPerPage);
-      currentPage = Math.min(Math.max(1, currentPage), totalPages);
-
-      const prevPage = document.getElementById('prev-page');
-      const nextPage = document.getElementById('next-page');
-      const pageInfo = document.getElementById('page-info');
-
-      if (prevPage && nextPage && pageInfo) {
-        prevPage.classList.toggle('disabled', currentPage === 1);
-        nextPage.classList.toggle('disabled', currentPage === totalPages || totalPages === 0);
-        pageInfo.textContent = currentPage;
-
-        // Dynamically update pagination items
-        const pagination = document.querySelector('.pagination');
-        pagination.innerHTML = `
-          <li class="page-item ${currentPage === 1 ? 'disabled' : ''}" id="prev-page">
-            <a class="page-link" href="#" onclick="changePage(-1)" aria-label="Previous">« Previous</a>
-          </li>
-        `;
-        for (let i = 1; i <= totalPages; i++) {
-          pagination.innerHTML += `
-            <li class="page-item ${currentPage === i ? 'active' : ''}">
-              <a class="page-link" href="#" onclick="event.preventDefault(); currentPage=${i}; renderTable();">${i}</a>
-            </li>
-          `;
-        }
-        pagination.innerHTML += `
-          <li class="page-item ${currentPage === totalPages || totalPages === 0 ? 'disabled' : ''}" id="next-page">
-            <a class="page-link" href="#" onclick="changePage(1)" aria-label="Next">Next »</a>
-          </li>
-        `;
-      }
-    }
-
-    // Initialize table
     if (transactions.length > 0) {
       renderTable();
     }

@@ -5,20 +5,141 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Checkout</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet"/>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <style>
-        .checkout-container {
-            margin-left: 280px;
+        body {
+            font-family: 'Poppins', sans-serif;
+            overflow-x: hidden;
+        }
+        :root {
+            --accent-gradient: linear-gradient(45deg, #44351c, #efe10a);
+            --accent-hover: linear-gradient(45deg, #3a2e17, #d6cc09);
+            --danger-color: #dc2626;
+            --danger-hover: #b91c1c;
+            --success-color: #16a34a;
+            --success-hover: #13843b;
+        }
+        .btn-gradient {
+            background: var(--accent-gradient);
+            border: none;
+            color: #ffffff;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        .btn-gradient:hover {
+            background: var(--accent-hover);
+            box-shadow: 0 4px 10px rgba(68, 53, 28, 0.3);
+        }
+        .btn-outline-gradient {
+            border: 1px solid #44351c;
+            color: #44351c;
+            transition: all 0.3s ease;
+        }
+        .btn-outline-gradient:hover {
+            background: var(--accent-gradient);
+            color: #ffffff;
+            box-shadow: 0 4px 10px rgba(68, 53, 28, 0.3);
+        }
+        .btn-outline-danger {
+            border: 1px solid var(--danger-color);
+            color: var(--danger-color);
+            transition: all 0.3s ease;
+        }
+        .btn-outline-danger:hover {
+            background: var(--danger-color);
+            color: #ffffff;
+            box-shadow: 0 4px 10px rgba(220, 38, 38, 0.3);
+        }
+        .btn-outline-success {
+            border: 1px solid var(--success-color);
+            color: var(--success-color);
+            transition: all 0.3s ease;
+        }
+        .btn-outline-success:hover {
+            background: var(--success-color);
+            color: #ffffff;
+            box-shadow: 0 4px 10px rgba(22, 163, 74, 0.3);
+        }
+        .error-message {
+            color: var(--danger-color);
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+            display: none;
+        }
+        .input-error {
+            border-color: var(--danger-color);
+        }
+        .form-input {
+            width: 100%;
+            max-width: 100%;
+            padding: 0.5rem;
+            height: 40px;
+            box-sizing: border-box;
+            text-align: left;
+            letter-spacing: normal;
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            transition: border-color 0.2s;
+        }
+        .form-input:focus {
+            border-color: #44351c;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(68, 53, 28, 0.2);
+        }
+        .sidebar-toggle {
+            display: none;
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 60;
+            background: var(--accent-gradient);
+            color: #fff;
+            padding: 0.6rem;
+            border-radius: 8px;
+            border: none;
+            box-shadow: 0 2px 6px rgba(68, 53, 28, 0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .sidebar-toggle:hover {
+            background: var(--accent-hover);
+            box-shadow: 0 4px 10px rgba(68, 53, 28, 0.3);
+        }
+        .sidebar-toggle svg {
+            width: 20px;
+            height: 20px;
+            fill: #fff;
+        }
+        .main-content {
+            background: linear-gradient(145deg, #ffffff, #f5f5f5);
+            border: none;
+            border-radius: 12px;
             padding: 2rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: margin-left 0.3s ease, box-shadow 0.3s ease;
+            will-change: transform;
+            position: fixed;
+            max-width: min(100%, 954px);
+            /* margin: 0 auto; */
+            margin-top: 4vh;
+            min-height: calc(92vh - 60rem);
+            box-sizing: border-box;
+            margin-left: 400px;
+            position: sticky;
+        }
+        .main-content:hover {
+            box-shadow: 0 6px 16px rgba(126, 107, 0, 0.15);
         }
         .right-section {
             max-height: calc(100vh - 4rem);
             overflow-y: auto;
             scrollbar-width: thin;
-            scrollbar-color: #a1861f #f3f4f6;
+            scrollbar-color: var(--accent-gradient) #f3f4f6;
         }
         .right-section::-webkit-scrollbar {
             width: 8px;
@@ -28,8 +149,11 @@
             border-radius: 4px;
         }
         .right-section::-webkit-scrollbar-thumb {
-            background: #a1861f;
+            background: var(--accent-gradient);
             border-radius: 4px;
+        }
+        .right-section::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-hover);
         }
         .order-row {
             display: flex;
@@ -43,7 +167,7 @@
             margin-bottom: 1rem;
         }
         .order-row img {
-            width: 60px;
+            width: 40px;
             height: 60px;
             object-fit: cover;
             border-radius: 0.5rem;
@@ -53,45 +177,53 @@
             padding: 1.5rem;
             border: 1px solid #e5e7eb;
             border-radius: 0.5rem;
+            /* width: 500px; */
         }
         .btn-place-order {
-            background: #a1861f;
-            color: #111;
+            background: var(--accent-gradient);
+            color: #ffffff;
             padding: 0.75rem 1.25rem;
-            border-radius: 9999px;
+            border-radius: 7px;
             font-weight: 600;
             font-size: 0.875rem;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            transition: background-color 0.2s;
+            border: none;
+            transition: all 0.3s ease;
         }
         .btn-place-order:hover {
-            background: #8c6e1a;
+            background: var(--accent-hover);
+            box-shadow: 0 4px 10px rgba(68, 53, 28, 0.3);
         }
         .btn-back {
             background: white;
-            border: 2px solid #fff8c2;
-            color: #a1861f;
+            border: 1px solid #44351c;
+            color: #44351c;
             padding: 0.75rem 1.25rem;
-            border-radius: 9999px;
+            border-radius: 7px;
             font-weight: 600;
             font-size: 0.875rem;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            transition: background-color 0.2s;
+            transition: all 0.3s ease;
+            text-decoration: none;
+
         }
         .btn-back:hover {
-            background: #fff8c2;
+            background: var(--accent-gradient);
+            color: #ffffff;
+            box-shadow: 0 4px 10px rgba(68, 53, 28, 0.3);
         }
         .btn-add-address {
-            background: #a1861f;
-            color: white;
+            background: var(--accent-gradient);
+            color: #ffffff;
             padding: 0.5rem 1rem;
-            border-radius: 9999px;
+            border-radius: 7px;
             font-weight: 500;
             margin-top: 0.5rem;
             display: inline-block;
+            border: none;
+            transition: all 0.3s ease;
         }
-        .bgblack {
-            background: #a1861f;
+        .btn-add-address:hover {
+            background: var(--accent-hover);
+            box-shadow: 0 4px 10px rgba(68, 53, 28, 0.3);
         }
         .address-section {
             border: 1px solid #e5e7eb;
@@ -107,6 +239,8 @@
         }
         .address-details p {
             margin: 0.1rem 0;
+            display: block;
+            line-height: 1.5;
         }
         .custom-dropdown {
             position: relative;
@@ -124,9 +258,13 @@
             cursor: pointer;
             font-size: 0.875rem;
             color: #6b7280;
+            transition: border-color 0.3s ease;
         }
         .custom-dropdown-display.placeholder {
             color: #9ca3af;
+        }
+        .custom-dropdown-display:hover {
+            border-color: #44351c;
         }
         .custom-dropdown-options {
             position: absolute;
@@ -134,7 +272,7 @@
             left: 0;
             right: 0;
             background: white;
-            border: 1px solid #e5e7eb;
+             border:  solid #bab5ad;
             border-radius: 0.5rem;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             max-height: 200px;
@@ -146,6 +284,7 @@
             padding: 0.5rem 0.75rem;
             cursor: pointer;
             font-size: 0.875rem;
+        
         }
         .custom-dropdown-options div:hover {
             background: #f3f4f6;
@@ -174,8 +313,8 @@
         .tooltip .tooltip-text {
             visibility: hidden;
             width: 160px;
-            background-color: #4b5e26;
-            color: white;
+            background: var(--accent-gradient);
+            color: #151313;
             text-align: center;
             border-radius: 0.5rem;
             padding: 0.5rem;
@@ -195,7 +334,7 @@
         .coupon-section {
             margin-top: 1rem;
             padding: 1rem;
-            border: 1px dashed #a1861f;
+            border: 1px dashed #44351c;
             border-radius: 0.5rem;
             background: #fff8c2;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
@@ -206,13 +345,14 @@
             gap: 0.5rem;
             margin-bottom: 0.75rem;
             font-weight: 600;
-            color: #4b5e26;
+            color: #44351c;
         }
         .coupon-input {
             display: flex;
             gap: 0.5rem;
             align-items: center;
             box-sizing: border-box;
+           
         }
         .coupon-input input {
             flex: 1;
@@ -223,34 +363,38 @@
             background: white;
             transition: border-color 0.2s;
             height: 2.25rem;
+             width: 175px;
         }
         .coupon-input input:focus {
-            border-color: #a1861f;
+            border-color: #44351c;
             outline: none;
         }
         .coupon-input button {
-            background: #a1861f;
-            color: white;
+            background: var(--accent-gradient);
+            color: #ffffff;
             padding: 0 1rem;
-            border-radius: 0.5rem;
+            border-radius: 7px;
             font-size: 0.875rem;
             font-weight: 500;
-            transition: background-color 0.2s;
+            transition: all 0.3s ease;
             width: 4rem;
             height: 2.25rem;
             display: flex;
             align-items: center;
             justify-content: center;
             box-sizing: border-box;
+            border: none;
         }
         .coupon-input button:hover {
-            background: #8c6e1a;
+            background: var(--accent-hover);
+            box-shadow: 0 4px 10px rgba(68, 53, 28, 0.3);
         }
         .coupon-input .remove-btn {
-            background: #dc2626;
+            background: var(--danger-color);
         }
         .coupon-input .remove-btn:hover {
-            background: #b91c1c;
+            background: var(--danger-hover);
+            box-shadow: 0 4px 10px rgba(220, 38, 38, 0.3);
         }
         .coupon-dropdown {
             position: relative;
@@ -269,10 +413,10 @@
             cursor: pointer;
             font-size: 0.875rem;
             color: #374151;
-            transition: border-color 0.2s;
+            transition: border-color 0.3s ease;
         }
         .coupon-dropdown-display:hover {
-            border-color: #a1861f;
+            border-color: #44351c;
         }
         .coupon-options {
             position: absolute;
@@ -280,7 +424,7 @@
             left: 0;
             right: 0;
             background: white;
-            border: 1px solid #1d52a1;
+            border: 1px solid #44351c;
             border-radius: 0.5rem;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             max-height: 180px;
@@ -318,16 +462,25 @@
             margin-left: 0.5rem;
         }
         .referral-badge {
-            background: #10b981;
-            color: white;
+            background: var(--success-color);
+            color: #ffffff;
             padding: 0.2rem 0.5rem;
             border-radius: 9999px;
             font-size: 0.75rem;
             margin-left: 0.5rem;
         }
         @media (max-width: 768px) {
-            .checkout-container {
-                margin-left: 0;
+            .main-content {
+                margin: 0 auto;
+                padding: 1.5rem;
+                border-radius: 10px;
+                margin-top: 10vh;
+                min-height: calc(90vh - 2rem);
+                max-width: min(100%, 800px);
+            }
+            .main-content.sidebar-open {
+                margin-left: min(220px, 70vw);
+                max-width: min(100%, 800px);
             }
             .right-section {
                 max-height: none;
@@ -351,6 +504,89 @@
             .coupon-input input {
                 width: 100%;
             }
+            .sidebar-toggle {
+                display: block;
+            }
+            .sidebar-partial.open ~ .sidebar-toggle {
+                display: none;
+            }
+        }
+        @media (max-width: 480px) {
+            .main-content {
+                padding: 1rem;
+                border-radius: 8px;
+                margin-top: 8vh;
+                min-height: calc(88vh - 2rem);
+                max-width: min(100%, 800px);
+            }
+            .main-content.sidebar-open {
+                margin-left: min(180px, 65vw);
+                max-width: min(100%, 800px);
+            }
+            .sidebar-toggle {
+                padding: 0.5rem;
+            }
+            .sidebar-toggle svg {
+                width: 18px;
+                height: 18px;
+            }
+        }
+        @media (max-width: 320px) {
+            .main-content {
+                padding: 0.8rem;
+                border-radius: 6px;
+                max-width: min(100%, 800px);
+            }
+            .main-content.sidebar-open {
+                margin-left: min(160px, 60vw);
+                max-width: min(100%, 800px);
+            }
+        }
+          #addressModal {
+            overflow-y: auto;
+        }
+        .modal-content {
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 500px;
+            margin: 1rem;
+        }
+        .modal-header {
+            background: var(--accent-gradient);
+            color: #ffffff;
+            padding: 1rem 1.5rem;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+            position: relative;
+        }
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            color: #ffffff;
+            font-size: 1.25rem;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+        .modal-close:hover {
+            color: #e5e7eb;
+        }
+        .modal-body {
+            padding: 1.5rem;
+        }
+        .modal-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
         }
     </style>
 </head>
@@ -359,30 +595,31 @@
     <%- include("../partials/user/sidebar.ejs") %>
 
     <!-- Mobile Toggle Button -->
-    <button class="sidebar-toggle md:hidden fixed top-4 left-4 z-50 p-2 bg-gray-800 text-white rounded">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+    <button class="sidebar-toggle" aria-label="Toggle sidebar">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M3 6h18v2H3V6zm0 5h18v2H3v-2zm0 5h18v2H3v-2z"/>
         </svg>
     </button>
 
     <!-- Main Content -->
-    <div class="checkout-container mx-auto pt-24 md:pt-10">
-        <h1 class="text-3xl font-bold mb-6 text-gray-800">Checkout</h1>
+    <div class="main-content  p-6">
+        <h1 class="text-3xl font-bold mb-6 text-gray-800 text-center">Checkout</h1>
 
         <% if (typeof error !== 'undefined' && error) { %>
-            <p class="text-red-500 mb-4 bg-red-100 p-3 rounded"><%= error %></p>
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6" role="alert">
+                <%= error %>
+            </div>
         <% } %>
-
+ 
         <% if (typeof success !== 'undefined' && success) { %>
             <div class="bg-green-100 p-6 rounded-lg border border-green-200 text-center">
                 <p class="text-green-600 text-lg">Address added successfully!</p>
-                <a href="/checkout" class="mt-4 inline-block bg-[#a1861f] text-white px-6 py-2 rounded-full hover:bg-[#8c6e1a] transition">Back to Checkout</a>
-            </div>
+                <a href="/checkout" class="mt-4 inline-block btn-gradient px-6 py-2 rounded text-white transition">Back to Checkout</a>
         <% } else if (!cart || cart.length === 0) { %>
             <div class="bg-white p-6 rounded-lg border border-gray-200 text-center">
                 <p class="text-gray-600 text-lg">Your cart is empty.</p>
                 <div class="mt-4 flex justify-center gap-4">
-                    <a href="/shop" class="inline-block bg-orange-500 text-white px-6 py-2 rounded-full hover:bg-orange-600 transition">Continue Shopping</a>
+                    <a href="/shop" class="inline-block btn-gradient px-6 py-2 rounded text-white transition">Continue Shopping</a>
                 </div>
             </div>
         <% } else { %>
@@ -392,7 +629,7 @@
                     <div class="flex-1">
                         <div class="bg-white p-6 rounded-lg border border-gray-200">
                             <h2 class="text-2xl font-semibold text-gray-800 mb-4">Shipping Address</h2>
-                            <button type="button" onclick="openModal(null)" class="btn-add-address hover:bg-[#8c6e1a] transition mb-4">Add New Address</button>
+                            <button type="button" onclick="openModal(null)" class="btn-add-address transition mb-4">Add New Address</button>
                             <!-- Address Selection -->
                             <% 
                                 let defaultAddress = null;
@@ -444,7 +681,7 @@
                                                         <% } %>
                                                     </div>
                                                     <div class="flex flex-col gap-2">
-                                                        <button type="button" onclick='openModal(<%- JSON.stringify(address) %>)' class="text-blue-500 text-sm hover:underline">Edit</button>
+                                                        <button type="button" onclick='openModal(<%- JSON.stringify(address) %>)' class="btn-outline-gradient px-3 py-1 rounded text-sm"><i class="fas fa-pen"></i></button>
                                                         <input type="radio" name="selectedAddressRadio" value="<%= address._id %>" class="mt-1 hidden" <%= defaultAddressId === address._id.toString() ? 'checked' : '' %> required>
                                                     </div>
                                                 </div>
@@ -537,41 +774,41 @@
                                     </div>
                                 <% }) %>
                             <% } %>
-                            <div class="summary-table">
-                                <div>
-                                    <span class="text-gray-600">Subtotal</span>
-                                    <span class="text-gray-800">₹<%= totalPrice ? totalPrice.toFixed(2) : '0.00' %></span>
-                                </div>
-                                <div>
-                                    <span class="tooltip text-gray-600">
-                                        Discount
-                                        <span class="tooltip-text">10% off for orders above ₹1500</span>
-                                    </span>
-                                    <span class="text-green-600">₹<%= discount.toFixed(2) %></span>
-                                </div>
-                                <div id="couponDiscountRow" style="<%= couponDiscount > 0 ? 'display: flex;' : 'display: none;' %>">
-                                    <span class="text-gray-600">Coupon Discount</span>
-                                    <span id="couponDiscountAmount" class="text-green-600">₹<%= couponDiscount.toFixed(2) %></span>
-                                </div>
-                                <div>
-                                    <span class="tooltip text-gray-600">
-                                        GST
-                                        <span class="tooltip-text">₹10 for orders above ₹2000</span>
-                                    </span>
-                                    <span class="text-gray-600">₹<%= gst.toFixed(2) %></span>
-                                </div>
-                                <div>
-                                    <span class="tooltip text-gray-600">
-                                        Shipping
-                                        <span class="tooltip-text">Fixed ₹20 shipping charge per order</span>
-                                    </span>
-                                    <span class="text-gray-600">₹<%= shippingCharge.toFixed(2) %></span>
-                                </div>
-                                <div class="total">
-                                    <span class="text-gray-800">Total</span>
-                                    <span id="finalTotal" class="text-gray-800">₹<%= finalPrice.toFixed(2) %></span>
-                                </div>
-                            </div>
+                           <div class="summary-table">
+    <div>
+        <span class="text-gray-600">Subtotal</span>
+        <span class="text-gray-800">₹<%= totalPrice ? totalPrice.toFixed(2) : '0.00' %></span>
+    </div>
+    <div>
+        <span class="tooltip text-gray-600">
+            Discount
+            <span class="tooltip-text">10% off for orders above ₹1500</span>
+        </span>
+        <span id="discount" class="text-green-600">₹<%= discount.toFixed(2) %></span>
+    </div>
+    <div id="couponDiscountRow" style="<%= couponDiscount > 0 ? 'display: flex;' : 'display: none;' %>">
+        <span class="text-gray-600">Coupon Discount</span>
+        <span id="couponDiscountAmount" class="text-green-600">₹<%= couponDiscount.toFixed(2) %></span>
+    </div>
+    <div>
+        <span class="tooltip text-gray-600">
+            GST
+            <span class="tooltip-text">₹10 for orders above ₹2000</span>
+        </span>
+        <span id="gst" class="text-gray-600">₹<%= gst.toFixed(2) %></span>
+    </div>
+    <div>
+        <span class="tooltip text-gray-600">
+            Shipping
+            <span class="tooltip-text">Fixed ₹20 shipping charge per order</span>
+        </span>
+        <span id="shippingCharge" class="text-gray-600">₹<%= shippingCharge.toFixed(2) %></span>
+    </div>
+    <div class="total">
+        <span class="text-gray-800">Total</span>
+        <span id="finalTotal" class="text-gray-800">₹<%= finalPrice.toFixed(2) %></span>
+    </div>
+</div>
                             <!-- Payment Method -->
                             <h2 class="text-2xl font-semibold mb-4 text-gray-800 mt-4">Payment Method</h2>
                             <div class="mb-4">
@@ -603,54 +840,68 @@
 
     <!-- Address Modal -->
     <div id="addressModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
-        <div class="bg-white p-6 rounded-lg w-full max-w-md">
-            <h2 id="modalTitle" class="text-xl font-bold mb-4 text-gray-800">Add New Address</h2>
-            <form id="addressForm" action="/add-address-checkout" method="POST" class="space-y-4">
-                <input type="hidden" name="_id" id="_id">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Address Type</label>
-                    <input type="text" name="addressType" id="addressType" placeholder="e.g., Home, Work" class="w-full p-2 border rounded focus:ring-yellow-500 focus:border-yellow-500">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="modalTitle" class="text-xl font-bold">Add New Address</h2>
+                    <button class="modal-close" onclick="closeModal()" aria-label="Close modal">
+                        <i class="fas fa-times"></i>
+                    </button>
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Name</label>
-                    <input type="text" name="name" id="name" required class="w-full p-2 border rounded focus:ring-yellow-500 focus:border-yellow-500">
+                <div class="modal-body">
+                    <form id="addressForm" action="/add-address" method="POST" class="space-y-4" novalidate>
+                        <input type="hidden" name="_id" id="_id">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Address Type *</label>
+                            <input type="text" name="addressType" id="addressType" placeholder="e.g., Home, Work *" required class="form-input">
+                            <p id="addressTypeError" class="error-message" data-default="Address type must be 3-20 characters and contain only letters and spaces.">Address type must be 3-20 characters and contain only letters and spaces.</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Name *</label>
+                            <input type="text" name="name" id="name" required class="form-input">
+                            <p id="nameError" class="error-message">Name must be 2-50 characters and contain only letters and spaces.</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">City *</label>
+                            <input type="text" name="city" id="city" required class="form-input">
+                            <p id="cityError" class="error-message">City must be 2-50 characters and contain only letters and spaces.</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Landmark *</label>
+                            <input type="text" name="landMark" id="landMark" required class="form-input">
+                            <p id="landMarkError" class="error-message">Landmark must be 3-100 characters.</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">State *</label>
+                            <input type="text" name="state" id="state" required class="form-input">
+                            <p id="stateError" class="error-message">State must be 2-50 characters and contain only letters and spaces.</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Pincode *</label>
+                            <input type="text" name="pincode" id="pincode" required class="form-input" maxlength="6" oninput="restrictPincode(this)">
+                            <p id="pincodeError" class="error-message">Pincode must be exactly 6 digits.</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Phone *</label>
+                            <input type="text" name="phone" id="phone" required class="form-input" maxlength="10" oninput="restrictPhone(this)">
+                            <p id="phoneError" class="error-message">Phone must be a valid 10-digit number.</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Alternate Phone</label>
+                            <input type="text" name="altPhone" id="altPhone" class="form-input" maxlength="10" oninput="restrictPhone(this)">
+                            <p id="altPhoneError" class="error-message">Alternate phone must be a valid 10-digit number and different from the primary phone.</p>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" name="isPrimary" id="isPrimary" class="mr-2 focus:ring-yellow-500 rounded">
+                            <label class="text-sm font-medium text-gray-700">Set as Primary</label>
+                        </div>
+                    </form>
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">City</label>
-                    <input type="text" name="city" id="city" required class="w-full p-2 border rounded focus:ring-yellow-500 focus:border">
+                <div class="modal-footer">
+                    <button type="button" onclick="closeModal()" class="btn btn-outline-secondary px-4 py-2 rounded">Cancel</button>
+                    <button type="submit" id="submitButton" class="btn-gradient px-4 py-2 rounded text-white" form="addressForm">Add</button>
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Landmark</label>
-                    <input type="text" name="landMark" id="landMark" required class="w-full p-2 border rounded focus:ring-yellow-500 focus:border">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">State</label>
-                    <input type="text" name="state" id="state" required class="w-full p-2 border rounded focus:ring-yellow-500 focus:border">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Pincode</label>
-                    <input type="number" name="pincode" id="pincode" required class="w-full p-1 border rounded focus:ring-yellow-500 focus:border">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Phone</label>
-                    <input type="text" name="phone" id="phone" required class="w-full p-2 border rounded focus:ring-yellow-500 focus:border">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Alternate Phone</label>
-                    <input type="text" name="altPhone" id="altPhone" class="w-full p-2 border rounded focus:ring-yellow-500 focus:border-yellow-500">
-                </div>
-                <div class="flex items-center">
-                    <input type="checkbox" name="isPrimary" id="isPrimary" class="mr-2 focus:ring-yellow-500">
-                    <label class="text-sm font-medium text-gray-700">Set as Primary</label>
-                </div>
-                <div class="flex justify-end gap-2">
-                    <button type="button" onclick="closeModal()" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition">Cancel</button>
-                    <button type="submit" id="submitButton" class="bgblack text-white px-4 py-2 rounded hover:bg-yellow-700 transition">Add</button>
-                </div>
-            </form>
+            </div>
         </div>
-    </div>
-
     <script>
         let appliedCoupon = <%= appliedCoupon ? JSON.stringify(appliedCoupon) : 'null' %>;
         let totalPrice = <%= totalPrice %>;
@@ -661,6 +912,14 @@
         let finalPrice = <%= finalPrice %>;
         let walletBalance = 0;
         const availableCoupons = <%- JSON.stringify(coupons) %>;
+
+        function restrictPincode(input) {
+            input.value = input.value.replace(/[^0-9]/g, '').slice(0, 6);
+        }
+
+        function restrictPhone(input) {
+            input.value = input.value.replace(/[^0-9]/g, '').slice(0, 10);
+        }
 
         // Fetch wallet balance on page load
         async function fetchWalletBalance() {
@@ -684,10 +943,60 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             fetchWalletBalance();
-        });
 
-        document.querySelector('.sidebar-toggle').addEventListener('click', () => {
-            document.querySelector('.sidebar').classList.toggle('hidden');
+            const navLinks = document.querySelectorAll('.sidebar-partial nav a');
+            const currentPath = window.location.pathname;
+            const toggleButton = document.querySelector('.sidebar-toggle');
+            const closeButton = document.querySelector('.sidebar-close');
+            const sidebar = document.querySelector('.sidebar-partial');
+            const mainContent = document.querySelector('.main-content');
+
+            // Ensure sidebar is hidden and toggle is visible on load for mobile
+            if (window.innerWidth <= 768) {
+                sidebar.classList.remove('open');
+                mainContent.classList.remove('sidebar-open');
+                toggleButton.style.display = 'block';
+            }
+
+            // Set active link based on current path
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === currentPath) {
+                    link.classList.add('active');
+                }
+            });
+
+            // Toggle sidebar open
+            if (toggleButton && sidebar && mainContent) {
+                toggleButton.addEventListener('click', () => {
+                    sidebar.classList.add('open');
+                    mainContent.classList.add('sidebar-open');
+                    toggleButton.style.display = 'none';
+                });
+            }
+
+            // Close sidebar
+            if (closeButton && sidebar && mainContent) {
+                closeButton.addEventListener('click', () => {
+                    sidebar.classList.remove('open');
+                    mainContent.classList.remove('sidebar-open');
+                    toggleButton.style.display = 'block';
+                    sidebar.offsetHeight; // Trigger reflow
+                });
+            }
+
+            // Handle window resize to maintain consistent state
+            window.addEventListener('resize', () => {
+                if (window.innerWidth > 768) {
+                    sidebar.classList.remove('open');
+                    mainContent.classList.remove('sidebar-open');
+                    toggleButton.style.display = 'none';
+                } else {
+                    if (!sidebar.classList.contains('open')) {
+                        toggleButton.style.display = 'block';
+                    }
+                }
+            });
         });
 
         function openModal(address) {
@@ -695,6 +1004,8 @@
             const form = document.getElementById('addressForm');
             const modalTitle = document.getElementById('modalTitle');
             const submitButton = document.getElementById('submitButton');
+
+            resetFormValidation();
 
             if (!modal || !form || !modalTitle || !submitButton) return;
 
@@ -718,6 +1029,9 @@
                 submitButton.textContent = 'Add';
                 form.reset();
                 document.getElementById('_id').value = '';
+                document.getElementById('pincode').value = '';
+                document.getElementById('phone').value = '';
+                document.getElementById('altPhone').value = '';
             }
 
             modal.classList.remove('hidden');
@@ -726,7 +1040,99 @@
         function closeModal() {
             const modal = document.getElementById('addressModal');
             if (modal) modal.classList.add('hidden');
+            resetFormValidation();
+            document.getElementById('addressForm').reset();
+            document.getElementById('pincode').value = '';
+            document.getElementById('phone').value = '';
+            document.getElementById('altPhone').value = '';
         }
+
+        function resetFormValidation() {
+            const inputs = document.querySelectorAll('#addressForm input');
+            const errors = document.querySelectorAll('.error-message');
+            inputs.forEach(input => input.classList.remove('input-error'));
+            errors.forEach(error => error.style.display = 'none');
+        }
+
+        document.getElementById('addressForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            let isValid = true;
+
+            resetFormValidation();
+
+            const name = document.getElementById('name').value.trim();
+            const city = document.getElementById('city').value.trim();
+            const landMark = document.getElementById('landMark').value.trim();
+            const state = document.getElementById('state').value.trim();
+            const pincode = document.getElementById('pincode').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const altPhone = document.getElementById('altPhone').value.trim();
+            const addressType = document.getElementById('addressType').value.trim();
+
+            const nameRegex = /^[a-zA-Z\s]{2,50}$/;
+            if (!name || !nameRegex.test(name)) {
+                document.getElementById('nameError').style.display = 'block';
+                document.getElementById('name').classList.add('input-error');
+                isValid = false;
+            }
+
+            const cityRegex = /^[a-zA-Z\s]{2,50}$/;
+            if (!city || !cityRegex.test(city)) {
+                document.getElementById('cityError').style.display = 'block';
+                document.getElementById('city').classList.add('input-error');
+                isValid = false;
+            }
+
+            if (!landMark || landMark.length < 3 || landMark.length > 100) {
+                document.getElementById('landMarkError').style.display = 'block';
+                document.getElementById('landMark').classList.add('input-error');
+                isValid = false;
+            }
+
+            const stateRegex = /^[a-zA-Z\s]{2,50}$/;
+            if (!state || !stateRegex.test(state)) {
+                document.getElementById('stateError').style.display = 'block';
+                document.getElementById('state').classList.add('input-error');
+                isValid = false;
+            }
+
+            const pincodeRegex = /^\d{6}$/;
+            if (!pincode || !pincodeRegex.test(pincode)) {
+                document.getElementById('pincodeError').style.display = 'block';
+                document.getElementById('pincode').classList.add('input-error');
+                isValid = false;
+            }
+
+            const phoneRegex = /^\d{10}$/;
+            if (!phone || !phoneRegex.test(phone)) {
+                document.getElementById('phoneError').style.display = 'block';
+                document.getElementById('phone').classList.add('input-error');
+                isValid = false;
+            }
+
+            if (altPhone && !phoneRegex.test(altPhone)) {
+                document.getElementById('altPhoneError').style.display = 'block';
+                document.getElementById('altPhone').classList.add('input-error');
+                isValid = false;
+            }
+
+            if (altPhone && altPhone === phone) {
+                document.getElementById('altPhoneError').style.display = 'block';
+                document.getElementById('altPhoneError').textContent = 'Alternate phone must be different from the primary phone.';
+                document.getElementById('altPhone').classList.add('input-error');
+                isValid = false;
+            }
+
+            if (addressType && (addressType.length < 3 || addressType.length > 20)) {
+                document.getElementById('addressTypeError').style.display = 'block';
+                document.getElementById('addressType').classList.add('input-error');
+                isValid = false;
+            }
+
+            if (isValid) {
+                this.submit();
+            }
+        });
 
         function toggleDropdown() {
             const options = document.getElementById('dropdownOptions');
@@ -1056,7 +1462,7 @@
                                     contact: '<%= locals.user ? user.phone : "" %>'
                                 },
                                 theme: {
-                                    color: '#a1861f'
+                                    color: '#44351c'
                                 }
                             };
 
@@ -1256,8 +1662,8 @@
                 text: 'Would you like to retry the payment with a new order?',
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#a1861f',
-                cancelButtonColor: '#d33',
+                confirmButtonColor: '#44351c',
+                cancelButtonColor: '#dc2626',
                 confirmButtonText: 'Yes, retry'
             }).then((result) => {
                 if (result.isConfirmed) {
@@ -1371,4 +1777,3 @@
     </script>
 </body>
 </html>
-

@@ -52,7 +52,7 @@
     .order-header {
       background: linear-gradient(145deg, #ffffff, #f5f5f5);
       padding: clamp(0.75rem, 2vw, 1rem);
-      color: #7e6b00;
+      color: #161615;
       border-top-left-radius: 12px;
       border-top-right-radius: 12px;
     }
@@ -133,20 +133,22 @@
     }
 
     .btn-outline-primary {
-      border-color: #7e6b00;
-      color: #7e6b00;
+      border-color: #2c44d2;
+      color: #1132f2;
     }
 
     .btn-outline-primary:hover {
-      background: var(--accent-gradient);
+      background: rgb(74, 74, 255);
       color: #fff;
       box-shadow: 0 4px 10px rgba(126, 107, 0, 0.3);
+      
     }
 
     .btn-outline-danger,
     .btn-outline-warning {
       border-color: #b34747;
       color: #b34747;
+      width: 148px;
     }
 
     .btn-outline-danger:hover,
@@ -157,12 +159,13 @@
     }
 
     .btn-outline-success {
-      border-color: #7e6b00;
-      color: #7e6b00;
+      border-color: #007e4e;
+      color: #007e4e;
+      width:148px;
     }
 
     .btn-outline-success:hover {
-      background: var(--accent-gradient);
+      background: #007e4e;
       color: #fff;
       box-shadow: 0 4px 10px rgba(126, 107, 0, 0.3);
     }
@@ -491,7 +494,7 @@
             <div class="col-md-3 col-sm-12">
               <div class="button-group">
                 <% if (orders.length > 1 && !orders.every(item => ['delivered', 'cancelled', 'returned', 'return request', 'failed'].includes(item.status))) { %>
-                  <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#cancelAllModal">Cancel All Orders</button>
+                  <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#cancelAllModal">Cancel All</button>
                 <% } %>
                 <% 
                   const now = new Date();

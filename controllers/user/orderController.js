@@ -69,7 +69,7 @@ const loadcheckout = async (req, res) => {
         finalPrice: 0,
         coupons,
         appliedCoupon: req.session.appliedCoupon || null,
-        error: 'Your cart is empty.',
+        error: '',
         outOfStockProducts: [],
       });
     }

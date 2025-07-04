@@ -82,6 +82,30 @@
         visibility: visible;
         opacity: 1;
       }
+    :root {
+  --accent-gradient: linear-gradient(90deg, #7e6b00, #a68c00);
+  --accent-hover: linear-gradient(90deg, #655700, #8c7500);
+}
+
+.btn-gradient {
+  background: var(--accent-gradient);
+  border: none;
+  color: #ffffff;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 6px rgba(126, 107, 0, 0.2);
+}
+
+.btn-gradient:hover {
+  background: var(--accent-hover);
+  box-shadow:
+    0 4px 10px rgba(68, 53, 28, 0.3),
+    0 0 12px rgba(166, 140, 0, 0.3),
+    0 0 18px rgba(126, 107, 0, 0.25);
+  transform: translateY(-1px) scale(1.03);
+}
+
+
     </style>
   </head>
   <body class="bg-gray-100 font-sans leading-relaxed tracking-wide">
@@ -184,14 +208,25 @@
       <% } %>
       
       <!-- Continue Shopping and View Order Details Buttons -->
-      <div class="text-center mt-8">
+      <!-- <div class="text-center mt-8">
         <a href="/shop" class="inline-block bg-gradient-to-r from-green-500 to-blue-500 text-white px-6 py-2 rounded-md shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105">
           Continue Shopping
         </a>
         <a href="/orders" class="inline-block bg-gradient-to-r from-blue-500 to-purple-500 text-white px-6 py-2 rounded-md shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 ml-4">
           View Orders 
         </a>
-      </div>
+      </div> -->
+
+<div class="text-center mt-8">
+  <a href="/shop" class="btn-gradient px-6 py-2 rounded text-white shadow-md hover:shadow-lg transition-all duration-300">
+    Continue Shopping
+  </a>
+  <a href="/orders" class="btn-gradient px-6 py-2 rounded text-white shadow-md hover:shadow-lg transition-all duration-300 ml-4">
+    View Orders
+  </a>
+</div>
+
+
     </div>
   </body>
 </html>

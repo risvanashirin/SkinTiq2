@@ -9,65 +9,53 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet"/>
   <style>
     :root {
-      --primary-bg: #ffffff;
-      --secondary-bg: #f8f8f8;
-      --accent-gradient: linear-gradient(90deg, #7e6b00, #a68c00);
-      --accent-hover: linear-gradient(90deg, #655700, #8c7500);
-      --danger-gradient: linear-gradient(90deg, #b34747, #d9534f);
-      --danger-hover: linear-gradient(90deg, #9e3e3e, #c44a47);
-      --text-primary: #2a2a2a;
-      --text-secondary: #4a4a4a;
-      --border-color: #ccc;
+      --accent-gradient: linear-gradient(45deg, #44351c, #efe10a);
+      --accent-hover: linear-gradient(45deg, #3a2e17, #d6cc09);
+      --danger-color: #dc2626;
+      --danger-hover: #b91c1c;
+      --success-color: #16a34a;
+      --success-hover: #13843b;
+      --text-primary: #1f2937;
+      --border-color: #e5e7eb;
     }
 
     body {
-      background: linear-gradient(180deg, #ffffff 0%, #f8f8f8 100%);
-      color: var(--text-primary);
       font-family: 'Poppins', sans-serif;
       overflow-x: hidden;
+      background-color: #f3f4f6;
     }
 
     .sidebar {
-      background: linear-gradient(145deg, #ffffff, #f5f5f5);
-      padding: clamp(1.5rem, 4vw, 2rem);
-      border: none;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      height: 100vh;
+      background: #ffffff;
+      padding: 2rem 1.5rem;
+      border-right: 1px solid var(--border-color);
       position: fixed;
-      top: 4vh;
+      top: 0;
       left: 0;
-      width: min(250px, 80vw);
-      height: calc(92vh - 2rem);
-      z-index: 50;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-      will-change: transform;
-    }
-
-    .sidebar:hover {
-      box-shadow: 0 6px 16px rgba(126, 107, 0, 0.15);
-      transform: translateY(-2px);
+      width: 250px;
+      transition: transform 0.3s ease;
     }
 
     .sidebar a {
       color: var(--text-primary);
       text-decoration: none;
-      padding: clamp(0.6rem, 2vw, 0.75rem) clamp(1rem, 3vw, 1.25rem);
+      padding: 1rem;
       margin: 0.5rem 0;
       border-radius: 8px;
       transition: all 0.3s ease;
       display: flex;
       align-items: center;
-      gap: 0.75rem;
+      gap: 1rem;
       font-size: clamp(0.85rem, 2.5vw, 1rem);
-      background: #fff;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
     }
 
     .sidebar a:hover,
     .sidebar .active {
       background: var(--accent-gradient);
       color: #fff;
-      box-shadow: 0 4px 10px rgba(126, 107, 0, 0.3);
+      transform: translateX(5px);
+      box-shadow: 0 4px 10px rgba(68, 53, 28, 0.3);
     }
 
     .sidebar a:hover i,
@@ -76,18 +64,18 @@
     }
 
     .sidebar a[href="/logout"] {
-      color: #b34747;
+      color: var(--danger-color);
     }
 
     .sidebar a[href="/logout"]:hover,
     .sidebar a[href="/logout"].active {
-      background: var(--danger-gradient);
+      background: linear-gradient(45deg, #dc2626, #b91c1c);
       color: #fff;
       box-shadow: 0 4px 10px rgba(185, 71, 71, 0.3);
     }
 
     .sidebar a[href="/logout"] i {
-      color: #b34747;
+      color: var(--danger-color);
     }
 
     .sidebar a[href="/logout"]:hover i,
@@ -102,10 +90,10 @@
 
     .sidebar-close {
       display: none;
-      background: var(--danger-gradient);
+      background: linear-gradient(45deg, #dc2626, #b91c1c);
       color: #fff;
       border: none;
-      border-radius: 8px;
+      border-radius: 12px;
       padding: clamp(0.5rem, 1.5vw, 0.6rem);
       font-size: clamp(0.8rem, 2vw, 0.9rem);
       font-weight: 600;
@@ -116,7 +104,7 @@
     }
 
     .sidebar-close:hover {
-      background: var(--danger-hover);
+      background: linear-gradient(45deg, #b91c1c, #a31717);
       box-shadow: 0 4px 10px rgba(185, 71, 71, 0.3);
     }
 
@@ -126,15 +114,51 @@
       color: #fff;
     }
 
-    .main-content {
-      padding: clamp(1.5rem, 4vw, 2rem);
-      max-width: min(100%, 800px);
-      margin: 0 auto;
-      transition: margin 0.3s ease;
+    .sidebar-toggle {
+      display: none;
+      position: fixed;
+      top: 1rem;
+      left: 1rem;
+      z-index: 60;
+      background: var(--accent-gradient);
+      color: #fff;
+      padding: clamp(0.5rem, 1.5vw, 0.6rem);
+      border-radius: 12px;
+      border: none;
+      box-shadow: 0 2px 6px rgba(68, 53, 28, 0.2);
+      transition: all 0.3s ease;
+      cursor: pointer;
     }
 
-    .sidebar.open ~ .main-content {
-      margin-left: min(250px, 80vw);
+    .sidebar-toggle:hover {
+      background: var(--accent-hover);
+      box-shadow: 0 4px 10px rgba(68, 53, 28, 0.3);
+    }
+
+    .sidebar-toggle svg {
+      width: clamp(18px, 4vw, 20px);
+      height: clamp(18px, 4vw, 20px);
+      fill: #fff;
+    }
+
+    .main-content {
+      background: linear-gradient(145deg, #ffffff, #f5f5f5);
+      border: none;
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      transition: margin-left 0.3s ease, box-shadow 0.3s ease;
+      will-change: transform;
+      position: relative;
+      max-width: min(100%, 800px);
+      margin: 0 auto;
+      margin-top: 4vh;
+      min-height: calc(92vh - 2rem);
+      box-sizing: border-box;
+    }
+
+    .main-content:hover {
+      box-shadow: 0 6px 16px rgba(126, 107, 0, 0.15);
     }
 
     .order-card {
@@ -142,8 +166,9 @@
       border-radius: 12px;
       margin-bottom: clamp(1rem, 3vw, 1.5rem);
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-      background: linear-gradient(145deg, #ffffff, #f5f5f5);
+      background: #ffffff;
       width: 100%;
+      transition: box-shadow 0.3s ease;
     }
 
     .order-card:hover {
@@ -152,9 +177,10 @@
     }
 
     .order-header {
-      background: linear-gradient(145deg, #ffffff, #f5f5f5);
+      background: white;
       padding: clamp(0.75rem, 2vw, 1rem);
-      color: #7e6b00;
+      color: #000000;
+       font-weight: 400;
       border-top-left-radius: 12px;
       border-top-right-radius: 12px;
     }
@@ -177,91 +203,54 @@
       color: #fff;
     }
 
-    .btn-outline-primary {
-      border-color: #7e6b00;
-      color: #7e6b00;
-      font-size: clamp(0.8rem, 2vw, 0.9rem);
-      padding: clamp(0.4rem, 1.5vw, 0.5rem) clamp(0.8rem, 2vw, 1rem);
-    }
-
-    .btn-outline-primary:hover {
-      background: var(--accent-gradient);
-      color: #fff;
-      box-shadow: 0 4px 10px rgba(126, 107, 0, 0.3);
-    }
-
-    .btn-outline-danger {
-      border-color: #b34747;
-      color: #b34747;
-      font-size: clamp(0.8rem, 2vw, 0.9rem);
-      padding: clamp(0.4rem, 1.5vw, 0.5rem) clamp(0.8rem, 2vw, 1rem);
-    }
-
-    .btn-outline-danger:hover {
-      background: var(--danger-gradient);
-      color: #fff;
-      box-shadow: 0 4px 10px rgba(185, 71, 71, 0.3);
-    }
-
     .btn-primary {
       background: var(--accent-gradient);
       border: none;
+      border-radius: 12px;
       font-size: clamp(0.8rem, 2vw, 0.9rem);
       padding: clamp(0.4rem, 1.5vw, 0.5rem) clamp(0.8rem, 2vw, 1rem);
-      box-shadow: 0 2px 6px rgba(126, 107, 0, 0.2);
+      box-shadow: 0 2px 6px rgba(68, 53, 28, 0.2);
+      transition: all 0.3s ease;
+      color: #fff;
+      text-decoration: none;
     }
 
     .btn-primary:hover {
       background: var(--accent-hover);
-      box-shadow: 0 4px 10px rgba(126, 107, 0, 0.3);
+      box-shadow: 0 4px 10px rgba(68, 53, 28, 0.3);
+      transform: translateY(-1px);
     }
 
-    .pagination {
-      justify-content: center;
-      margin-top: clamp(1rem, 3vw, 1.5rem);
-    }
-
-    .page-item.active .page-link {
-      background: var(--accent-gradient);
-      border: none;
-      color: #fff;
-    }
-
-    .page-link {
-      color: #7e6b00;
+    .btn-outline-primary {
+      border-color: #44351c;
+      color: #44351c;
+      border-radius: 12px;
       font-size: clamp(0.8rem, 2vw, 0.9rem);
-    }
-
-    .page-link:hover {
-      background: linear-gradient(145deg, #ffffff, #f5f5f5);
-      color: #655700;
-    }
-
-    .sidebar-toggle {
-      display: none;
-      position: fixed;
-      top: 1rem;
-      left: 1rem;
-      z-index: 60;
-      background: var(--accent-gradient);
-      color: #fff;
-      padding: clamp(0.5rem, 1.5vw, 0.6rem);
-      border-radius: 8px;
-      border: none;
-      box-shadow: 0 2px 6px rgba(126, 107, 0, 0.2);
+      padding: clamp(0.4rem, 1.5vw, 0.5rem) clamp(0.8rem, 2vw, 1rem);
       transition: all 0.3s ease;
-      cursor: pointer;
     }
 
-    .sidebar-toggle:hover {
+    .btn-outline-primary:hover {
       background: var(--accent-hover);
-      box-shadow: 0 4px 10px rgba(126, 107, 0, 0.3);
+      color: #fff;
+      box-shadow: 0 4px 10px rgba(68, 53, 28, 0.3);
+      transform: translateY(-1px);
     }
 
-    .sidebar-toggle svg {
-      width: clamp(18px, 4vw, 20px);
-      height: clamp(18px, 4vw, 20px);
-      stroke: #fff;
+    .btn-outline-danger {
+      border-color: var(--danger-color);
+      color: var(--danger-color);
+      border-radius: 12px;
+      font-size: clamp(0.8rem, 2vw, 0.9rem);
+      padding: clamp(0.4rem, 1.5vw, 0.5rem) clamp(0.8rem, 2vw, 1rem);
+      transition: all 0.3s ease;
+    }
+
+    .btn-outline-danger:hover {
+      background: linear-gradient(45deg, #dc2626, #b91c1c);
+      color: #fff;
+      box-shadow: 0 4px 10px rgba(185, 71, 71, 0.3);
+      transform: translateY(-1px);
     }
 
     .search-form {
@@ -273,28 +262,73 @@
 
     .search-input {
       border: 1px solid var(--border-color);
-      border-radius: 8px 0 0 8px;
+      border-radius: 12px 0 0 12px;
       padding: clamp(0.4rem, 1.5vw, 0.5rem) clamp(0.8rem, 2vw, 1rem);
       font-size: clamp(0.85rem, 2.5vw, 1rem);
       color: var(--text-primary);
-      background-color: var(--primary-bg);
+      background-color: #ffffff;
     }
 
     .search-input:focus {
-      border-color: #7e6b00;
-      box-shadow: 0 0 0 0.2rem rgba(126, 107, 0, 0.25);
+      border-color: #44351c;
+      box-shadow: 0 0 0 0.2rem rgba(68, 53, 28, 0.25);
     }
 
     .search-button {
       background: var(--accent-gradient);
       border: none;
-      border-radius: 0 8px 8px 0;
+      border-radius: 0 12px 12px 0;
       padding: clamp(0.4rem, 1.5vw, 0.5rem) clamp(0.8rem, 2vw, 1rem);
       color: #fff;
+      transition: all 0.3s ease;
     }
 
     .search-button:hover {
       background: var(--accent-hover);
+      box-shadow: 0 4px 10px rgba(68, 53, 28, 0.3);
+    }
+
+    .pagination-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 1rem;
+      padding: 1.5rem 0;
+    }
+
+    .pagination-container a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.5rem;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      min-width: 2.25rem;
+      height: 2.25rem;
+    }
+
+    .pagination-container a.nav-button {
+      background: var(--accent-gradient);
+      color: #ffffff;
+    }
+
+    .pagination-container a.nav-button:hover:not(.disabled) {
+      background: var(--accent-hover);
+      box-shadow: 0 4px 10px rgba(68, 53, 28, 0.3);
+    }
+
+    .pagination-container a.disabled {
+      background-color: #d1d5db;
+      color: #9ca3af;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    .pagination-container .page-indicator {
+      font-size: 0.875rem;
+      color: var(--text-primary);
+      font-weight: 500;
     }
 
     .product-item {
@@ -311,33 +345,34 @@
 
     @media (max-width: 768px) {
       .sidebar {
-        transform: translateX(-100%);
         width: min(220px, 70vw);
-        padding: clamp(1rem, 3vw, 1.5rem);
-        border-radius: 10px;
-        top: 10vh;
-        height: calc(90vh - 2rem);
+        transform: translateX(-100%);
       }
 
       .sidebar.open {
         transform: translateX(0);
       }
 
-      .sidebar-close {
-        display: block;
-      }
-
-      .main-content {
-        margin-left: 0;
-        padding: clamp(1rem, 3vw, 1.5rem);
-      }
-
       .sidebar-toggle {
         display: block;
       }
 
-      .sidebar.open ~ .sidebar-toggle {
+      .sidebar-partial.open ~ .sidebar-toggle {
         display: none;
+      }
+
+      .main-content {
+        margin: 0 auto;
+        padding: 1.5rem;
+        border-radius: 10px;
+        margin-top: 10vh;
+        min-height: calc(90vh - 2rem);
+        max-width: min(100%, 800px);
+      }
+
+      .main-content.sidebar-open {
+        margin-left: min(220px, 70vw);
+        max-width: min(100%, 800px);
       }
 
       .order-header .row {
@@ -367,15 +402,24 @@
       .order-body p {
         font-size: clamp(0.8rem, 2vw, 0.9rem);
       }
+
+      h2.mb-4 {
+        text-align: center;
+      }
     }
 
     @media (max-width: 480px) {
-      .sidebar {
-        width: min(180px, 65vw);
-        padding: clamp(0.8rem, 2.5vw, 1rem);
+      .main-content {
+        padding: 1rem;
         border-radius: 8px;
-        top: 8vh;
-        height: calc(88vh - 2rem);
+        margin-top: 8vh;
+        min-height: calc(88vh - 2rem);
+        max-width: min(100%, 800px);
+      }
+
+      .main-content.sidebar-open {
+        margin-left: min(180px, 65vw);
+        max-width: min(100%, 800px);
       }
 
       .order-card {
@@ -392,17 +436,27 @@
         padding: clamp(0.3rem, 1vw, 0.4rem) clamp(0.6rem, 1.5vw, 0.8rem);
         font-size: clamp(0.75rem, 2vw, 0.85rem);
       }
+
+      .sidebar-toggle {
+        padding: 0.5rem;
+      }
+
+      .sidebar-toggle svg {
+        width: 18px;
+        height: 18px;
+      }
     }
 
     @media (max-width: 320px) {
-      .sidebar {
-        width: min(160px, 60vw);
-        padding: clamp(0.6rem, 2vw, 0.8rem);
+      .main-content {
+        padding: 0.8rem;
         border-radius: 6px;
+        max-width: min(100%, 800px);
       }
 
-      .order-card {
-        padding: clamp(0.6rem, 2vw, 0.8rem);
+      .main-content.sidebar-open {
+        margin-left: min(160px, 60vw);
+        max-width: min(100%, 800px);
       }
     }
   </style>
@@ -410,14 +464,14 @@
 <body>
   <%- include("../partials/user/sidebar.ejs") %>
 
-  <button class="sidebar-toggle d-md-none fixed top-4 left-4 z-50 p-2">
-    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+  <button class="sidebar-toggle" aria-label="Toggle sidebar">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M3 6h18v2H3V6zm0 5h18v2H3v-2zm0 5h18v2H3v-2z"/>
     </svg>
   </button>
 
   <div class="main-content p-4">
-    <h2 class="mb-4" style="font-size: clamp(1.5rem, 4vw, 2rem); font-weight: 700; color: #7e6b00;">Your Orders</h2>
+    <h2 class="mb-4" style="font-size: clamp(1.5rem, 4vw, 2rem); font-weight: 700; color: black; text-align: center;">Your Orders</h2>
 
     <% if (groupedOrders.length>0 ) { %>
     <form class="search-form d-flex" action="/orders" method="GET">
@@ -429,7 +483,6 @@
           
     <% } %>       
          
-    
     <% if (error) { %>
       <div class="alert alert-danger" role="alert">
         <%= error %>
@@ -443,7 +496,7 @@
         </div>
         <h3 style="font-size: clamp(1.3rem, 3.5vw, 1.75rem);">No orders yet</h3>
         <p class="text-muted" style="font-size: clamp(0.85rem, 2.5vw, 1rem);">When you place an order, it will appear here.</p>
-        <a href="/shop" class="btn btn-primary mt-3">Start Shopping</a>
+        <a href="/shop" class="btn-primary mt-3">Start Shopping</a>
       </div>
     <% } else { %>
       <% groupedOrders.forEach(group => { %>
@@ -464,6 +517,7 @@
               </div>
             </div>
           </div>
+          <hr class="my-4 border-gray-300">
 
           <div class="order-body">
             <% group.forEach(item => { %>
@@ -490,31 +544,44 @@
             <% }) %>
             <div class="row">
               <div class="col-md-12 text-end">
-                <a href="/order-details/<%= group[0].orderId %>" class="btn btn-sm btn-primary">View Details</a>
+                <a href="/order-details/<%= group[0].orderId %>" class="btn-primary">View Details</a>
               </div>
             </div>
           </div>
         </div>
       <% }) %>
 
-      <nav aria-label="Order pagination">
-        <ul class="pagination justify-content-center">
-          <li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
-            <a class="page-link" href="?page=<%= currentPage - 1 %>" aria-label="Previous">
-              « Previous
-            </a>
-          </li>
-          <% for (let i = 1; i <= totalPages; i++) { %>
-            <li class="page-item <%= currentPage === i ? 'active' : '' %>">
-              <a class="page-link" href="?page=<%= i %>"><%= i %></a>
-            </li>
-          <% } %>
-          <li class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
-            <a class="page-link" href="?page=<%= currentPage + 1 %>" aria-label="Next">
-              Next »
-            </a>
-          </li>
-        </ul>
+      <nav class="pagination-container" role="navigation" aria-label="Pagination">
+        <% if (totalPages > 1) { %>
+          <!-- Left Arrow (Previous) -->
+          <a 
+            href="<%= currentPage > 1 ? `?page=${currentPage - 1}${typeof search !== 'undefined' ? '&search=' + encodeURIComponent(search) : ''}` : '#' %>" 
+            class="nav-button <%= currentPage === 1 ? 'disabled' : '' %>"
+            aria-label="Previous page"
+            <%= currentPage === 1 ? 'aria-disabled="true"' : '' %>
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            </svg>
+          </a>
+
+          <!-- Page Indicator -->
+          <span class="page-indicator">
+            Page <%= currentPage %> of <%= totalPages %>
+          </span>
+
+          <!-- Right Arrow (Next) -->
+          <a 
+            href="<%= currentPage < totalPages ? `?page=${currentPage + 1}${typeof search !== 'undefined' ? '&search=' + encodeURIComponent(search) : ''}` : '#' %>" 
+            class="nav-button <%= currentPage === totalPages ? 'disabled' : '' %>"
+            aria-label="Next page"
+            <%= currentPage === totalPages ? 'aria-disabled="true"' : '' %>
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            </svg>
+          </a>
+        <% } %>
       </nav>
     <% } %>
   </div>
@@ -523,50 +590,51 @@
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const toggleButton = document.querySelector('.sidebar-toggle');
-      const closeButton = document.querySelector('.sidebar-close');
-      const sidebar = document.querySelector('.sidebar');
+      const sidebar = document.querySelector('.sidebar-partial');
       const mainContent = document.querySelector('.main-content');
 
-      // Ensure sidebar is hidden on mobile by default
+      // Ensure sidebar is hidden and toggle is visible on load for mobile
       if (window.innerWidth <= 768) {
         sidebar.classList.remove('open');
         mainContent.classList.remove('sidebar-open');
+        toggleButton.style.display = 'block';
       }
 
+      // Toggle sidebar open
       if (toggleButton && sidebar && mainContent) {
         toggleButton.addEventListener('click', () => {
-          sidebar.classList.toggle('open');
-          mainContent.classList.toggle('sidebar-open');
+          sidebar.classList.add('open');
+          mainContent.classList.add('sidebar-open');
+          toggleButton.style.display = 'none';
         });
       }
 
-      if (closeButton && sidebar && mainContent) {
-        closeButton.addEventListener('click', () => {
-          sidebar.classList.remove('open');
-          mainContent.classList.remove('sidebar-open');
-        });
-      }
-
-      // Handle window resize to ensure proper sidebar state
+      // Handle window resize
       window.addEventListener('resize', () => {
         if (window.innerWidth > 768) {
           sidebar.classList.remove('open');
           mainContent.classList.remove('sidebar-open');
+          toggleButton.style.display = 'none';
+        } else {
+          if (!sidebar.classList.contains('open')) {
+            toggleButton.style.display = 'block';
+          }
         }
       });
+
+      // Order-specific functions
+      function cancelOrder(id) {
+        if (confirm('Are you sure you want to cancel this order?')) {
+          window.location.href = '/cancel-order/' + id;
+        }
+      }
+
+      function returnOrder(id) {
+        if (confirm('Are you sure you want to return this order?')) {
+          window.location.href = '/return-order/' + id;
+        }
+      }
     });
-
-    function cancelOrder(id) {
-      if (confirm('Are you sure you want to cancel this order?')) {
-        window.location.href = '/cancel-order/' + id;
-      }
-    }
-
-    function returnOrder(id) {
-      if (confirm('Are you sure you want to return this order?')) {
-        window.location.href = '/return-order/' + id;
-      }
-    }
   </script>
 </body>
 </html>

@@ -121,7 +121,7 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            background: rgba(240, 245, 182, 0.24);
+            background: white;
             padding: 3rem;
             position: relative;
             overflow: hidden;
@@ -133,8 +133,8 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: radial-gradient(circle, white), transparent);
-            opacity: 0.5;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.2), transparent);
+            opacity: 0.4;
             z-index: 1;
         }
         .logo-inner {
@@ -142,35 +142,33 @@
             z-index: 2;
             text-align: center;
             padding: 2.5rem;
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.92);
             border-radius: 12px;
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-            border: 2px solid transparent;
-            border-image: black;
             transition: transform 0.4s ease, box-shadow 0.4s ease;
         }
         .logo-inner:hover {
             transform: scale(1.05);
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
         }
         .logo-title {
-            font-family: 'Libre Baskerville', sans-serif;  
+            font-family: 'Libre Baskerville', sans-serif;
             font-size: 3.5rem;
-            color: #181a18;
+            background: linear-gradient(45deg, #44351c, #efe10a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            color: transparent;
             margin: 0;
             text-transform: uppercase;
             letter-spacing: 2px;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             animation: pulse 2s infinite ease-in-out;
         }
         .logo-tagline {
             font-family: 'Quicksand', sans-serif;
             font-size: 1.3rem;
-            color: #3e4245;
             margin-top: 0.8rem;
             letter-spacing: 2.5px;
             font-style: italic;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
         }
         .error-message {
             color: #dc3545;
@@ -229,6 +227,25 @@
                 font-size: 0.95rem;
             }
         }
+        input::placeholder {
+  color: #aaa; /* light gray color */
+  font-size: 0.85rem; /* slightly smaller */
+  font-weight: 300; /* thin font weight */
+  opacity: 1; /* ensure it's visible */
+}
+
+/* Optional: for better cross-browser support */
+input:-ms-input-placeholder {
+  color: #aaa;
+  font-size: 0.85rem;
+  font-weight: 300;
+}
+
+input::-ms-input-placeholder {
+  color: #aaa;
+  font-size: 0.85rem;
+  font-weight: 300;
+}
     </style>
 </head>
 <body>
@@ -305,6 +322,7 @@
         const confirmPasswordError = document.getElementById('confirmPasswordError');
         const namePattern = /^[a-zA-Z\s]{2,}$/;
         const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        const strictEmailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(com|org|net|edu|gov|mil|biz|info|io|co\.uk|co\.in|ai)$/;
         const phonePattern = /^\d{10}$/;
         const passwordPattern = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/;
         let validationState = {
@@ -348,6 +366,10 @@
             } else if (!emailPattern.test(value)) {
                 emailError.style.display = 'block';
                 emailError.textContent = 'Invalid email format';
+                validationState.email = false;
+            } else if (!strictEmailPattern.test(value)) {
+                emailError.style.display = 'block';
+                emailError.textContent = 'Email must have a valid domain (e.g., .com, .org, .net)';
                 validationState.email = false;
             } else {
                 emailError.style.display = 'none';

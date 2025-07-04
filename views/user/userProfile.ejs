@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>User Profile - Advanced E-commerce</title>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
   <style>
     * {
       box-sizing: border-box;
@@ -96,6 +98,7 @@
       transition: all 0.3s ease;
       margin: 0.5rem;
       box-shadow: 0 2px 6px rgba(126, 107, 0, 0.2);
+     
     }
     .btn-copy:hover {
       background: linear-gradient(90deg, #655700, #8c7500);
@@ -339,13 +342,18 @@
   <h1>User Profile</h1>
   <div class="profile-container">
     <div class="profile-card" aria-label="User profile details">
-      <img src="<%= user.profilePhoto || '/Uploads/profile/default.jpg' %>" alt="Profile Image" class="profile-image" />
+      <img src="<%= user.profilePhoto || '/Uploads/profile/default.jpg' %>" class="profile-image" />
       <div class="profile-details">
         <h2>Welcome, <%= user.name %></h2>
         <p>Email: <strong id="userEmail"><%= user.email %></strong></p>
         <p>Phone: <strong><%= user.phone || 'Not provided' %></strong></p>
         <%if(user.referalCode){%>
-        <p>Referral Code: <strong><%= user.referalCode %></strong> <button class="btn-copy" onclick="copyToClipboard('<%= user.referalCode %>')">Copy</button></p>
+        <p>Referral Code: <strong><%= user.referalCode %></strong> 
+    <button onclick="copyToClipboard('<%= user.referalCode %>')" class="p-2" title="Copy">
+  <i class="fa-regular fa-copy"></i>
+</button>
+
+</p>
          <%}%>
         <button class="btn-edit" onclick="window.location.href='/edit-profile'">Edit Profile</button>
       </div>
