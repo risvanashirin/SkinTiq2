@@ -77,10 +77,18 @@ router.get('/userProfile', userAuth, profileController.userProfile);
 router.get('/edit-profile', userAuth, editController.renderEditProfile);
 router.post('/update-profile', userAuth, editController.updateProfile);
 router.post('/upload-profile-photo', userAuth, upload.single('profilePhoto'), profileController.uploadProfilePhoto);
+
+
+// router.post('/send-otp', userAuth, editController.sendOtp);
+// router.post('/edit/verify-otp', userAuth, editController.verifyOtp);
+// router.post('/confrom-new/email', userAuth, editController.newMailConfirmation);
+// router.post('/resend-otp', userAuth, editController.resendOtp);
 router.post('/send-otp', userAuth, editController.sendOtp);
 router.post('/edit/verify-otp', userAuth, editController.verifyOtp);
-router.post('/confrom-new/email', userAuth, editController.newMailConfirmation);
-router.post('/resend-otp', userAuth, editController.resendOtp);
+router.post('/confirm-new/email', userAuth, editController.newMailConfirmation); // Fixed typo
+router.post('/editprofile/resendotp', userAuth, editController.resendOtp);
+
+
 router.post('/change-password', userAuth, editController.changePassword);
 router.post('/verify-password-otp', userAuth, editController.verifyPasswordOtp);
 router.post('/resend-password-otp', userAuth, editController.resendPasswordOtp);
@@ -93,8 +101,8 @@ router.post('/wishlist/remove', userAuth, wishlistController.removeFromWishlist)
 
 // Cart
 router.get('/cart', userAuth, cartController.getCart);
-router.post('/add-to-cart', userAuth, cartController.addToCart);
-router.post('/add-to-cart-shop/:productId', userAuth, cartController.shopaddToCart);
+router.post('/add-to-cart', cartController.addToCart);
+router.post('/add-to-cart-shop/:productId', cartController.shopaddToCart);
 router.post('/cart/remove/:productId', userAuth, cartController.removeFromCart);
 router.post('/user/cart/update', userAuth, cartController.updateCartQuantity);
 router.get('/cart/total', userAuth, orderController.getCartTotal); // Added route for cart total
@@ -111,26 +119,20 @@ router.get('/primary-address', userAuth, addressController.getPrimaryAddress);
 router.get('/shop', userController.loadshop);
 router.get('/productDetails', userController.productDetails);
 
-// Orders & Checkout
-router.get('/checkout', userAuth, orderController.loadcheckout);
-router.post('/add-address-checkout', userAuth, orderController.newaddress);
-router.post('/edit-address-checkout/:id', userAuth, orderController.editAddressCheckout);
-router.post('/apply-coupon', userAuth, orderController.applyCoupon); 
-router.post('/remove-coupon', userAuth, orderController.removeCoupon); 
+  // Orders & Checkout
+  router.get('/checkout', userAuth, orderController.loadCheckout);
+  router.post('/add-address-checkout', userAuth, orderController.newaddress);
+  router.post('/edit-address-checkout/:id', userAuth, orderController.editAddressCheckout);
+  router.post('/apply-coupon', userAuth, orderController.applyCoupon); 
+  router.post('/remove-coupon', userAuth, orderController.removeCoupon); 
 
 
-// router.post('/refresh-session', userAuth, (req, res) => {
-//     try {
-//         req.session.appliedCoupon = null; // Clear applied coupon
-//         // Optionally reinitialize cart or other session data if needed
-//         res.status(200).json({ success: true, message: 'Session refreshed' });
-//     } catch (error) {
-//         console.error('Session refresh error:', error);
-//         res.status(500).json({ success: false, message: 'Failed to refresh session' });
-//     }
-// });
+
 
 router.post('/place-order', userAuth, formParser.none(), orderController.placeorder);
+
+router.post('/checkquantity', userAuth, orderController.checkQuantity);
+
 router.post("/razorpay/create-order", formParser.none(), orderController.createRazorpay);
 router.get('/order-failed/:orderId', userAuth, orderController.loadOrderFailed);
 router.get('/order-confirmation/:orderId', userAuth, orderController.getOrderConfirmation);
@@ -143,35 +145,12 @@ router.get('/download-invoice', userAuth, orderController.generateInvoice);
 router.get('/checkout/retry-order/:orderId', userAuth, orderController.retryOrderCheckout);
 router.get('/get-wallet-balance', orderController.getWalletBalance);
 
-// // New route for wallet balance
-// router.get('/wallet/balance', userAuth, orderController.getWalletBalance);
+
 
 
 // Wallet
 router.get('/wallet', userAuth, walletController.loadWallet);
 
-// router.get('/wallet', userAuth, walletController.addRefundToWallet);
-
-
-// Orders & Checkout
-// router.get('/checkout', userAuth, orderController.loadcheckout);
-// router.post('/add-address-checkout', userAuth, orderController.newaddress);
-// router.post('/edit-address-checkout/:id', userAuth, orderController.editAddressCheckout);
-// router.post('/apply-coupon', userAuth, orderController.applyCoupon); 
-// router.post('/remove-coupon', userAuth, orderController.removeCoupon); 
-
-// router.post('/place-order', userAuth, formParser.none(), orderController.placeorder);
-// router.post('/create-razorpay-order', userAuth, formParser.none(), orderController.createRazorpay); // Updated path to match EJS
-// router.get('/order-failed/:orderId', userAuth, orderController.loadOrderFailed);
-// router.get('/order-confirmation/:orderId', userAuth, orderController.getOrderConfirmation);
-// router.get('/orders', userAuth, orderController.getOrders);
-// router.get('/order-details/:orderId', userAuth, orderController.getOrderDetails);
-// router.post('/cancel-order', userAuth, orderController.cancelOrder);
-// router.post('/cancel-all-orders', userAuth, orderController.cancelAllOrders);
-// router.post('/return-order', userAuth, orderController.returnOrder);
-// router.get('/download-invoice', userAuth, orderController.generateInvoice);
-// router.get('/checkout/retry-order/:orderId', userAuth, orderController.retryOrderCheckout);
-// router.get('/get-wallet-balance', orderController.getWalletBalance);
 
 
 

@@ -593,6 +593,24 @@
             decreaseBtn.addEventListener('click', () => updateQuantity(productId, 'decrease'));
             increaseBtn.addEventListener('click', () => updateQuantity(productId, 'increase'));
         });
+        <% if (adjustedQuantities) { %>
+  Swal.fire({
+    icon: 'info',
+    title: 'Cart Updated',
+    html: `
+      The following items in your cart have been adjusted due to stock changes:
+      <ul class="list-disc pl-5 mt-2">
+        <% adjustedQuantities.forEach(item => { %>
+          <li><%= item.name %>: Quantity changed from <%= item.oldQuantity %> to <%= item.newQuantity %></li>
+        <% }) %>
+      </ul>
+    `,
+    showConfirmButton: true,
+    confirmButtonText: 'OK',
+    background: '#ffffff',
+    color: '#1a1a1a',
+  });
+<% } %>
     </script>
 </body>
 </html>

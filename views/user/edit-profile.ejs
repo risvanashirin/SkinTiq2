@@ -7,6 +7,7 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://cdn.jsdelivr.net/npm/cropperjs@1.6.1/dist/cropper.min.js"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs@1.6.1/dist/cropper.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <style>
     * {
       box-sizing: border-box;
@@ -238,6 +239,7 @@
       outline: none;
       transition: all 0.3s ease;
       box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+      position: relative;
     }
     .modal-content input:focus {
       border-color: #7e6b00;
@@ -247,9 +249,6 @@
       color: #4a4a4a;
       font-size: 0.95rem;
       margin-bottom: 1.25rem;
-    }
-    #otpSection, #newEmailSection, #newOtpSection {
-      display: none;
     }
     footer {
       margin-top: 3rem;
@@ -341,7 +340,7 @@
     <div class="edit-profile-card" aria-label="Profile image section">
       <div class="profile-image-container">
         <input type="file" id="profilePhotoInput" accept="image/*" style="display: none;" />
-        <img src="<%= user?.profilePhoto || '/Uploads/profile/default.jpg' %>"  class="profile-image" id="profileImage" />
+        <img src="<%= user?.profilePhoto || '/Uploads/profile/default.jpg' %>" class="profile-image" id="profileImage" />
         <button type="button" class="camera-button" id="cameraButton" onclick="document.getElementById('profilePhotoInput').click()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
@@ -354,13 +353,11 @@
       <form class="edit-profile-form" id="editProfileForm">
         <label for="username">Username</label>
         <input type="text" id="username" name="username" value="<%= user?.name || '' %>" required />
-          <% if (user.password){%>
         <label for="email">Email</label>
         <input type="email" id="email" name="email" value="<%= user?.email || '' %>" readonly />
         <div class="action-buttons">
-          <button type="button" class="btn-edit-email" onclick="openEmailModal()">Edit Email</button>
+          <button type="button" class="btn-edit-email" onclick="openCurrentEmailModal()">Edit Email</button>
           <button type="button" class="btn-edit-password" onclick="openPasswordModal()">Edit Password</button>
-              <% } %>
           <button type="submit" class="btn-save">Save Changes</button>
         </div>
       </form>
@@ -380,29 +377,47 @@
     </div>
   </div>
 
-  <!-- Email Change Modal -->
-  <div class="modal" id="emailModal">
+  <!-- Current Email Modal -->
+  <div class="modal" id="currentEmailModal">
     <div class="modal-content">
-      <h3>Change Email</h3>
+      <h3>Verify Current Email</h3>
       <input type="email" id="currentEmail" placeholder="Enter current email" required />
       <button onclick="sendOtpForCurrentEmail()">Send OTP</button>
-      <div id="otpSection">
-        <p>Enter the OTP sent to your current email</p>
-        <input type="text" id="otpInputCurrent" placeholder="Enter OTP" maxlength="6" />
-        <button onclick="verifyOtpForCurrentEmail()">Verify OTP</button>
-        <button onclick="resendOtpForCurrentEmail()">Resend OTP</button>
-      </div>
-      <div id="newEmailSection">
-        <input type="email" id="newEmail" placeholder="Enter new email" required />
-        <button onclick="sendOtpForNewEmail()">Send OTP</button>
-        <div id="newOtpSection">
-          <p>Enter the OTP sent to your new email</p>
-          <input type="text" id="otpInputNew" placeholder="Enter OTP" maxlength="6" />
-          <button onclick="verifyOtpForNewEmail()">Verify OTP</button>
-          <button onclick="resendOtpForNewEmail()">Resend OTP</button>
-        </div>
-      </div>
-      <button class="btn-close" onclick="closeEmailModal()">Close</button>
+      <button class="btn-close" onclick="closeCurrentEmailModal()">Close</button>
+    </div>
+  </div>
+
+  <!-- Current Email OTP Modal -->
+  <div class="modal" id="currentEmailOtpModal">
+    <div class="modal-content">
+      <h3>Verify OTP for Current Email</h3>
+      <p>Enter the OTP sent to your current email</p>
+      <input type="text" id="otpInputCurrent" placeholder="Enter OTP" maxlength="6" />
+      <button onclick="verifyOtpForCurrentEmail()">Verify OTP</button>
+      <button id="resendOtpCurrentButton" onclick="resendOtpForCurrentEmail()">Resend OTP</button>
+      <button class="btn-close" onclick="closeCurrentEmailOtpModal()">Close</button>
+    </div>
+  </div>
+
+  <!-- New Email Modal -->
+  <div class="modal" id="newEmailModal">
+    <div class="modal-content">
+      <h3>Enter New Email</h3>
+      <input type="email" id="newEmail" placeholder="Enter new email" required />
+      <button onclick="sendOtpForNewEmail()">Send OTP</button>
+      <button class="btn-close" onclick="closeNewEmailModal()">Close</button>
+    </div>
+  </div>
+
+  <!-- New Email OTP Modal -->
+  <div class="modal" id="newEmailOtpModal">
+    <div class="modal-content">
+      <h3>Verify OTP for New Email</h3>
+      <p>Enter the OTP sent to your new email</p>
+      <input type="text" id="otpInputNew" placeholder="Enter OTP" maxlength="6" />
+      <button onclick="verifyOtpForNewEmail()">Verify OTP</button>
+      <button id="resendOtpNewButton" onclick="resendOtpForNewEmail()">Resend OTP</button>
+      <button class="btn-close" onclick="closeNewEmailOtpModal()">Close</button>
     </div>
   </div>
 
@@ -410,9 +425,24 @@
   <div class="modal" id="passwordModal">
     <div class="modal-content">
       <h3>Change Password</h3>
-      <input type="password" id="currentPassword" placeholder="Enter current password" required />
-      <input type="password" id="newPassword" placeholder="Enter new password" required />
-      <input type="password" id="confirmPassword" placeholder="Confirm new password" required />
+      <div style="position: relative;">
+        <input type="password" id="currentPassword" placeholder="Enter current password" required />
+        <span id="toggleCurrentPassword" class="absolute right-3 top-2.5 cursor-pointer text-gray-500" style="position: absolute; right: 10px; top: 31%; transform: translateY(-50%);">
+          <i class="fas fa-eye"></i>
+        </span>
+      </div>
+      <div style="position: relative;">
+        <input type="password" id="newPassword" placeholder="Enter new password" required />
+        <span id="toggleNewPassword" class="absolute right-3 top-2.5 cursor-pointer text-gray-500" style="position: absolute; right: 10px; top: 31%; transform: translateY(-50%);;">
+          <i class="fas fa-eye"></i>
+        </span>
+      </div>
+      <div style="position: relative;">
+        <input type="password" id="confirmPassword" placeholder="Confirm new password" required />
+        <span id="toggleConfirmPassword" class="absolute right-3 top-2.5 cursor-pointer text-gray-500" style="position: absolute; right: 10px; top: 31%; transform: translateY(-50%);">
+          <i class="fas fa-eye"></i>
+        </span>
+      </div>
       <button onclick="changePassword()">Change Password</button>
       <button class="btn-close" onclick="closePasswordModal()">Close</button>
     </div>
@@ -430,7 +460,6 @@
     </div>
   </div>
 
- 
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <script>
     let cropper;
@@ -439,8 +468,15 @@
     const imageToCrop = document.getElementById('imageToCrop');
     const cropButton = document.getElementById('cropButton');
     const cameraButton = document.getElementById('cameraButton');
+    const toggleCurrentPassword = document.querySelector("#toggleCurrentPassword");
+    const toggleNewPassword = document.querySelector("#toggleNewPassword");
+    const toggleConfirmPassword = document.querySelector("#toggleConfirmPassword");
     let croppedBlob = null;
     let tempUrl = null;
+    let currentEmailValue = '';
+    let resendTimerCurrent = null;
+    let resendTimerNew = null;
+    const COOLDOWN_SECONDS = 30;
 
     function openCropModal() {
       document.getElementById('cropModal').classList.add('show');
@@ -534,7 +570,8 @@
             body: formData,
             headers: {
               'Accept': 'application/json'
-            }
+            },
+            credentials: 'include'
           });
 
           const data = await response.json();
@@ -564,33 +601,51 @@
       }, 'image/jpeg', 0.8);
     });
 
-    function openEmailModal() {
-      document.getElementById('emailModal').style.display = 'flex';
-      resetEmailModal();
-    }
-
-    function closeEmailModal() {
-      document.getElementById('emailModal').style.display = 'none';
-      resetEmailModal();
-    }
-
-    function resetEmailModal() {
+    function openCurrentEmailModal() {
+      document.getElementById('currentEmailModal').classList.add('show');
       document.getElementById('currentEmail').value = '';
+    }
+
+    function closeCurrentEmailModal() {
+      document.getElementById('currentEmailModal').classList.remove('show');
+    }
+
+    function openCurrentEmailOtpModal() {
+      document.getElementById('currentEmailOtpModal').classList.add('show');
       document.getElementById('otpInputCurrent').value = '';
+    }
+
+    function closeCurrentEmailOtpModal() {
+      document.getElementById('currentEmailOtpModal').classList.remove('show');
+      clearResendTimerCurrent();
+    }
+
+    function openNewEmailModal() {
+      document.getElementById('newEmailModal').classList.add('show');
       document.getElementById('newEmail').value = '';
+    }
+
+    function closeNewEmailModal() {
+      document.getElementById('newEmailModal').classList.remove('show');
+    }
+
+    function openNewEmailOtpModal() {
+      document.getElementById('newEmailOtpModal').classList.add('show');
       document.getElementById('otpInputNew').value = '';
-      document.getElementById('otpSection').style.display = 'none';
-      document.getElementById('newEmailSection').style.display = 'none';
-      document.getElementById('newOtpSection').style.display = 'none';
+    }
+
+    function closeNewEmailOtpModal() {
+      document.getElementById('newEmailOtpModal').classList.remove('show');
+      clearResendTimerNew();
     }
 
     function openPasswordModal() {
-      document.getElementById('passwordModal').style.display = 'flex';
+      document.getElementById('passwordModal').classList.add('show');
       resetPasswordModal();
     }
 
     function closePasswordModal() {
-      document.getElementById('passwordModal').style.display = 'none';
+      document.getElementById('passwordModal').classList.remove('show');
       resetPasswordModal();
     }
 
@@ -601,12 +656,12 @@
     }
 
     function openOtpModal() {
-      document.getElementById('otpModal').style.display = 'flex';
+      document.getElementById('otpModal').classList.add('show');
       document.getElementById('otpInput').value = '';
     }
 
     function closeOtpModal() {
-      document.getElementById('otpModal').style.display = 'none';
+      document.getElementById('otpModal').classList.remove('show');
     }
 
     function validateEmail(email) {
@@ -621,23 +676,81 @@
       return password.length >= 8;
     }
 
+    function startResendTimerCurrent() {
+      const resendButton = document.getElementById('resendOtpCurrentButton');
+      let seconds = COOLDOWN_SECONDS;
+      resendButton.disabled = true;
+      resendButton.textContent = `Resend OTP (${seconds}s)`;
+
+      resendTimerCurrent = setInterval(() => {
+        seconds--;
+        resendButton.textContent = `Resend OTP (${seconds}s)`;
+        if (seconds <= 0) {
+          clearResendTimerCurrent();
+          resendButton.textContent = 'Resend OTP';
+          resendButton.disabled = false;
+        }
+      }, 1000);
+    }
+
+    function clearResendTimerCurrent() {
+      if (resendTimerCurrent) {
+        clearInterval(resendTimerCurrent);
+        resendTimerCurrent = null;
+      }
+      const resendButton = document.getElementById('resendOtpCurrentButton');
+      resendButton.textContent = 'Resend OTP';
+      resendButton.disabled = false;
+    }
+
+    function startResendTimerNew() {
+      const resendButton = document.getElementById('resendOtpNewButton');
+      let seconds = COOLDOWN_SECONDS;
+      resendButton.disabled = true;
+      resendButton.textContent = `Resend OTP (${seconds}s)`;
+
+      resendTimerNew = setInterval(() => {
+        seconds--;
+        resendButton.textContent = `Resend OTP (${seconds}s)`;
+        if (seconds <= 0) {
+          clearResendTimerNew();
+          resendButton.textContent = 'Resend OTP';
+          resendButton.disabled = false;
+        }
+      }, 1000);
+    }
+
+    function clearResendTimerNew() {
+      if (resendTimerNew) {
+        clearInterval(resendTimerNew);
+        resendTimerNew = null;
+      }
+      const resendButton = document.getElementById('resendOtpNewButton');
+      resendButton.textContent = 'Resend OTP';
+      resendButton.disabled = false;
+    }
+
     async function sendOtpForCurrentEmail() {
       const email = document.getElementById('currentEmail').value;
       if (!validateEmail(email)) {
         Swal.fire('Error', 'Please enter a valid email', 'error');
         return;
       }
+      currentEmailValue = email;
 
       try {
         const response = await fetch('/send-otp', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, type: 'verify-current' }),
+          credentials: 'include'
         });
         const data = await response.json();
         if (data.success) {
           Swal.fire('Success', 'OTP sent to your email', 'success');
-          document.getElementById('otpSection').style.display = 'block';
+          closeCurrentEmailModal();
+          openCurrentEmailOtpModal();
+          startResendTimerCurrent();
         } else {
           Swal.fire('Error', data.message || 'Failed to send OTP', 'error');
         }
@@ -648,7 +761,6 @@
     }
 
     async function verifyOtpForCurrentEmail() {
-      const email = document.getElementById('currentEmail').value;
       const otp = document.getElementById('otpInputCurrent').value;
       if (!validateOtp(otp)) {
         Swal.fire('Error', 'Please enter a valid 6-digit OTP', 'error');
@@ -659,13 +771,14 @@
         const response = await fetch('/edit/verify-otp', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, otp, type: 'verify-current' }),
+          body: JSON.stringify({ email: currentEmailValue, otp, type: 'verify-current' }),
+          credentials: 'include'
         });
         const data = await response.json();
         if (data.success) {
           Swal.fire('Success', 'Current email verified. Enter new email.', 'success');
-          document.getElementById('otpSection').style.display = 'none';
-          document.getElementById('newEmailSection').style.display = 'block';
+          closeCurrentEmailOtpModal();
+          openNewEmailModal();
         } else {
           Swal.fire('Error', data.message || 'Failed to verify OTP', 'error');
         }
@@ -676,23 +789,30 @@
     }
 
     async function resendOtpForCurrentEmail() {
-      const email = document.getElementById('currentEmail').value;
+      const email = currentEmailValue;
       if (!validateEmail(email)) {
-        Swal.fire('Error', 'Please enter a valid email', 'error');
+        Swal.fire('Error', 'Invalid email stored. Please try again.', 'error');
+        closeCurrentEmailOtpModal();
+        openCurrentEmailModal();
         return;
       }
 
       try {
-        const response = await fetch('/resend-otp', {
+        const response = await fetch('/editprofile/resendotp', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, type: 'verify-current' }),
+          credentials: 'include'
         });
         const data = await response.json();
         if (data.success) {
           Swal.fire('Success', 'OTP resent to your email', 'success');
+          startResendTimerCurrent();
         } else {
           Swal.fire('Error', data.message || 'Failed to resend OTP', 'error');
+          if (data.message === 'Unauthorized: Please log in') {
+            window.location.href = '/login';
+          }
         }
       } catch (error) {
         console.error('Error in resendOtpForCurrentEmail:', error);
@@ -706,17 +826,21 @@
         Swal.fire('Error', 'Please enter a valid email', 'error');
         return;
       }
+      currentEmailValue = email;
 
       try {
         const response = await fetch('/send-otp', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, type: 'new-email' }),
+          credentials: 'include'
         });
         const data = await response.json();
         if (data.success) {
           Swal.fire('Success', 'OTP sent to new email', 'success');
-          document.getElementById('newOtpSection').style.display = 'block';
+          closeNewEmailModal();
+          openNewEmailOtpModal();
+          startResendTimerNew();
         } else {
           Swal.fire('Error', data.message || 'Failed to send OTP', 'error');
         }
@@ -727,7 +851,7 @@
     }
 
     async function verifyOtpForNewEmail() {
-      const email = document.getElementById('newEmail').value;
+      const email = currentEmailValue;
       const otp = document.getElementById('otpInputNew').value;
 
       if (!validateOtp(otp)) {
@@ -736,11 +860,11 @@
       }
 
       try {
-        const res = await axios.post("/confrom-new/email", { otp, email });
+        const res = await axios.post("/confirm-new/email", { otp, email }, { withCredentials: true });
         if (res.data.ok) {
           Swal.fire('Success', res.data.msg, 'success').then(() => {
             document.getElementById('email').value = email;
-            closeEmailModal();
+            closeNewEmailOtpModal();
             window.location.reload();
           });
         } else {
@@ -753,9 +877,11 @@
     }
 
     async function resendOtpForNewEmail() {
-      const email = document.getElementById('newEmail').value;
+      const email = currentEmailValue;
       if (!validateEmail(email)) {
-        Swal.fire('Error', 'Please enter a valid email', 'error');
+        Swal.fire('Error', 'Invalid email stored. Please try again.', 'error');
+        closeNewEmailOtpModal();
+        openNewEmailModal();
         return;
       }
 
@@ -764,12 +890,17 @@
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, type: 'new-email' }),
+          credentials: 'include'
         });
         const data = await response.json();
         if (data.success) {
           Swal.fire('Success', 'OTP resent to new email', 'success');
+          startResendTimerNew();
         } else {
           Swal.fire('Error', data.message || 'Failed to resend OTP', 'error');
+          if (data.message === 'Unauthorized: Please log in') {
+            window.location.href = '/login';
+          }
         }
       } catch (error) {
         console.error('Error in resendOtpForNewEmail:', error);
@@ -797,6 +928,7 @@
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ currentPassword, newPassword }),
+          credentials: 'include'
         });
         const data = await response.json();
         if (data.success) {
@@ -823,6 +955,7 @@
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ otp }),
+          credentials: 'include'
         });
         const data = await response.json();
         if (data.success) {
@@ -843,18 +976,46 @@
         const response = await fetch('/resend-password-otp', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          credentials: 'include'
         });
         const data = await response.json();
         if (data.success) {
           Swal.fire('Success', 'OTP resent to your email', 'success');
         } else {
           Swal.fire('Error', data.message || 'Failed to resend OTP', 'error');
+          if (data.message === 'Unauthorized: Please log in') {
+            window.location.href = '/login';
+          }
         }
       } catch (error) {
         console.error('Error in resendOtp:', error);
         Swal.fire('Error', 'Unable to connect to server. Please try again.', 'error');
       }
     }
+
+    toggleCurrentPassword.addEventListener("click", function () {
+      const type = document.getElementById('currentPassword').getAttribute("type") === "password" ? "text" : "password";
+      document.getElementById('currentPassword').setAttribute("type", type);
+      this.innerHTML = type === "password"
+        ? '<i class="fas fa-eye"></i>'
+        : '<i class="fas fa-eye-slash"></i>';
+    });
+
+    toggleNewPassword.addEventListener("click", function () {
+      const type = document.getElementById('newPassword').getAttribute("type") === "password" ? "text" : "password";
+      document.getElementById('newPassword').setAttribute("type", type);
+      this.innerHTML = type === "password"
+        ? '<i class="fas fa-eye"></i>'
+        : '<i class="fas fa-eye-slash"></i>';
+    });
+
+    toggleConfirmPassword.addEventListener("click", function () {
+      const type = document.getElementById('confirmPassword').getAttribute("type") === "password" ? "text" : "password";
+      document.getElementById('confirmPassword').setAttribute("type", type);
+      this.innerHTML = type === "password"
+        ? '<i class="fas fa-eye"></i>'
+        : '<i class="fas fa-eye-slash"></i>';
+    });
 
     document.getElementById('editProfileForm').addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -870,6 +1031,7 @@
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ name: username }),
+          credentials: 'include'
         });
         const data = await response.json();
         if (data.success) {

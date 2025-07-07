@@ -7,6 +7,9 @@ const addToCart = async (req, res) => {
   try {
     const userId = req.session.user;
     const { productId, quantity } = req.body;
+   if(!userId){
+    return res.status(401).json({success:false,message: 'User not logged in'})
+   }
 
     const product = await Product.findById(productId);
     if (!product) return res.status(404).json({ success: false, message: "Product not found" });
@@ -80,9 +83,12 @@ const shopaddToCart = async (req, res) => {
     const userId = req.session.user;
     const productId = req.params.productId;
     const quantity = 1;
-
-    if (!userId) return res.status(401).json({ success: false, message: "User not logged in" });
-
+console.log("shop add tocart working")
+    if (!userId){
+      console.log("user not login")
+      return res.status(401).json({ success: false, message: "User not logged in" });
+    } 
+  
     const product = await Product.findById(productId);
     if (!product) return res.status(404).json({ success: false, message: "Product not found" });
 
@@ -215,6 +221,125 @@ const updateCartQuantity = async (req, res) => {
   }
 };
 
+// const getCart = async (req, res) => {
+//   try {
+//     const userId = req.session.user;
+//     if (!userId) {
+//       return res.status(401).render("cart", { cart: null, error: "User not authenticated" });
+//     }
+
+//     let cart = await Cart.findOne({ userId }).populate({
+//       path: "cart.productId",
+//       populate: { path: "category" },
+//     });
+
+//     if (!cart) {
+//       return res.render("cart", { cart: null, error: "Cart not found" });
+//     }
+
+//     const itemsToRemove = [];
+//     const blockedProductNames = [];
+//     const unlistedCategoryProductNames = [];
+//     const outOfStockProductNames = [];
+
+//     // Recalculate total price based on current product prices
+//     let newPrice = 0;
+//     for (let item of cart.cart) {
+//       const product = item.productId;
+
+//       if (!product) {
+//         itemsToRemove.push(item.productId);
+//         continue;
+//       }
+
+//       if (product.isBlocked) {
+//         itemsToRemove.push(product._id);
+//         blockedProductNames.push(product.productName);
+//         continue;
+//       }
+
+//       if (product.category && !product.category.isListed) {
+//         itemsToRemove.push(product._id);
+//         unlistedCategoryProductNames.push(product.productName);
+//         continue;
+//       }
+
+//       if (product.quantity === 0) {
+//         itemsToRemove.push(product._id);
+//         outOfStockProductNames.push(product.productName);
+//         continue;
+//       }
+
+//       // Add to total price using current salePrice
+//       newPrice += product.salePrice * item.quantity;
+//     }
+
+//     // Remove invalid items
+//     if (itemsToRemove.length > 0) {
+//       await Cart.updateOne(
+//         { userId },
+//         { $pull: { cart: { productId: { $in: itemsToRemove } } } }
+//       );
+
+//       // Refetch cart after removing items
+//       cart = await Cart.findOne({ userId }).populate({
+//         path: "cart.productId",
+//         populate: { path: "category" },
+//       });
+
+//       // Recalculate price again if cart still exists
+//       newPrice = 0;
+//       if (cart && cart.cart) {
+//         for (const item of cart.cart) {
+//           if (item.productId && item.productId.salePrice) {
+//             newPrice += item.productId.salePrice * item.quantity;
+//           }
+//         }
+//       }
+//     }
+
+//     if (cart) {
+//       cart.price = newPrice;
+//       cart.totalPrice = newPrice;
+//       await cart.save();
+//     }
+
+//     let errorMessage = "";
+//     if (blockedProductNames.length > 0) {
+//       errorMessage += `${blockedProductNames.join(", ")} ${
+//         blockedProductNames.length > 1 ? "have" : "has"
+//       } been removed from your cart as ${
+//         blockedProductNames.length > 1 ? "they are" : "it is"
+//       } blocked.`;
+//     }
+//     if (unlistedCategoryProductNames.length > 0) {
+//       errorMessage += `${blockedProductNames.length > 0 ? " " : ""}${unlistedCategoryProductNames.join(
+//         ", "
+//       )} ${
+//         unlistedCategoryProductNames.length > 1 ? "have" : "has"
+//       } been removed from your cart because ${
+//         unlistedCategoryProductNames.length > 1 ? "their categories are" : "its category is"
+//       } unlisted.`;
+//     }
+//     if (outOfStockProductNames.length > 0) {
+//       errorMessage += `${blockedProductNames.length > 0 || unlistedCategoryProductNames.length > 0 ? " " : ""}${outOfStockProductNames.join(
+//         ", "
+//       )} ${
+//         outOfStockProductNames.length > 1 ? "have" : "has"
+//       } been removed from your cart because ${
+//         outOfStockProductNames.length > 1 ? "they are" : "it is"
+//       } out of stock.`;
+//     }
+
+//     res.render("cart", { cart, error: errorMessage || null });
+//   } catch (error) {
+//     console.error("Error fetching cart:", error);
+//     res.render("cart", { cart: null, error: "An error occurred while fetching the cart" });
+//   }
+// };
+
+
+
 const getCart = async (req, res) => {
   try {
     const userId = req.session.user;
@@ -235,8 +360,9 @@ const getCart = async (req, res) => {
     const blockedProductNames = [];
     const unlistedCategoryProductNames = [];
     const outOfStockProductNames = [];
+    const adjustedQuantityProductNames = [];
 
-    // Recalculate total price based on current product prices
+    // Recalculate total price and check quantities
     let newPrice = 0;
     for (let item of cart.cart) {
       const product = item.productId;
@@ -262,6 +388,16 @@ const getCart = async (req, res) => {
         itemsToRemove.push(product._id);
         outOfStockProductNames.push(product.productName);
         continue;
+      }
+
+      // Check if cart quantity exceeds available stock
+      if (item.quantity > product.quantity) {
+        adjustedQuantityProductNames.push({
+          name: product.productName,
+          oldQuantity: item.quantity,
+          newQuantity: product.quantity,
+        });
+        item.quantity = product.quantity; // Adjust to available stock
       }
 
       // Add to total price using current salePrice
@@ -298,6 +434,7 @@ const getCart = async (req, res) => {
       await cart.save();
     }
 
+    // Construct error message
     let errorMessage = "";
     if (blockedProductNames.length > 0) {
       errorMessage += `${blockedProductNames.join(", ")} ${
@@ -324,13 +461,25 @@ const getCart = async (req, res) => {
         outOfStockProductNames.length > 1 ? "they are" : "it is"
       } out of stock.`;
     }
+    if (adjustedQuantityProductNames.length > 0) {
+      const quantityMessages = adjustedQuantityProductNames.map(
+        (item) => `${item.name} quantity adjusted from ${item.oldQuantity} to ${item.newQuantity} due to limited stock.`
+      );
+      errorMessage += `${blockedProductNames.length > 0 || unlistedCategoryProductNames.length > 0 || outOfStockProductNames.length > 0 ? " " : ""}${quantityMessages.join(" ")}`;
+    }
 
-    res.render("cart", { cart, error: errorMessage || null });
+    // Pass adjusted quantities to the front-end for SweetAlert
+    res.render("cart", {
+      cart,
+      error: errorMessage || null,
+      adjustedQuantities: adjustedQuantityProductNames.length > 0 ? adjustedQuantityProductNames : null,
+    });
   } catch (error) {
     console.error("Error fetching cart:", error);
-    res.render("cart", { cart: null, error: "An error occurred while fetching the cart" });
+    res.render("cart", { cart: null, error: "An error occurred while fetching the cart", adjustedQuantities: null });
   }
 };
+
 
 const removeFromCart = async (req, res) => {
   try {

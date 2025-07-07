@@ -38,35 +38,35 @@ const sendVerificationEmail = async (email, otp) => {
     return false;
   }
 };
-async function newMailConfirmation(req, res) {
-  try {
+// async function newMailConfirmation(req, res) {
+//   try {
    
     
-    const userId = req.session.user;
-    const { otp, email } = req.body;
+//     const userId = req.session.user;
+//     const { otp, email } = req.body;
 
-    console.log("Rendering edit profile, session userId:", userId);
+//     console.log("Rendering edit profile, session userId:", userId);
 
-    if (!userId) {
-      console.warn("No userId in session, redirecting to login");
-      return res.redirect("/login");
-    }
+//     if (!userId) {
+//       console.warn("No userId in session, redirecting to login");
+//       return res.redirect("/login");
+//     }
 
-    const userData = await User.findById(userId);
-    if (!userData) return res.redirect("/login");
+//     const userData = await User.findById(userId);
+//     if (!userData) return res.redirect("/login");
 
-    if (userData.otp == otp) {
-      await User.findByIdAndUpdate(userId, { email }); 
-      return res.json({ok:true,msg:"Profile updated succes fully"});
-    } else {
-      return res.render("editProfile", { error: "Invalid OTP" }); 
-    }
+//     if (userData.otp == otp) {
+//       await User.findByIdAndUpdate(userId, { email }); 
+//       return res.json({ok:true,msg:"Profile updated succes fully"});
+//     } else {
+//       return res.render("editProfile", { error: "Invalid OTP" }); 
+//     }
 
-  } catch (error) {
-    console.error(error);
-    return res.status(500).send("Server error"); 
-  }
-}
+//   } catch (error) {
+//     console.error(error);
+//     return res.status(500).send("Server error"); 
+//   }
+// }
 
 const securePassword = async (password) => {
   try {
@@ -157,135 +157,140 @@ const updateProfile = async (req, res) => {
   }
 };
 
-const sendOtp = async (req, res) => {
-  try {
-    const userId = req.session.user;
-    console.log("Sending OTP, session userId:", userId);
-    console.log("fgnvjnf")
-    if (!userId) {
-      return res.status(401).json({ success: false, message: "Unauthorized: Please log in" });
-    }
-    const { email, type } = req.body;
-    if (!validateEmail(email)) {
-      return res.status(400).json({ success: false, message: "Invalid email address" });
-    }
+// const sendOtp = async (req, res) => {
+//   try {
+//     const userId = req.session.user;
+//     console.log("Sending OTP, session userId:", userId);
+//     console.log("fgnvjnf")
+//     if (!userId) {
+//       return res.status(401).json({ success: false, message: "Unauthorized: Please log in" });
+//     }
+//     const { email, type } = req.body;
+//     if (!validateEmail(email)) {
+//       return res.status(400).json({ success: false, message: "Invalid email address" });
+//     }
 
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({ success: false, message: "User not found" });
-    }
+//     const user = await User.findById(userId);
+//     if (!user) {
+//       return res.status(404).json({ success: false, message: "User not found" });
+//     }
 
-    if (type === "verify-current" && user.email !== email) {
-      return res.status(400).json({ success: false, message: "Email does not match current email" });
-    }
-    if (type === "new-email") {
-      const existingUser = await User.findOne({ email, _id: { $ne: userId } });
-      if (existingUser) {
-        return res.status(400).json({ success: false, message: "Email already in use" });
-      }
-      user.tempNewEmail = email;
-    }
+//     if (type === "verify-current" && user.email !== email) {
+//       return res.status(400).json({ success: false, message: "Email does not match current email" });
+//     }
+//     if (type === "new-email") {
+//       const existingUser = await User.findOne({ email, _id: { $ne: userId } });
+//       if (existingUser) {
+//         return res.status(400).json({ success: false, message: "Email already in use" });
+//       }
+//       user.tempNewEmail = email;
+//     }
 
-    const otp = generateOtp();
-    user.otp = otp;
-    user.otpExpires = Date.now() + 10 * 60 * 1000; 
-    await user.save();
+//     const otp = generateOtp();
+//     user.otp = otp;
+//     user.otpExpires = Date.now() + 10 * 60 * 1000; 
+//     await user.save();
 
-    const emailSent = await sendVerificationEmail(email, otp);
-    if (!emailSent) {
-      return res.status(500).json({ success: false, message: "Failed to send OTP" });
-    }
+//     const emailSent = await sendVerificationEmail(email, otp);
+//     if (!emailSent) {
+//       return res.status(500).json({ success: false, message: "Failed to send OTP" });
+//     }
 
-    res.json({ success: true, message: "OTP sent to your email" });
-  } catch (error) {
-    console.error("Error sending OTP:", error.stack);
-    res.status(500).json({ success: false, message: "Server error: Failed to send OTP" });
-  }
-};
+//     res.json({ success: true, message: "OTP sent to your email" });
+//   } catch (error) {
+//     console.error("Error sending OTP:", error.stack);
+//     res.status(500).json({ success: false, message: "Server error: Failed to send OTP" });
+//   }
+// };
+
+
+
 
 // Verify OTP for email change
-const verifyOtp = async (req, res) => {
-  try {
-    const userId = req.session.user;
-    console.log("abcddedd")
-    console.log("Verifying OTP, session userId:", userId);
-    if (!userId) {
-      return res.status(401).json({ success: false, message: "Unauthorized: Please log in" });
-    }
-    const { email, otp, type } = req.body;
 
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({ success: false, message: "User not found" });
-    }
-    console.log(user)
-    console.log("verufy",otp);
-    console.log("user otp",user.otp)
-    if (user.otp !== otp || Date.now() > user.otpExpires) {
-      return res.status(400).json({ success: false, message: "Invalid or expired OTP" });
-    }
 
-    if (type === "verify-current") {
-      user.otp = null;
-      user.otpExpires = null;
-      await user.save();
-      return res.json({ success: true, message: "Current email verified" });
-    }
+// const verifyOtp = async (req, res) => {
+//   try {
+//     const userId = req.session.user;
+//     console.log("abcddedd")
+//     console.log("Verifying OTP, session userId:", userId);
+//     if (!userId) {
+//       return res.status(401).json({ success: false, message: "Unauthorized: Please log in" });
+//     }
+//     const { email, otp, type } = req.body;
 
-    if (type === "new-email" && user.tempNewEmail === email) {
-      user.email = user.tempNewEmail;
-      user.tempNewEmail = null;
-      user.otp = null;
-      user.otpExpires = null;
-      await user.save();
-      return res.json({ success: true, message: "Email updated successfully" });
-    }
+//     const user = await User.findById(userId);
+//     if (!user) {
+//       return res.status(404).json({ success: false, message: "User not found" });
+//     }
+//     console.log(user)
+//     console.log("verufy",otp);
+//     console.log("user otp",user.otp)
+//     if (user.otp !== otp || Date.now() > user.otpExpires) {
+//       return res.status(400).json({ success: false, message: "Invalid or expired OTP" });
+//     }
 
-    res.status(400).json({ success: false, message: "Invalid request" });
-  } catch (error) {
-    console.error("Error verifying OTP:", error.stack);
-    res.status(500).json({ success: false, message: "Server error: Failed to verify OTP" });
-  }
-};
+//     if (type === "verify-current") {
+//       user.otp = null;
+//       user.otpExpires = null;
+//       await user.save();
+//       return res.json({ success: true, message: "Current email verified" });
+//     }
+
+//     if (type === "new-email" && user.tempNewEmail === email) {
+//       user.email = user.tempNewEmail;
+//       user.tempNewEmail = null;
+//       user.otp = null;
+//       user.otpExpires = null;
+//       await user.save();
+//       return res.json({ success: true, message: "Email updated successfully" });
+//     }
+
+//     res.status(400).json({ success: false, message: "Invalid request" });
+//   } catch (error) {
+//     console.error("Error verifying OTP:", error.stack);
+//     res.status(500).json({ success: false, message: "Server error: Failed to verify OTP" });
+//   }
+// };
 
 // Resend OTP
-const resendOtp = async (req, res) => {
-  try {
-    const userId = req.session.user;
-    console.log("Resending OTP, session userId:", userId);
-    if (!userId) {
-      return res.status(401).json({ success: false, message: "Unauthorized: Please log in" });
-    }
-    const { email, type } = req.body;
+// const resendOtp = async (req, res) => {
+//   try {
+//     const userId = req.session.user;
+//     console.log("Resending OTP, session userId:", userId);
+//     if (!userId) {
+//       return res.status(401).json({ success: false, message: "Unauthorized: Please log in" });
+//     }
+//     const { email, type } = req.body;
 
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({ success: false, message: "User not found" });
-    }
+//     const user = await User.findById(userId);
+//     if (!user) {
+//       return res.status(404).json({ success: false, message: "User not found" });
+//     }
 
-    if (type === "verify-current" && user.email !== email) {
-      return res.status(400).json({ success: false, message: "Email does not match current email" });
-    }
-    if (type === "new-email" && user.tempNewEmail !== email) {
-      return res.status(400).json({ success: false, message: "No pending email change request" });
-    }
+//     if (type === "verify-current" && user.email !== email) {
+//       return res.status(400).json({ success: false, message: "Email does not match current email" });
+//     }
+//     if (type === "new-email" && user.tempNewEmail !== email) {
+//       return res.status(400).json({ success: false, message: "No pending email change request" });
+//     }
 
-    const otp = generateOtp();
-    user.otp = otp;
-    user.otpExpires = Date.now() + 10 * 60 * 1000;
-    await user.save();
+//     const otp = generateOtp();
+//     user.otp = otp;
+//     user.otpExpires = Date.now() + 10 * 60 * 1000;
+//     await user.save();
 
-    const emailSent = await sendVerificationEmail(email, otp);
-    if (!emailSent) {
-      return res.status(500).json({ success: false, message: "Failed to send OTP" });
-    }
+//     const emailSent = await sendVerificationEmail(email, otp);
+//     if (!emailSent) {
+//       return res.status(500).json({ success: false, message: "Failed to send OTP" });
+//     }
 
-    res.json({ success: true, message: "OTP resent to your email" });
-  } catch (error) {
-    console.error("Error resending OTP:", error.stack);
-    res.status(500).json({ success: false, message: "Server error: Failed to resend OTP" });
-  }
-};
+//     res.json({ success: true, message: "OTP resent to your email" });
+//   } catch (error) {
+//     console.error("Error resending OTP:", error.stack);
+//     res.status(500).json({ success: false, message: "Server error: Failed to resend OTP" });
+//   }
+// };
 
 // Change password
 // const changePassword = async (req, res) => {
@@ -425,6 +430,175 @@ const resendPasswordOtp = async (req, res) => {
     res.status(500).json({ success: false, message: "Server error: Failed to resend password OTP" });
   }
 };
+
+
+
+const sendOtp = async (req, res) => {
+  try {
+    const userId = req.session.user;
+    console.log("Sending OTP, session userId:", userId);
+    if (!userId) {
+      return res.status(401).json({ success: false, message: "Unauthorized: Please log in" });
+    }
+    const { email, type } = req.body;
+    if (!validateEmail(email)) {
+      return res.status(400).json({ success: false, message: "Invalid email address" });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    if (type === "verify-current" && user.email !== email) {
+      return res.status(400).json({ success: false, message: "Email does not match current email" });
+    }
+    if (type === "new-email") {
+      const existingUser = await User.findOne({ email, _id: { $ne: userId } });
+      if (existingUser) {
+        return res.status(400).json({ success: false, message: "Email already in use" });
+      }
+      user.tempNewEmail = email;
+    }
+
+    const otp = generateOtp();
+    user.otp = otp;
+    user.otpExpires = Date.now() + 10 * 60 * 1000; 
+    await user.save();
+
+    const emailSent = await sendVerificationEmail(email, otp);
+    if (!emailSent) {
+      return res.status(500).json({ success: false, message: "Failed to send OTP" });
+    }
+
+    res.json({ success: true, message: "OTP sent to your email" });
+  } catch (error) {
+    console.error("Error sending OTP:", error.stack);
+    res.status(500).json({ success: false, message: "Server error: Failed to send OTP" });
+  }
+};
+
+const verifyOtp = async (req, res) => {
+  try {
+    const userId = req.session.user;
+    console.log("Verifying OTP, session userId:", userId);
+    if (!userId) {
+      return res.status(401).json({ success: false, message: "Unauthorized: Please log in" });
+    }
+    const { email, otp, type } = req.body;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    if (user.otp !== otp || Date.now() > user.otpExpires) {
+      return res.status(400).json({ success: false, message: "Invalid or expired OTP" });
+    }
+
+    if (type === "verify-current") {
+      user.otp = null;
+      user.otpExpires = null;
+      await user.save();
+      return res.json({ success: true, message: "Current email verified" });
+    }
+
+    if (type === "new-email" && user.tempNewEmail === email) {
+      user.email = user.tempNewEmail;
+      user.tempNewEmail = null;
+      user.otp = null;
+      user.otpExpires = null;
+      await user.save();
+      return res.json({ success: true, message: "Email updated successfully" });
+    }
+
+    res.status(400).json({ success: false, message: "Invalid request" });
+  } catch (error) {
+    console.error("Error verifying OTP:", error.stack);
+    res.status(500).json({ success: false, message: "Server error: Failed to verify OTP" });
+  }
+};
+
+const resendOtp = async (req, res) => {
+  try {
+    const userId = req.session.user;
+    console.log("resend otp is working")
+    console.log("Resending OTP, session userId:", userId);
+    if (!userId) {
+      return res.status(401).json({ success: false, message: "Unauthorized: Please log in" });
+    }
+    const { email, type } = req.body;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    if (type === "verify-current" && user.email !== email) {
+      return res.status(400).json({ success: false, message: "Email does not match current email" });
+    }
+    if (type === "new-email" && user.tempNewEmail !== email) {
+      return res.status(400).json({ success: false, message: "No pending email change request" });
+    }
+
+    const otp = generateOtp();
+    user.otp = otp;
+    user.otpExpires = Date.now() + 10 * 60 * 1000;
+    await user.save();
+
+    const emailSent = await sendVerificationEmail(email, otp);
+    if (!emailSent) {
+      return res.status(500).json({ success: false, message: "Failed to send OTP" });
+    }
+
+    res.json({ success: true, message: "OTP resent to your email" });
+  } catch (error) {
+    console.error("Error resending OTP:", error.stack);
+    res.status(500).json({ success: false, message: "Server error: Failed to resend OTP" });
+  }
+};
+
+const newMailConfirmation = async (req, res) => {
+  try {
+    const userId = req.session.user;
+    console.log("Confirming new email, session userId:", userId);
+    if (!userId) {
+      return res.status(401).json({ success: false, message: "Unauthorized: Please log in" });
+    }
+
+    const { otp, email } = req.body;
+    if (!validateEmail(email) || !otp) {
+      return res.status(400).json({ success: false, message: "Invalid email or OTP" });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    if (user.otp !== otp || Date.now() > user.otpExpires) {
+      return res.status(400).json({ success: false, message: "Invalid or expired OTP" });
+    }
+
+    if (user.tempNewEmail !== email) {
+      return res.status(400).json({ success: false, message: "Email does not match pending email change" });
+    }
+
+    user.email = email;
+    user.tempNewEmail = null;
+    user.otp = null;
+    user.otpExpires = null;
+    await user.save();
+
+    return res.json({ ok: true, msg: "Email updated successfully" });
+  } catch (error) {
+    console.error("Error confirming new email:", error.stack);
+    return res.status(500).json({ success: false, message: "Server error: Failed to confirm email" });
+  }
+};
+
+
+
 
 module.exports = {
   renderEditProfile,
