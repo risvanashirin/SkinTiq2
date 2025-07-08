@@ -50,6 +50,60 @@ const loadHomepage = async (req, res) => {
     }
 };
 
+const getaboutPage = (req, res) => {
+  try {
+    return res.render('about', { user: req.session.user || null });
+  } catch (error) {
+    console.log('about page not loading:', error);
+    res.status(500).send('Server Error');
+  }
+};
+
+
+const getContactPage = (req,res)=>{
+  try {
+    return res.render('contact');
+  } catch (error) {
+    console.log('contact page not loading:',error);
+    res.status(500).send('server Error')
+  }
+}
+
+const postContactForm = async (req, res) => {
+  const { name, email, message } = req.body;
+
+  if (!name || !email || !message) {
+    return res.status(400).json({ error: 'All fields are required.' });
+  }
+
+  try {
+    // Step 1: Configure transporter
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: 'yourEmail@gmail.com',         // 🔁 replace with your Gmail
+        pass: 'your_app_password_here'       // 🔁 use App Password, NOT Gmail password
+      }
+    });
+
+    // Step 2: Email options
+    const mailOptions = {
+      from: email,
+      to: 'risvanashirinak@gmail.com',            
+      subject: `Contact Form - ${name}`,
+      text: `You received a new message from ${name} (${email}):\n\n${message}`
+    };
+
+    // Step 3: Send the email
+    await transporter.sendMail(mailOptions);
+
+    return res.status(200).json({ message: 'Email sent successfully!' });
+  } catch (error) {
+    console.error('Error sending email:', error);
+    return res.status(500).json({ error: 'Failed to send email.' });
+  }
+};
+
 const loadSignup = async (req, res) => {
     try {
         return res.render('signup');
@@ -444,8 +498,12 @@ const productDetails = async (req, res) => {
     const productId = req.query.id;
     const product = await Product.findById(productId).populate('category').populate('brand'); // Added brand population
     if (!product) {
-      return res.redirect('/404');
+      return res.redirect('/page-404'); 
     }
+
+       if (product.isBlocked) {
+      return res.redirect('/shop');
+       }
 
     const findCategory = product.category;
     const categoryOffer = findCategory?.categoryOffer || 0;
@@ -521,4 +579,7 @@ module.exports = {
     logout,
     loadshop,
     productDetails,
+    getaboutPage,
+    getContactPage,
+    postContactForm
 };

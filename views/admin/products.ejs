@@ -200,15 +200,14 @@
                                             <% } %>
                                         </td>
                                         <td>
-                                            <div class="d-flex gap-2 justify-content-center flex-wrap">
-                                                <% if (product.productImage && product.productImage.length > 0) { %>
-                                                    <% for (let j = 0; j < Math.min(product.productImage.length, 3); j++) { %>
-                                                        <img src="<%= product.productImage[j] %>" class="product-image" alt="Product Image" onerror="this.style.display='none';">
-                                                    <% } %>
-                                                <% } else { %>
-                                                    <div class="no-image">No Image</div>
-                                                <% } %>
-                                            </div>
+                                         <div class="d-flex gap-2 justify-content-center flex-wrap">
+    <% if (product.productImage && product.productImage.length > 0) { %>
+        <img src="<%= product.productImage[0] %>" class="product-image" alt="Product Image" onerror="this.style.display='none';">
+    <% } else { %>
+        <div class="no-image">No Image</div>
+    <% } %>
+</div>
+
                                         </td>
                                         <td><%= product.category && product.category.name ? product.category.name : 'No Category' %></td>
                                         <td><%= product.brand && product.brand.brandName ? product.brand.brandName : 'No Brand' %></td>

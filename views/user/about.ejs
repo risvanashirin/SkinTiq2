@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About Skintiq - Skincare Excellence</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
+    }
+    body {
+      background: linear-gradient(180deg, #ffffff 0%, #f8f8f8 100%);
+      color: #2a2a2a;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: min(2rem, 5vw);
+      overflow-x: hidden;
+    }
+    h1 {
+      font-size: clamp(1.75rem, 5vw, 2.5rem);
+      font-weight: 700;
+      color: #7e6b00;
+      text-align: center;
+      margin: clamp(1.5rem, 4vw, 2.5rem) 0;
+      letter-spacing: 0.05em;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .about-container {
+      width: min(100%, 800px);
+      display: flex;
+      flex-direction: column;
+      gap: clamp(1.5rem, 4vw, 2rem);
+      padding: 0 1rem;
+    }
+    .about-card {
+      background: linear-gradient(145deg, #ffffff, #f5f5f5);
+      border: 1px solid #ccc;
+      border-radius: 12px;
+      padding: clamp(1rem, 3vw, 2rem);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      transition: all 0.3s ease;
+    }
+    .about-card:hover {
+      border-color: #7e6b00;
+      box-shadow: 0 6px 16px rgba(126, 107, 0, 0.15);
+      transform: translateY(-2px);
+    }
+    .about-card h2 {
+      font-size: clamp(1.3rem, 3.5vw, 1.75rem);
+      font-weight: 700;
+      color: #2a2a2a;
+      text-align: center;
+      margin-bottom: clamp(0.75rem, 2vw, 1.25rem);
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    }
+    .about-card p {
+      font-size: clamp(0.85rem, 2.5vw, 1rem);
+      color: #4a4a4a;
+      margin-bottom: 0.75rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    .mission-vision {
+      display: flex;
+      flex-wrap: wrap;
+      gap: clamp(1rem, 3vw, 1.5rem);
+      justify-content: center;
+    }
+    .mission-vision div {
+      flex: 1;
+      min-width: 250px;
+      padding: clamp(0.75rem, 2vw, 1rem);
+      background: #fefefe;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+    .mission-vision h3 {
+      font-size: clamp(1.15rem, 3vw, 1.5rem);
+      font-weight: 700;
+      color: #7e6b00;
+      margin-bottom: 0.5rem;
+      text-align: center;
+    }
+    .founders-section {
+      display: flex;
+      flex-wrap: wrap;
+      gap: clamp(1rem, 3vw, 1.5rem);
+      justify-content: center;
+    }
+    .founder-card {
+      flex: 1;
+      min-width: 200px;
+      text-align: center;
+    }
+    .founder-image {
+      width: clamp(70px, 15vw, 100px);
+      height: clamp(70px, 15vw, 100px);
+      border-radius: 50%;
+      object-fit: cover;
+      border: 4px solid #7e6b00;
+      margin: 0 auto clamp(0.75rem, 2vw, 1rem);
+      display: block;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+    }
+    .founder-image:hover {
+      border-color: #a68c00;
+      transform: scale(1.05);
+    }
+    .founder-card h3 {
+      font-size: clamp(1.15rem, 3vw, 1.5rem);
+      font-weight: 700;
+      color: #2a2a2a;
+      margin-bottom: 0.5rem;
+    }
+    .founder-card p {
+      font-size: clamp(0.8rem, 2vw, 0.9rem);
+      color: #4a4a4a;
+    }
+    footer {
+      margin-top: clamp(2rem, 5vw, 3rem);
+      font-size: clamp(0.85rem, 2vw, 0.95rem);
+      color: #4a4a4a;
+      text-align: center;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    }
+    @media (max-width: 768px) {
+      body {
+        padding: min(1.5rem, 4vw);
+      }
+      h1 {
+        font-size: clamp(1.5rem, 4vw, 2rem);
+      }
+      .about-card {
+        padding: clamp(1rem, 3vw, 1.5rem);
+      }
+      .about-card h2 {
+        font-size: clamp(1.2rem, 3vw, 1.5rem);
+      }
+      .about-card p {
+        font-size: clamp(0.8rem, 2vw, 0.9rem);
+      }
+      .mission-vision div {
+        min-width: 200px;
+      }
+      .founder-image {
+        width: clamp(60px, 12vw, 80px);
+        height: clamp(60px, 12vw, 80px);
+      }
+      .founder-card h3 {
+        font-size: clamp(1rem, 2.5vw, 1.3rem);
+      }
+    }
+    @media (max-width: 480px) {
+      body {
+        padding: min(1rem, 3vw);
+      }
+      h1 {
+        font-size: clamp(1.3rem, 3.5vw, 1.75rem);
+      }
+      .about-card {
+        padding: clamp(0.8rem, 2.5vw, 1rem);
+      }
+      .about-card h2 {
+        font-size: clamp(1.1rem, 2.5vw, 1.3rem);
+      }
+      .about-card p {
+        font-size: clamp(0.75rem, 2vw, 0.85rem);
+      }
+      .mission-vision div {
+        min-width: 100%;
+      }
+      .founder-image {
+        width: clamp(50px, 10vw, 70px);
+        height: clamp(50px, 10vw, 70px);
+      }
+      .founder-card h3 {
+        font-size: clamp(0.9rem, 2vw, 1.15rem);
+      }
+      .founder-card p {
+        font-size: clamp(0.75rem, 1.5vw, 0.85rem);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>About Skintiq</h1>
+  <div class="about-container">
+    <div class="about-card">
+      <h2>Our Story</h2>
+      <p>Skintiq was founded with a passion for empowering everyone to embrace their natural beauty through healthy, radiant skin. Our journey began with a simple mission: to create high-quality, scientifically-backed skincare products that are gentle yet effective, catering to all skin types.</p>
+      <p>We believe skincare is more than just a routine—it's a form of self-care. By combining nature-inspired ingredients with cutting-edge innovation, Skintiq delivers products that nourish, protect, and rejuvenate your skin.</p>
+    </div>
+    <div class="about-card">
+      <div class="mission-vision">
+        <div>
+          <h3>Our Mission</h3>
+          <p>To provide accessible, effective, and sustainable skincare solutions that enhance confidence and promote healthy skin for all.</p>
+        </div>
+        <div>
+          <h3>Our Vision</h3>
+          <p>To lead the skincare industry with innovative, cruelty-free products that celebrate diversity and individuality.</p>
+        </div>
+      </div>
+    </div>
+    <div class="about-card">
+      <h2>Meet Our Co-Founders</h2>
+      <div class="founders-section">
+        <div class="founder-card">
+          <img src="/Uploads/founders/jane-doe.jpg" class="founder-image" alt="Jane Doe">
+          <h3>Jane Doe</h3>
+          <p>CEO & Co-Founder</p>
+          <p>With a background in dermatology, Jane brings expertise and passion for innovative skincare solutions to Skintiq.</p>
+        </div>
+        <div class="founder-card">
+          <img src="/Uploads/founders/john-smith.jpg" class="founder-image" alt="John Smith">
+          <h3>John Smith</h3>
+          <p>CTO & Co-Founder</p>
+          <p>John's expertise in product formulation ensures Skintiq delivers cutting-edge, effective skincare products.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <footer>© 2025 Skintiq. All rights reserved.</footer>
+</body>
+</html>

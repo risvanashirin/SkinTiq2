@@ -10,7 +10,7 @@ const multer = require('multer');
 const getProductAddPage = async (req, res) => {
   try {
     const category = await Category.find({ isListed: true }).lean();
-    const brand = await Brand.find({}).lean(); // Fetch all brands for debugging
+    const brand = await Brand.find({}).lean(); 
     // console.log(`Fetched ${brand.length} brands for add product page:`, brand.map(b => ({ id: b._id, name: b.brandName, isBlocked: b.isBlocked }))); // Detailed debug log
     res.render("product-add", {
       cat: category,
@@ -210,78 +210,6 @@ const getAllProducts = async (req, res) => {
   }
 };
 
-// const getAllProducts = async (req, res) => {
-//   try {
-//     const search = req.query.search ? req.query.search.trim() : "";
-//     const page = parseInt(req.query.page) || 1;
-//     const limit = 3;
-//     const lowStockThreshold = 5;
-
-//     let query = {};
-
-//     if (search) {
-//       const brandIds = await Brand.find({
-//         brandName: { $regex: search, $options: 'i' }
-//       }).select('_id').lean();
-
-//       query = {
-//         $or: [
-//           { productName: { $regex: search, $options: 'i' } },
-//           { brand: { $in: brandIds.map(b => b._id) } }
-//         ]
-//       };
-//     }
-
-//     const count = await Product.countDocuments(query);
-//     const totalPages = Math.ceil(count / limit);
-
-//     if (page > totalPages && totalPages !== 0) {
-//       return res.redirect(`/admin/products?page=${totalPages}${search ? `&search=${search}` : ''}`);
-//     }
-
-//     const productData = await Product.find(query)
-//       .limit(limit)
-//       .skip((page - 1) * limit)
-//       .populate('category')
-//       .populate('brand')
-//       .lean();
-
-//     const productsWithStockInfo = productData.map(product => {
-//       // Calculate salePrice based on the highest discount (productOffer or categoryOffer)
-//       const productDiscount = product.productOffer || 0;
-//       const categoryDiscount = product.category ? (product.category.categoryOffer || 0) : 0;
-//       const maxDiscount = Math.max(productDiscount, categoryDiscount);
-//       const salePrice = product.regularPrice * (1 - maxDiscount / 100);
-
-//       return {
-//         ...product,
-//         isLowStock: product.quantity > 0 && product.quantity <= lowStockThreshold,
-//         status: product.quantity === 0 ? 'out of stock' : product.status,
-//         categoryOffer: product.category ? (product.category.categoryOffer || 0) : 0,
-//         salePrice: salePrice // Add salePrice
-//       };
-//     });
-
-//     const category = await Category.find({ isListed: true }).lean();
-//     const brand = await Brand.find({ isBlocked: false }).lean();
-
-//     if (category && brand) {
-//       res.render("products", {
-//         searchQuery: search,
-//         data: productsWithStockInfo,
-//         currentPage: page,
-//         totalPages,
-//         cat: category,
-//         brand: brand,
-//       });
-//     } else {
-//       res.render("page-404");
-//     }
-//   } catch (error) {
-//     console.error("Error fetching products:", error.message);
-//     res.redirect("/pageError");
-//   }
-// };
 
 
 const addProductOffer = async (req, res) => {
@@ -444,6 +372,146 @@ const geteditProduct = async (req, res) => {
 
 
 
+// const updateProduct = async (req, res) => {
+//   try {
+//     const productId = req.params.id;
+//     if (!mongoose.isValidObjectId(productId)) {
+//       return res.status(400).json({ success: false, message: "Invalid product ID" });
+//     }
+
+//     const {
+//       productName,
+//       description,
+//       category,
+//       brand,
+//       regularPrice,
+//       quantity,
+//       skinType,
+//       skinConcern,
+//       deletedImages,
+//     } = req.body;
+
+//     if (!productName || !description || !category || !brand || !regularPrice || !quantity || !skinType || !skinConcern) {
+//       return res.status(400).json({ success: false, message: "All required fields must be provided" });
+//     }
+
+//     if (!mongoose.isValidObjectId(category) || !mongoose.isValidObjectId(brand)) {
+//       return res.status(400).json({ success: false, message: "Invalid category or brand ID" });
+//     }
+
+//     if (parseFloat(regularPrice) <= 0) {
+//       return res.status(400).json({ success: false, message: "Regular price must be greater than 0" });
+//     }
+
+//     if (parseInt(quantity) < 0) {
+//       return res.status(400).json({ success: false, message: "Quantity cannot be negative" });
+//     }
+
+//     let deletedImagesArray = [];
+//     try {
+//       deletedImagesArray = deletedImages ? JSON.parse(deletedImages) : [];
+//     } catch (error) {
+//       console.error("Error parsing deletedImages:", error.message);
+//       return res.status(400).json({ success: false, message: "Invalid deletedImages format" });
+//     }
+
+//     const product = await Product.findById(productId);
+//     if (!product) {
+//       return res.status(404).json({ success: false, message: "Product not found" });
+//     }
+
+//     const foundCategory = await Category.findById(category);
+//     const foundBrand = await Brand.findById(brand);
+//     if (!foundCategory || !foundBrand) {
+//       return res.status(400).json({ success: false, message: "Category or brand not found" });
+//     }
+
+// //  Replace with this retry-safe version for Windows
+// if (deletedImagesArray.length > 0) {
+//   for (const imageUrl of deletedImagesArray) {
+//     const imagePath = path.join(__dirname, "../../public", imageUrl);
+//     let deleted = false;
+//     let attempts = 0;
+
+//     while (!deleted && attempts < 3) {
+//       try {
+//         if (fs.existsSync(imagePath)) {
+//           await fs.promises.unlink(imagePath);
+//         }
+//         deleted = true;
+//       } catch (err) {
+//         if (err.code === 'EBUSY') {
+//           console.warn(`Image ${imagePath} is busy, retrying...`);
+//           await new Promise((resolve) => setTimeout(resolve, 500)); // wait before retry
+//           attempts++;
+//         } else {
+//           console.error(`Failed to delete image ${imagePath}:`, err.message);
+//           break;
+//         }
+//       }
+//     }
+
+//     product.productImage = product.productImage.filter((img) => img !== imageUrl);
+//   }
+// }
+
+
+//     // 🔄 Process new images with Sharp
+//     const uploadDir = path.join(__dirname, "../../public/uploads/product-images");
+//     if (!fs.existsSync(uploadDir)) {
+//       fs.mkdirSync(uploadDir, { recursive: true });
+//     }
+
+//     const newImages = [];
+//     if (req.files && req.files.length > 0) {
+//       for (const file of req.files) {
+//         const inputFilePath = file.path;
+//         const filename = `${Date.now()}-${file.originalname.replace(/\s/g, "")}.webp`;
+//         const outputFilePath = path.join(uploadDir, filename);
+
+//         await sharp(inputFilePath)
+//           .resize(800, 800, {
+//             fit: "inside",
+//             withoutEnlargement: true,
+//           })
+//           .webp({ quality: 80 })
+//           .toFile(outputFilePath);
+
+//         newImages.push(`/uploads/product-images/${filename}`);
+//         fs.unlinkSync(inputFilePath);
+//       }
+//     }
+
+//     const updatedImages = [...product.productImage, ...newImages];
+
+//     if (updatedImages.length < 4) {
+//       return res.status(400).json({ success: false, message: "At least 4 images are required" });
+//     }
+//     if (updatedImages.length > 8) {
+//       return res.status(400).json({ success: false, message: "Cannot upload more than 8 images" });
+//     }
+
+//     // ✅ Update product fields
+//     product.productName = productName;
+//     product.description = description;
+//     product.category = category;
+//     product.brand = brand;
+//     product.regularPrice = parseFloat(regularPrice);
+//     product.quantity = parseInt(quantity);
+//     product.skinType = skinType;
+//     product.skinConcern = skinConcern;
+//     product.productImage = updatedImages;
+
+//     const updatedProduct = await product.save();
+
+//     res.json({ success: true, message: "Product updated successfully", product: updatedProduct });
+//   } catch (error) {
+//     console.error("Error updating product:", error.message);
+//     res.status(500).json({ success: false, message: "Error updating product" });
+//   }
+// };
+
+
 const updateProduct = async (req, res) => {
   try {
     const productId = req.params.id;
@@ -498,37 +566,36 @@ const updateProduct = async (req, res) => {
       return res.status(400).json({ success: false, message: "Category or brand not found" });
     }
 
-// 🔁 Replace with this retry-safe version for Windows
-if (deletedImagesArray.length > 0) {
-  for (const imageUrl of deletedImagesArray) {
-    const imagePath = path.join(__dirname, "../../public", imageUrl);
-    let deleted = false;
-    let attempts = 0;
+    // Remove deleted images with retry mechanism
+    if (deletedImagesArray.length > 0) {
+      for (const imageUrl of deletedImagesArray) {
+        const imagePath = path.join(__dirname, "../../public", imageUrl);
+        let deleted = false;
+        let attempts = 0;
 
-    while (!deleted && attempts < 3) {
-      try {
-        if (fs.existsSync(imagePath)) {
-          await fs.promises.unlink(imagePath);
+        while (!deleted && attempts < 3) {
+          try {
+            if (fs.existsSync(imagePath)) {
+              await fs.promises.unlink(imagePath);
+            }
+            deleted = true;
+          } catch (err) {
+            if (err.code === 'EBUSY') {
+              console.warn(`Image ${imagePath} is busy, retrying...`);
+              await new Promise((resolve) => setTimeout(resolve, 500)); // wait before retry
+              attempts++;
+            } else {
+              console.error(`Failed to delete image ${imagePath}:`, err.message);
+              break;
+            }
+          }
         }
-        deleted = true;
-      } catch (err) {
-        if (err.code === 'EBUSY') {
-          console.warn(`Image ${imagePath} is busy, retrying...`);
-          await new Promise((resolve) => setTimeout(resolve, 500)); // wait before retry
-          attempts++;
-        } else {
-          console.error(`Failed to delete image ${imagePath}:`, err.message);
-          break;
-        }
+
+        product.productImage = product.productImage.filter((img) => img !== imageUrl);
       }
     }
 
-    product.productImage = product.productImage.filter((img) => img !== imageUrl);
-  }
-}
-
-
-    // 🔄 Process new images with Sharp
+    // Process new images with Sharp
     const uploadDir = path.join(__dirname, "../../public/uploads/product-images");
     if (!fs.existsSync(uploadDir)) {
       fs.mkdirSync(uploadDir, { recursive: true });
@@ -537,11 +604,12 @@ if (deletedImagesArray.length > 0) {
     const newImages = [];
     if (req.files && req.files.length > 0) {
       for (const file of req.files) {
-        const inputFilePath = file.path;
+        // Check if the file is a cropped image (based on filename convention from frontend)
+        const isCropped = file.originalname.startsWith('cropped-image-');
         const filename = `${Date.now()}-${file.originalname.replace(/\s/g, "")}.webp`;
         const outputFilePath = path.join(uploadDir, filename);
 
-        await sharp(inputFilePath)
+        await sharp(file.path)
           .resize(800, 800, {
             fit: "inside",
             withoutEnlargement: true,
@@ -549,11 +617,17 @@ if (deletedImagesArray.length > 0) {
           .webp({ quality: 80 })
           .toFile(outputFilePath);
 
-        newImages.push(`/uploads/product-images/${filename}`);
-        fs.unlinkSync(inputFilePath);
+        // Only add the image to newImages if it's a cropped image
+        if (isCropped) {
+          newImages.push(`/uploads/product-images/${filename}`);
+        }
+
+        // Always delete the temporary uploaded file
+        fs.unlinkSync(file.path);
       }
     }
 
+    // Update images: keep existing images (minus deleted ones) and add new cropped images
     const updatedImages = [...product.productImage, ...newImages];
 
     if (updatedImages.length < 4) {
@@ -563,7 +637,7 @@ if (deletedImagesArray.length > 0) {
       return res.status(400).json({ success: false, message: "Cannot upload more than 8 images" });
     }
 
-    // ✅ Update product fields
+    // Update product fields
     product.productName = productName;
     product.description = description;
     product.category = category;
@@ -582,7 +656,6 @@ if (deletedImagesArray.length > 0) {
     res.status(500).json({ success: false, message: "Error updating product" });
   }
 };
-
 
 const deleteSingleImage = async (req, res) => {
   try {

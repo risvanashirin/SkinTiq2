@@ -94,7 +94,7 @@
                 font-size: 0.9rem;
                 color: var(--text-color);
                 transition: border-color 0.2s ease, box-shadow 0.2s ease;
-            }
+  width: 215px;            }
 
             .form-control.is-invalid {
                 border-color: var(--danger-color);
@@ -122,8 +122,8 @@
                 transition: background-color 0.2s ease;
             }
 
-            .btn-primary { background-color: var(--primary-color); color: #fff; }
-            .btn-primary:hover { background-color: #0056b3; }
+            .btn-primary { background-color:#0e4989 ; color: #fff; }
+            .btn-primary:hover { background-color: #0d3c6f; }
             .btn-success { background-color: var(--success-color); color: #fff; }
             .btn-success:hover { background-color: #218838; }
             .btn-danger { background-color: var(--danger-color); color: #fff; }
@@ -329,7 +329,7 @@
                                 </td>
                                 <td>
                                     <button class="btn btn-sm btn-primary edit-btn" data-id="<%= c._id %>"
-                                        data-coupon='<%= JSON.stringify(c) %>'>Edit</button>
+                                        data-coupon='<%= JSON.stringify(c) %>' style="background-color: #ffc107;">Edit</button>
                                     <button class="btn btn-sm <%= c.isList ? 'btn-danger' : 'btn-success' %> toggle-btn" 
                                             data-id="<%= c._id %>" 
                                             data-status="<%= c.isList %>">
@@ -398,14 +398,19 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
 <script>
-    if (window.location.search.includes('success') || window.location.search.includes('error')) {
+   if (window.location.search.includes('success') || window.location.search.includes('error')) {
         history.replaceState(null, '', window.location.pathname);
     }
 
     function validateForm(form) {
         let isValid = true;
         const fields = {
-            name: { min: 3, max: 20, message: 'Coupon code must be 3-20 characters' },
+            name: { 
+                min: 3, 
+                max: 20, 
+                regex: /^[A-Za-z0-9_-]+$/, 
+                message: 'Coupon code must be 3-20 characters and can only contain letters, numbers, hyphens, or underscores' 
+            },
             startDate: { required: true, message: 'Start date is required' },
             endDate: { required: true, message: 'End date is required' },
             offerPrice: { min: 1, message: 'Discount amount must be at least 1' },
@@ -422,15 +427,19 @@
                 input.classList.add('is-invalid');
                 feedback.textContent = rules.message;
                 isValid = false;
-            } else if (rules.min && input.value.length < rules.min) {
+            } else if (rules.min && field === 'name' && input.value.length < rules.min) {
                 input.classList.add('is-invalid');
                 feedback.textContent = rules.message;
                 isValid = false;
-            } else if (rules.max && input.value.length > rules.max) {
+            } else if (rules.max && field === 'name' && input.value.length > rules.max) {
                 input.classList.add('is-invalid');
                 feedback.textContent = rules.message;
                 isValid = false;
-            } else if (rules.min && Number(input.value) < rules.min) {
+            } else if (rules.regex && field === 'name' && !rules.regex.test(input.value)) {
+                input.classList.add('is-invalid');
+                feedback.textContent = rules.message;
+                isValid = false;
+            } else if (rules.min && field !== 'name' && Number(input.value) < rules.min) {
                 input.classList.add('is-invalid');
                 feedback.textContent = rules.message;
                 isValid = false;
@@ -448,6 +457,7 @@
         return isValid;
     }
 
+    // Rest of the script remains unchanged
     // Add Coupon
     document.getElementById('addCouponForm').addEventListener('submit', async (e) => {
         e.preventDefault();

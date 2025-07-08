@@ -142,6 +142,7 @@
       border-radius: 12px;
       box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
       transition: transform 0.4s ease, box-shadow 0.4s ease;
+      box-sizing: 10px;
     }
     .logo-inner:hover {
       transform: scale(1.05);
@@ -149,7 +150,7 @@
     .logo-title {
       font-family: 'Libre Baskerville', sans-serif;
       font-size: 3.5rem;
-      background: linear-gradient(45deg, #000, #FFFFFF); /* Admin's color gradient */
+      background: linear-gradient(45deg, #131313, #FFFFFF); /* Admin's color gradient */
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
@@ -162,184 +163,7 @@
     .logo-tagline {
       font-family: 'Quicksand', sans-serif;
       font-size: 1.3rem;
-      color: #FFFFFF; /* Admin's white text */
-      margin-top: 0.8rem;
-      letter-spacing: 2.5px;
-      font-style: italic;
-    }
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.9; }
-    }
-    input::placeholder {
-      colorThe task was to align the admin login page's theme and layout with the user login page while preserving the admin's current color theme. Below is the modified admin login HTML that adopts the user login's structure (flexbox container with form and logo sections), styling (fonts, responsive design, animations), and layout, but retains the admin's color scheme (#2C3E50 for background, #a8995b for buttons, #FFFFFF for text, #F87171 for errors). The form functionality, validation, and external dependencies (Bootstrap, jQuery) remain unchanged. The fonts from the user login (Libre Baskerville and Quicksand) are used for consistency, and the logo section mirrors the user login's design with the admin's color gradient.
-
-<xaiArtifact artifact_id="f27c5f78-37c6-435e-8605-7ab0a6a60f05" artifact_version_id="65f14546-ff2b-4fa3-bdf8-98a081488d68" title="admin-login.html" contentType="text/html">
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin Login - Skintiq</title>
-  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Quicksand:wght@300;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/bootstrap.min.css" />
-  <link rel="stylesheet" href="/css/style.css" />
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Arial', sans-serif;
-    }
-    body {
-      display: flex;
-      height: 100vh;
-      background-color: #2C3E50; /* Admin's dark blue background */
-    }
-    .container {
-      display: flex;
-      width: 100%;
-      max-width: 1200px;
-      margin: auto;
-      background-color: #2C3E50; /* Admin's dark blue container */
-      border-radius: 10px;
-      overflow: hidden;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    }
-    .form-section {
-      padding: 40px;
-      width: 50%;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      background-color: #2C3E50; /* Admin's dark blue */
-    }
-    .form-section h2 {
-      font-size: 28px;
-      margin-bottom: 20px;
-      color: #FFFFFF; /* Admin's white text */
-      font-family: 'Libre Baskerville', sans-serif;
-      text-align: center;
-    }
-    .form-group {
-      margin: 10px 0;
-      position: relative;
-    }
-    .form-group label {
-      display: block;
-      font-size: 14px;
-      margin-bottom: 5px;
-      color: #FFFFFF; /* Admin's white text */
-      font-weight: 600;
-    }
-    .form-control {
-      width: 100%;
-      padding: 12px;
-      background-color: #FFFFFF;
-      color: #2C3E50;
-      border: 1px solid #FFFFFF;
-      border-radius: 5px;
-      font-size: 16px;
-    }
-    .form-control.error {
-      border-color: #F87171; /* Admin's error color */
-    }
-    .form-control.valid {
-      border-color: #5cb85c;
-    }
-    .form-control:focus {
-      border-color: #FFFFFF;
-      box-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
-      outline: none;
-    }
-    .btn-primary {
-      width: 100%;
-      padding: 12px;
-      background-color: #a8995b; /* Admin's button color */
-      color: #2C3E50;
-      border: none;
-      border-radius: 5px;
-      font-size: 16px;
-      cursor: pointer;
-      margin: 10px 0;
-      font-weight: 600;
-      transition: background-color 0.3s ease;
-    }
-    .btn-primary:disabled {
-      background-color: #95a5a6;
-      cursor: not-allowed;
-    }
-    .btn-primary:hover:not(:disabled) {
-      background-color: #92884f; /* Admin's hover color */
-    }
-    .alert-danger {
-      color: #F87171; /* Admin's error color */
-      background-color: #7F1D1D;
-      border: 1px solid #F87171;
-      padding: 15px;
-      border-radius: 5px;
-      text-align: center;
-      font-size: 16px;
-      margin-bottom: 20px;
-    }
-    .error-message {
-      color: #F87171; /* Admin's error color */
-      font-size: 12px;
-      margin-top: 5px;
-      display: none;
-    }
-    .logo-container {
-      width: 50%;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      background: #2C3E50; /* Admin's dark blue */
-      padding: 3rem;
-      position: relative;
-      overflow: hidden;
-    }
-    .logo-container::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: radial-gradient(circle, rgba(255, 255, 255, 0.2), transparent);
-      opacity: 0.4;
-      z-index: 1;
-    }
-    .logo-inner {
-      position: relative;
-      z-index: 2;
-      text-align: center;
-      padding: 2.5rem;
-      background: rgba(255, 255, 255, 0.92);
-      border-radius: 12px;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-      transition: transform 0.4s ease, box-shadow 0.4s ease;
-    }
-    .logo-inner:hover {
-      transform: scale(1.05);
-    }
-    .logo-title {
-      font-family: 'Libre Baskerville', sans-serif;
-      font-size: 3.5rem;
-      background: linear-gradient(45deg, #a8995b, #FFFFFF); /* Admin's color gradient */
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      color: transparent;
-      margin: 0;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      animation: pulse 2s infinite ease-in-out;
-    }
-    .logo-tagline {
-      font-family: 'Quicksand', sans-serif;
-      font-size: 1.3rem;
-      color: #FFFFFF; /* Admin's white text */
+      color: #766D6D; /* Admin's white text */
       margin-top: 0.8rem;
       letter-spacing: 2.5px;
       font-style: italic;
@@ -406,6 +230,12 @@
 </head>
 <body>
   <div class="container">
+    <div class="logo-container">
+      <div class="logo-inner">
+        <h1 class="logo-title">SKINTIQ ADMIN</h1>
+        <p class="logo-tagline">– the art of boutique skincare –</p>
+      </div>
+    </div>
     <div class="form-section">
       <h2>Admin Login</h2>
       <% if (message) { %>
@@ -438,12 +268,6 @@
         </div>
         <button type="submit" class="btn btn-primary">Log In</button>
       </form>
-    </div>
-    <div class="logo-container">
-      <div class="logo-inner">
-        <h1 class="logo-title">SKINTIQ ADMIN</h1>
-        <p class="logo-tagline">– the art of boutique skincare –</p>
-      </div>
     </div>
   </div>
   <script src="/js/jquery.min.js"></script>

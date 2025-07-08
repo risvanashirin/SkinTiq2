@@ -77,15 +77,9 @@ router.get('/userProfile', userAuth, profileController.userProfile);
 router.get('/edit-profile', userAuth, editController.renderEditProfile);
 router.post('/update-profile', userAuth, editController.updateProfile);
 router.post('/upload-profile-photo', userAuth, upload.single('profilePhoto'), profileController.uploadProfilePhoto);
-
-
-// router.post('/send-otp', userAuth, editController.sendOtp);
-// router.post('/edit/verify-otp', userAuth, editController.verifyOtp);
-// router.post('/confrom-new/email', userAuth, editController.newMailConfirmation);
-// router.post('/resend-otp', userAuth, editController.resendOtp);
 router.post('/send-otp', userAuth, editController.sendOtp);
 router.post('/edit/verify-otp', userAuth, editController.verifyOtp);
-router.post('/confirm-new/email', userAuth, editController.newMailConfirmation); // Fixed typo
+router.post('/confirm-new/email', userAuth, editController.newMailConfirmation); 
 router.post('/editprofile/resendotp', userAuth, editController.resendOtp);
 
 
@@ -118,6 +112,9 @@ router.get('/primary-address', userAuth, addressController.getPrimaryAddress);
 // Shop (public)
 router.get('/shop', userController.loadshop);
 router.get('/productDetails', userController.productDetails);
+router.get('/about',userController.getaboutPage)
+router.get('/contact',userController.getContactPage)
+router.post('/contact',userController.postContactForm)
 
   // Orders & Checkout
   router.get('/checkout', userAuth, orderController.loadCheckout);

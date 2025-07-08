@@ -274,6 +274,12 @@ input::-ms-input-placeholder {
 </head>
 <body>
     <div class="container">
+        <div class="logo-container">
+            <div class="logo-inner">
+                <h1 class="logo-title">SKINTIQ</h1>
+                <p class="logo-tagline">– the art of boutique skincare –</p>
+            </div>
+        </div>
         <div class="form-section">
             <h2>Welcome Back</h2>
             <% if (locals.message && message.length > 0) { %>
@@ -300,12 +306,6 @@ input::-ms-input-placeholder {
                 </a>
             </div>
             <p>Don't have an account? <a href="/signup">Sign up</a></p>
-        </div>
-        <div class="logo-container">
-            <div class="logo-inner">
-                <h1 class="logo-title">SKINTIQ</h1>
-                <p class="logo-tagline">– the art of boutique skincare –</p>
-            </div>
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

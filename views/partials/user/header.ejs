@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@900&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="css/open-iconic-bootstrap.min.css">
     <link rel="stylesheet" href="css/animate.css">
@@ -21,190 +22,284 @@
     <link rel="stylesheet" href="css/bootstrap-datepicker.css">
     <link rel="stylesheet" href="css/jquery.timepicker.css">
 
-    
     <link rel="stylesheet" href="css/flaticon.css">
     <link rel="stylesheet" href="css/icomoon.css">
     <link rel="stylesheet" href="css/style.css">
-    <!-- <style>
-     
-      .dropdown{
+
+    <style>
+      /* Original styles with enhanced responsiveness and requested fixes */
+      .dropdown {
         position: relative;
         display: inline-block;
       }
-      .dropdown-content{
+
+      .dropdown-content {
         display: none;
         position: absolute;
         background-color: white;
         min-width: 160px;
-        box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0,2);
+        box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
         z-index: 1000;
         right: 0;
+        border-radius: 4px;
       }
-      .dropdown-content a{
+
+      .dropdown-content a {
         color: black;
         padding: 12px 16px;
         text-decoration: none;
-        display: black;
-        width: 100%;
-      }
-       .dropdown-content a:hover{
-        background-color: white;
-       }
-       .dropdown:hover.dropdown-content{
         display: block;
-       }
-      .header{
+        width: 100%;
+        font-size: 1rem;
+      }
+
+      .dropdown-content a:hover {
+        background-color: #f8f8f8;
+      }
+
+      .dropdown:hover .dropdown-content {
+        display: block;
+      }
+
+      .header {
         position: relative;
-        z-index:500 ;
-      }
-      .navbar{
-        height: 50px;
+        z-index: 500;
       }
 
+      .navbar {
+        height: auto;
+        min-height: 60px;
+        padding: 0.5rem 1rem;
+        position: fixed; /* Fix navbar to the top */
+        top: -21px;
+        left: 0;
+        right: 0;
+        z-index: 1000; /* Ensure navbar stays above other content */
+        background-color: white; /* Ensure background is solid */
+      }
 
-    </style> -->
-  
-  
-<style>
- /* Original styles unchanged */
-.dropdown {
-    position: relative;
-    display: inline-block;
+      /* Enhanced: Structured and attractive Skintiq logo */
+      .navbar-bran {
+        font-size: clamp(1.5rem, 5vw, 2rem);
+        font-family: 'Playfair Display', serif;
+        font-weight: 900;
+        background: linear-gradient(45deg, #44351c, #efe10a);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        padding: 8px 12px;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+        transition: transform 0.3s ease, text-shadow 0.3s ease;
+        display: inline-block;
+          margin-bottom: -0.5rem;
+      }
+
+      .navbar-bran:hover {
+        transform: scale(1.05);
+        text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4);
+      }
+
+      /* Responsive navbar adjustments */
+      .navbar-nav {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+      }
+
+      .nav-item {
+        margin: 0.5rem 0;
+      }
+
+      .nav-link {
+        font-size: clamp(0.9rem, 3vw, 1rem);
+        padding: 0.5rem 1rem;
+        white-space: nowrap;
+      }
+
+      .navbar-collapse {
+        flex-grow: 1;
+      }
+
+      .navbar-toggler {
+        border: none;
+        font-size: 1.25rem;
+        padding: 0.5rem;
+        display: flex; /* Ensure hamburger is visible */
+        align-items: center;
+        justify-content: center;
+        background: transparent;
+      }
+
+      .navbar-toggler .oi-menu {
+        font-size: 2.2rem; /* Increase hamburger icon size */
+        color: #44351c; /* Match logo gradient start color for consistency */
+      }
+
+      .navbar-toggler:focus {
+        outline: none;
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.2); /* Subtle focus style */
+      }
+
+      /* Minimize icon sizes */
+      .nav-link span.icon-heart,
+      .nav-link span.icon-shopping_cart {
+        font-size: clamp(0.9rem, 2.5vw, -19.9rem); /* Smaller icon size */
+      }
+
+      /* Dropdown menu responsiveness */
+      .dropdown-menu {
+        min-width: 160px;
+        width: 100%;
+        max-width: 200px;
+        right: 0;
+        left: auto;
+        color: black;
+      }
+
+      /* Media Queries for Responsiveness */
+      @media (max-width: 991.98px) {
+        .navbar-collapse {
+          background-color: white;
+          padding: 1rem;
+          border-radius: 4px;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+          margin-top: 0.5rem;
+        }
+
+        .navbar-nav {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .nav-item {
+          width: 100%;
+        }
+
+        .nav-link {
+          padding: 0.75rem 1rem;
+          width: 100%;
+          text-align: left;
+        }
+
+        .dropdown-content,
+        .dropdown-menu {
+          position: static;
+          width: 100%;
+          box-shadow: none;
+          border: 1px solid #ddd;
+        }
+
+        .dropdown-content a,
+        .dropdown-menu a {
+          padding: 10px 15px;
+          font-size: 0.95rem;
+        }
+
+        .navbar-bran {
+          font-size: clamp(1.25rem, 4vw, 1.75rem);
+          padding: 6px 10px;
+        }
+
+        .navbar-toggler .oi-menu {
+          font-size: 1.2rem; /* Slightly smaller hamburger icon */
+          top:10px;
+          margin-left: -63px;
+          
+        }
+      }
+
+      @media (max-width: 576px) {
+        .navbar {
+          padding: 0.5rem;
+        }
+
+        .navbar-bran {
+          font-size: clamp(1rem, 3.5vw, 1.5rem);
+        }
+
+        .navbar-toggler {
+          font-size: 1rem;
+          padding: 0.25rem;
+        }
+
+        .navbar-toggler .oi-menu {
+          font-size: 1.2rem;
+        }
+
+        .nav-link {
+          font-size: 0.9rem;
+          padding: 0.5rem;
+        }
+
+        .nav-link span.icon-heart,
+        .nav-link span.icon-shopping_cart {
+          font-size: clamp(0.9rem, 2.5vw, -19.9rem)
+        }
+
+        .dropdown-content a,
+        .dropdown-menu a {
+          font-size: 0.9rem;
+          padding: 8px 12px;
+        }
+      }
+.ftco-navbar-light.scrolled .nav-item.cta > a {
+  color: #000000 !important;
+    background: white;
+  border: none !important;
 }
-
-.dropdown-content {
-    display: none;
-    position: absolute;
-    background-color: white;
-    min-width: 160px;
-    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
-    z-index: 1000;
-    right: 0;
-}
-
-.dropdown-content a {
-    color: black;
-    padding: 12px 16px;
-    text-decoration: none;
-    display: block;
-    width: 100%;
-}
-
-.dropdown-content a:hover {
-    background-color: white;
-}
-
-.dropdown:hover .dropdown-content {
-    display: block;
-}
-
-.header {
-    position: relative;
-    z-index: 500;
-}
-
-.navbar {
-    height: 50px;
-}
-
-/* Enhanced: Structured and attractive Skintiq logo */
-.navbar-bran {  
-    font-size: 2rem; /* Larger, bold size for prominence */
-    font-family: 'Playfair Display', serif; /* Elegant, modern font */
-    font-weight: 900; /* Bold but refined weight */
-    background: linear-gradient(45deg, #44351c, #efe10a); /* Your specified gradient */
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    padding: 8px 12px; /* Structured spacing */
-    letter-spacing: 1px; /* Slight spacing for readability */
-    text-transform: uppercase; /* Premium, structured look */
-    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3); /* Subtle shadow for depth */
-    transition: transform 0.3s ease, text-shadow 0.3s ease; /* Smooth hover effect */
-    display: inline-block;
-}
-
-.navbar-bran:hover {
-    transform: scale(1.05); /* Slight zoom on hover for interactivity */
-    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4); /* Enhanced shadow on hover */
-}
-</style>
-
+    </style>
   </head>
   <body class="goto-here">
-		<!-- <div class="py-1 bg-black">
-    	<div class="container">
-    		<div class="row no-gutters d-flex align-items-start align-items-center px-md-0">
-	    		<div class="col-lg-12 d-block">
-		    		<div class="row d-flex">
-		    			<div class="col-md pr-4 d-flex topper align-items-center">
-					    	<div class="icon mr-2 d-flex justify-content-center align-items-center"><span class="icon-phone2"></span></div>
-						    <span class="text">+ 1235 2355 98</span>
-					    </div>
-					    <div class="col-md pr-4 d-flex topper align-items-center">
-					    	<div class="icon mr-2 d-flex justify-content-center align-items-center"><span class="icon-paper-plane"></span></div>
-						    <span class="text">skintiq@email.com</span>
-					    </div>
-					    <div class="col-md-5 pr-4 d-flex topper align-items-center text-lg-right">
-						    <span class="text">3-5 Business days delivery &amp; Free Returns</span>
-					    </div>
-				    </div>
-			    </div>
-		    </div>
-		  </div>
-    </div> -->
-<nav class="navbar navbar-expand-lg navbar-light bg-white ftco_navbar ftco-navbar-light" id="ftco-navbar">
-	    <div class="container">
-	    <a href="/">  <h1 class="navbar-bran  text-2xl font-bold" href="/" >Skintiq</h1></a>
-	      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#ftco-nav" aria-controls="ftco-nav" aria-expanded="false" aria-label="Toggle navigation">
-	        <span class="oi oi-menu"></span> Menu
-	      </button>
+    <nav class="navbar navbar-expand-lg navbar-light bg-white ftco_navbar ftco-navbar-light" id="ftco-navbar">
+      <div class="container">
+        <a href="/"><h1 class="navbar-bran text-2xl font-bold" href="/">Skintiq</h1></a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#ftco-nav" aria-controls="ftco-nav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="oi oi-menu"></span> 
+        </button>
 
-	      <div class="collapse navbar-collapse" id="ftco-nav">
-            <ul class="navbar-nav ml-auto space-x-4 text-base font-medium">
-              <li class="nav-item"><a href="/" class="nav-link text-gray-700 hover:text-green-700 transition">Home</a></li>
-              <li class="nav-item"><a href="/shop" class="nav-link text-gray-700 hover:text-green-700 transition">Shop</a></li>
-              <!-- <li class="nav-item"><a href="#" class="nav-link text-gray-700 hover:text-green-700 transition">Contact</a></li> -->
-
-      
-			   <!--  Wishlist Icon -->
-         <li class="nav-item  text-2xl font-bold">
-        <a href="/wishlist" class="nav-link"><span class="icon-heart"></span></a>
-        </li>
-       <!--  Cart Icon -->
-			     
-       <li class="nav-item cta cta-colored"><a href="/cart" class="nav-link"><span class="icon-shopping_cart"></span></a></li>
-       <!--  Search Icon -->
-      
-
-      <%if(user){%>
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <%= user.name %>
-          </a>
-          <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-            <a class="dropdown-item" href="/userProfile">Profile</a>
-            <a class="dropdown-item" href="/logout">Logout</a>
-          </div>
-        </li>
-      <%}else {%>
-      
-     <!--  Login -->
-    <li class="nav-item">
-    <a href="/login" class="nav-link">Login</a>
-    </li>
-
-    <!-- Sign Up -->
-    <li class="nav-item">
-     <a href="/signup" class="nav-link">Sign Up</a>
-    </li>
-    <%}%>
-	        </ul>
-	      </div>
-	    </div>
-	  </nav>
+        <div class="collapse navbar-collapse" id="ftco-nav">
+          <ul class="navbar-nav ml-auto space-x-4 text-base font-medium">
+            <li class="nav-item"><a href="/" class="nav-link text-gray-700 hover:text-green-700 transition">Home</a></li>
+            <li class="nav-item"><a href="/shop" class="nav-link text-gray-700 hover:text-green-700 transition">Shop</a></li>
+            <li class="nav-item"><a href="/about" class="nav-link text-gray-700 hover:text-green-700 transition">About</a></li>
+            <li class="nav-item"><a href="/contact" class="nav-link text-gray-700 hover:text-green-700 transition">Contact</a></li>
+            <!-- Wishlist Icon -->
+            <li class="nav-item text-2xl font-bold">
+              <a href="/wishlist" class="nav-link"><span class="icon-heart"></span></a>
+            </li>
+            <!-- Cart Icon -->
+            <li class="nav-item cta cta-colored"><a href="/cart" class="nav-link"><span class="icon-shopping_cart"></span></a></li>
+            <%if(user){%>
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  <%= user.name %>
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                  <a class="dropdown-item" href="/userProfile">Profile</a>
+                  <a class="dropdown-item" href="/logout">Logout</a>
+                </div>
+              </li>
+            <%}else {%>
+              <!-- Login -->
+              <li class="nav-item">
+                <a href="/login" class="nav-link">Login</a>
+              </li>
+              <!-- Sign Up -->
+              <li class="nav-item">
+                <a href="/signup" class="nav-link">Sign Up</a>
+              </li>
+            <%}%>
+          </ul>
+        </div>
+      </div>
+    </nav>
 
     <!-- SweetAlert2 CSS -->
-<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
 
-<!-- SweetAlert2 JS -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  </body>
+</html>

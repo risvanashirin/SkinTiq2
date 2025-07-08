@@ -20,129 +20,6 @@ const rzp = new Razorpay({
     key_secret: process.env.RAZORPAY_KEY_SECRET
 });
 
-// const loadcheckout = async (req, res) => {
-//   try {
-//     const userId = req.session.user;
-//     if (!userId) {
-//       return res.render('checkout', {
-//         cart: null,
-//         addresses: [],
-//         totalPrice: 0,
-//         discount: 0,
-//         couponDiscount: 0,
-//         gst: 0,
-//         shippingCharge: 20,
-//         finalPrice: 0,
-//         coupons: [],
-//         appliedCoupon: null,
-//         error: 'Please log in to access checkout.',
-//         outOfStockProducts: [],
-//       });
-//     }
-
-//     const cart = await Cart.findOne({ userId }).populate('cart.productId');
-//     const addresses = await Address.find({ userId });
-
-//     const currentDate = new Date();
-//     const coupons = await Coupon.find({
-//       isList: true,
-//       startDate: { $lte: currentDate },
-//       endDate: { $gte: currentDate },
-//       $or: [
-//         { userId: { $size: 0 } },
-//         { userId: new mongoose.Types.ObjectId(userId) }
-//       ],
-//       usedBy: { $ne: new mongoose.Types.ObjectId(userId) }
-//     });
-
-//     if (!cart || !cart.cart.length) {
-//       return res.render('checkout', {
-//         cart: null,
-//         addresses: addresses.map(addr => addr.address).flat(),
-//         totalPrice: 0,
-//         discount: 0,
-//         couponDiscount: 0,
-//         gst: 0,
-//         shippingCharge: 20,
-//         finalPrice: 0,
-//         coupons,
-//         appliedCoupon: req.session.appliedCoupon || null,
-//         error: '',
-//         outOfStockProducts: [],
-//       });
-//     }
-
-//     const outOfStockProducts = cart.cart.filter(item => item.productId.quantity <= 0);
-//     let totalPrice = cart.cart.reduce((sum, item) => sum + (item.productId.salePrice * item.quantity), 0);
-//     let discount = totalPrice > 1500 ? totalPrice * 0.1 : 0;
-//     let gst = totalPrice > 2000 ? 10 : 0;
-//     let shippingCharge = 20;
-//     let couponDiscount = req.session.appliedCoupon ? req.session.appliedCoupon.offerPrice : 0;
-//     let finalPrice = totalPrice - discount - couponDiscount + gst + shippingCharge;
-
-//     if (outOfStockProducts.length > 0) {
-//       await Cart.updateOne(
-//         { userId },
-//         { $pull: { cart: { productId: { $in: outOfStockProducts.map(item => item.productId._id) } } } }
-//       );
-//       const updatedCart = await Cart.findOne({ userId }).populate('cart.productId');
-//       const validItems = updatedCart ? updatedCart.cart.filter(item => item.productId.quantity > 0) : [];
-//       totalPrice = validItems.reduce((sum, item) => sum + (item.productId.salePrice * item.quantity), 0);
-//       discount = totalPrice > 1500 ? totalPrice * 0.1 : 0;
-//       gst = totalPrice > 2000 ? 10 : 0;
-//       couponDiscount = req.session.appliedCoupon ? req.session.appliedCoupon.offerPrice : 0;
-//       shippingCharge = 20;
-//       finalPrice = totalPrice - discount - couponDiscount + gst + shippingCharge;
-
-//       return res.render('checkout', {
-//         cart: validItems,
-//         addresses: addresses.map(addr => addr.address).flat(),
-//         totalPrice,
-//         discount,
-//         couponDiscount,
-//         gst,
-//         shippingCharge,
-//         finalPrice,
-//         coupons,
-//         appliedCoupon: req.session.appliedCoupon || null,
-//         error: 'Some products were out of stock and removed from your cart.',
-//         outOfStockProducts,
-//       });
-//     }
-
-//     res.render('checkout', {
-//       cart: cart.cart.filter(item => item.productId.quantity > 0),
-//       addresses: addresses.map(addr => addr.address).flat(),
-//       totalPrice,
-//       discount,
-//       couponDiscount,
-//       gst,
-//       shippingCharge,
-//       finalPrice,
-//       coupons,
-//       appliedCoupon: req.session.appliedCoupon || null,
-//       error: null,
-//       outOfStockProducts: [],
-//     });
-//   } catch (error) {
-//     console.error('Error loading checkout page:', error);
-//     res.render('checkout', {
-//       cart: null,
-//       addresses: [],
-//       totalPrice: 0,
-//       discount: 0,
-//       couponDiscount: 0,
-//       gst: 0,
-//       shippingCharge: 20,
-//       finalPrice: 0,
-//       coupons: [],
-//       appliedCoupon: null,
-//       error: 'Failed to load checkout page.',
-//       outOfStockProducts: [],
-//     });
-//   }
-// };
-
 
 const loadCheckout = async (req, res) => {
   try {
@@ -282,22 +159,20 @@ const loadCheckout = async (req, res) => {
       defaultAddressId = defaultAddress ? defaultAddress._id.toString() : '';
     }
 
-   
-       const currentDate = new Date();
-       const coupons = await Coupon.find({
-      isList: true,
-      startDate: { $lte: currentDate },
-      endDate: { $gte: currentDate },
-      $or: [
-        { userId: { $size: 0 } },
-        { userId: new mongoose.Types.ObjectId(userId) }
-      ],
-      usedBy: { $ne: new mongoose.Types.ObjectId(userId) }
-       });
+      const currentDate = new Date();
+      const coupons = await Coupon.find({
+        isList: true,
+        startDate: { $lte: currentDate },
+        endDate: { $gte: currentDate },
+        $or: [
+          { userId: { $size: 0 } },
+          { userId: new mongoose.Types.ObjectId(userId) }
+        ],
+        usedBy: { $ne: new mongoose.Types.ObjectId(userId) }
+      }).sort({ endDate: 1 }); // Ascending
 
 
 
-    console.log("coupons",coupons)
 
     const discount = newPrice > 1500 ? newPrice * 0.1 : 0;
     const appliedCoupon = req.session.appliedCoupon || null;
@@ -328,6 +203,10 @@ const loadCheckout = async (req, res) => {
     res.render("checkout", { error: "An error occurred while loading the checkout page", cart: null, addresses: [], discount: 0, couponDiscount: 0, gst: 0, shippingCharge: 0, finalPrice: 0, totalPrice: 0, appliedCoupon: null, coupons: [], user: null, adjustedQuantities: null, defaultAddress: null, defaultAddressId: '' });
   }
 };
+
+
+
+
 
 const applyCoupon = async (req, res) => {
   try {
@@ -385,6 +264,7 @@ const applyCoupon = async (req, res) => {
 const removeCoupon = async (req, res) => {
   try {
     const userId = req.session.user;
+    console.log('remove coupon is working...')
     if (!userId) {
       return res.status(401).json({ success: false, message: 'Please log in to remove coupon.' });
     }
@@ -877,9 +757,6 @@ if (paymentMethod === 'RazorPay' && !razorpayPaymentId && !razorpay_signature) {
     });
   }
 };
-
-
-
 
 
 
@@ -1656,6 +1533,17 @@ const retryOrderCheckout = async (req, res) => {
     }
 
     const addresses = await Address.find({ userId });
+    let defaultAddress = null;
+    let defaultAddressId = '';
+    if (addresses && addresses.length > 0) {
+      // Prioritize primary address, otherwise use the first address
+      defaultAddress = addresses.find(address => address.isPrimary) || addresses[0];
+      defaultAddressId = defaultAddress ? defaultAddress._id.toString() : '';
+    }
+
+
+
+
     const currentDate = new Date();
     const coupons = await Coupon.find({
       isList: true,
@@ -1685,7 +1573,7 @@ const retryOrderCheckout = async (req, res) => {
     if (outOfStockProducts.length > 0) {
       return res.render('checkout', {
         cart: null,
-        addresses: addresses.map(addr => addr.address).flat(),
+        addresses,
         totalPrice: 0,
         discount: 0,
         couponDiscount: 0,
@@ -1733,12 +1621,26 @@ const retryOrderCheckout = async (req, res) => {
       { upsert: true }
     );
 
+        const adjustedQuantityProductNames = [];
+      //    for (let item of cart.cart) {
+      //     if (item.quantity > product.quantity) {
+      //   adjustedQuantityProductNames.push({
+      //     name: product.productName,
+      //     oldQuantity: item.quantity,
+      //     newQuantity: product.quantity,
+      //   });
+      //   item.quantity = product.quantity;
+      //  } // Adjust to available stock
+      // }
+
+
     // Store the original orderId in the session for use in placeorder
     req.session.retryOrderId = orderId;
 
+
     res.render('checkout', {
       cart: cartItems,
-      addresses: addresses.map(addr => addr.address).flat(),
+      addresses,
       totalPrice,
       discount,
       couponDiscount,
@@ -1749,6 +1651,9 @@ const retryOrderCheckout = async (req, res) => {
       appliedCoupon: req.session.appliedCoupon || null,
       error: null,
       outOfStockProducts: [],
+      user: req.session.user,
+      adjustedQuantities: adjustedQuantityProductNames.length > 0 ? adjustedQuantityProductNames : null,
+
     });
   } catch (error) {
     console.error('Error loading retry order checkout:', error);

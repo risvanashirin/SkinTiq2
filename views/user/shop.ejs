@@ -62,7 +62,10 @@
         </select>
 
         <!-- Search Box -->
+  
         <input type="text" name="search" placeholder="Search Products..." value="<%= search || '' %>" class="form-control">
+
+     
 
         <!-- Submit and Reset Buttons -->
         <button type="submit" class="btn btn-primary">Apply</button>
@@ -132,39 +135,44 @@
     </div>
 
     <!-- Pagination -->
-    <div class="row mt-5">
+   <div class="row mt-5">
       <div class="col text-center">
-        <nav aria-label="Page navigation">
-          <ul class="pagination justify-content-center">
-            <% if (currentPage > 1) { %>
-              <li class="page-item">
-                <a class="page-link" href="/shop?page=<%= currentPage - 1 %><%= filterParams %>">«</a>
-              </li>
-            <% } else { %>
-              <li class="page-item disabled">
-                <span class="page-link">«</span>
-              </li>
-            <% } %>
+        <nav class="pagination-container" role="navigation" aria-label="Pagination">
+          <% if (totalPages > 1) { %>
+            <!-- Left Arrow (Previous) -->
+            <a 
+              href="<%= currentPage > 1 ? `/shop?page=${currentPage - 1}${filterParams}` : '#' %>" 
+              class="nav-button <%= currentPage === 1 ? 'disabled' : '' %>"
+              aria-label="Previous page"
+              <%= currentPage === 1 ? 'aria-disabled="true"' : '' %>
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+              </svg>
+            </a>
 
-            <% for (let i = 1; i <= totalPages; i++) { %>
-              <li class="page-item <%= currentPage === i ? 'active' : '' %>">
-                <a class="page-link" href="/shop?page=<%= i %><%= filterParams %>"><%= i %></a>
-              </li>
-            <% } %>
+            <!-- Page Indicator -->
+            <span class="page-indicator">
+              Page <%= currentPage %> of <%= totalPages %>
+            </span>
 
-            <% if (currentPage < totalPages) { %>
-              <li class="page-item">
-                <a class="page-link" href="/shop?page=<%= currentPage + 1 %><%= filterParams %>">»</a>
-              </li>
-            <% } else { %>
-              <li class="page-item disabled">
-                <span class="page-link">»</span>
-              </li>
-            <% } %>
-          </ul>
+            <!-- Right Arrow (Next) -->
+            <a 
+              href="<%= currentPage < totalPages ? `/shop?page=${currentPage + 1}${filterParams}` : '#' %>" 
+              class="nav-button <%= currentPage === totalPages ? 'disabled' : '' %>"
+              aria-label="Next page"
+              <%= currentPage === totalPages ? 'aria-disabled="true"' : '' %>
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+              </svg>
+            </a>
+          <% } %>
         </nav>
       </div>
     </div>
+
+
   </div>
 </section>
 
@@ -294,17 +302,20 @@
     gap: 1rem;
     flex-wrap: wrap;
     align-items: center;
+    padding-left: 121px;
   }
   .filter-form select,
   .filter-form input,
   .filter-form button {
     height: 40px;
     font-size: 14px;
-    border-radius: 5px;
+    border-radius: 9px;
   }
-  .filter-form select,
-  .filter-form input {
+  .filter-form select {
     min-width: 150px;
+  }
+  .filter-form input {
+    width: 611px;
   }
   .filter-form button {
     padding: 0 1.5rem;
@@ -387,22 +398,62 @@
     text-decoration-thickness: 2px;
   }
 
-  /* Pagination */
-  .pagination .page-link {
-    padding: 0.5rem 1rem;
-    margin: 0 0.2rem;
-    border-radius: 5px;
+   /* Pagination */
+  .pagination-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.5rem 0;
   }
-  .pagination .page-item.active .page-link {
-    background-color: #007bff;
-    border-color: #007bff;
+  .pagination-container a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem;
+    border-radius: 0.375rem;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    min-width: 2.25rem;
+    height: 2.25rem;
   }
-
+  .pagination-container a.nav-button {
+    background-color: #2563eb; /* Tailwind blue-600 */
+    color: #ffffff; /* Tailwind white */
+  }
+  .pagination-container a.nav-button:hover:not(.disabled) {
+    background-color: #1d4ed8; /* Tailwind blue-700 */
+  }
+  .pagination-container a.disabled {
+    background-color: #d1d5db; /* Tailwind gray-300 */
+    color: #9ca3af; /* Tailwind gray-400 */
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+  .pagination-container .page-indicator {
+    font-size: 0.875rem;
+    color: #374151; /* Tailwind gray-700 */
+    font-weight: 500;
+  }
+  @media (max-width: 576px) {
+    .pagination-container {
+      gap: 0.5rem;
+      padding: 1rem 0;
+    }
+    .pagination-container a {
+      min-width: 2rem;
+      height: 2rem;
+      padding: 0.25rem;
+    }
+    .pagination-container .page-indicator {
+      font-size: 0.75rem;
+    }
+  }
   /* Responsive Adjustments */
   @media (max-width: 768px) {
     .filter-form select,
     .filter-form input {
-      min-width: 120px;
+      min-width: 103px;
     }
     .filter-form button {
       padding: 0 1rem;
@@ -424,7 +475,7 @@
     .filter-form select, 
     .filter-form input,
     .filter-form button {
-      width: 100%;
+      width: 52px;
     }
     .product .offer-badge,
     .product .out-of-stock {
@@ -432,5 +483,10 @@
       padding: 5px;
     }
   }
+  .btn.btn-primary {
+  background: #9e8d4a;
+  border: 1px solid #dbcc8f;
+  color: #fff;
+}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

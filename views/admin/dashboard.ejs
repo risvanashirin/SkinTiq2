@@ -21,8 +21,8 @@
       background-color: #f3f4f6;
     }
     body.modal-open {
-    overflow: auto !important;
-}
+      overflow: auto !important;
+    }
     #dashboardForm .grid { align-items: start; }
     #dashboardForm label { font-size: 0.9rem; margin-bottom: 0.5rem; }
     #dashboardForm select { font-size: 0.9rem; padding: 0.5rem; max-width: 100%; box-sizing: border-box; }
@@ -33,6 +33,42 @@
     .loading-spinner { display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); border: 4px solid rgba(59, 130, 246, 0.2); border-top: 4px solid #3b82f6; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
     @keyframes spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
     .point-glow { filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.5)); }
+    .pagination-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 1rem;
+      padding: 1.5rem 0;
+    }
+    .pagination-container a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.5rem;
+      border-radius: 0.375rem;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      min-width: 2.25rem;
+      height: 2.25rem;
+    }
+    .pagination-container a.nav-button {
+      background-color: #2563eb;
+      color: #ffffff;
+    }
+    .pagination-container a.nav-button:hover:not(.disabled) {
+      background-color: #1d4ed8;
+    }
+    .pagination-container a.disabled {
+      background-color: #d1d5db;
+      color: #9ca3af;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+    .pagination-container .page-indicator {
+      font-size: 0.875rem;
+      color: #374151;
+      font-weight: 500;
+    }
     @media (max-width: 768px) {
       body { margin-left: 0; }
       #dashboardForm .mt-4.flex.justify-end.space-x-3 { flex-direction: column; gap: 0.5rem; align-items: stretch; }
@@ -46,9 +82,21 @@
       .text-3xl { font-size: 1.25rem; }
       .text-xl { font-size: 1.1rem; }
       .container.mx-auto.px-4.py-8 { padding: 0.5rem; }
+      .pagination-container {
+        gap: 0.5rem;
+        padding: 1rem 0;
+      }
+      .pagination-container a {
+        min-width: 2rem;
+        height: 2rem;
+        padding: 0.25rem;
+      }
+      .pagination-container .page-indicator {
+        font-size: 0.75rem;
+      }
     }
     @media (prefers-reduced-motion: reduce) {
-      .loading-spinner, .point-glow, canvas { animation: none !important; transition: none !important; }
+      .loading-spinner, .point-glow, canvas, .pagination-container a { animation: none !important; transition: none !important; }
     }
   </style>
 
@@ -63,13 +111,13 @@
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1" for="reportType">Report Type</label>
-              <select name="reportType" id="reportType" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700">
-                <option value="daily" <%= reportType === 'daily' ? 'selected' : '' %>>Daily</option>
-                <option value="weekly" <%= reportType === 'weekly' ? 'selected' : '' %>>Weekly</option>
-                <option value="monthly" <%= reportType === 'monthly' ? 'selected' : '' %>>Monthly</option>
-                <option value="yearly" <%= reportType === 'yearly' ? 'selected' : '' %>>Yearly</option>
-                <option value="custom" <%= reportType === 'custom' ? 'selected' : '' %>>Custom Range</option>
-              </select>
+             <select name="reportType" id="reportType" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700">
+  <option value="daily" <%= reportType === 'daily' ? 'selected' : '' %>>Daily</option>
+  <option value="weekly" <%= reportType === 'weekly' ? 'selected' : '' %>>Weekly</option>
+  <option value="monthly" <%= reportType === 'monthly' ? 'selected' : '' %>>Monthly</option>
+  <option value="yearly" <%= reportType === 'yearly' ? 'selected' : '' %>>Yearly</option>
+  <option value="custom" <%= reportType === 'custom' ? 'selected' : '' %>>Custom Range</option>
+</select>
             </div>
             <div class="custom-dates <%= reportType === 'custom' ? '' : 'hidden' %>">
               <label class="block text-sm font-medium text-gray-700 mb-1" for="startDate">Start Date</label>
@@ -220,281 +268,317 @@
           </table>
           <p id="noLedgerData" class="text-gray-600 text-center py-4 hidden">No ledger data available.</p>
         </div>
+        <nav id="ledgerPagination" class="pagination-container hidden" role="navigation" aria-label="Pagination"></nav>
       </div>
     </div>
   </div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
-  <script>
-    // Load Chart.js with fallback to local copy if CDN fails
-    let chartJsLoaded = false;
-    function loadChartJs(callback) {
-      const script = document.createElement('script');
-      script.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js';
-      script.onload = () => {
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
+<script>
+  // Load Chart.js with fallback to local copy if CDN fails
+  let chartJsLoaded = false;
+  function loadChartJs(callback) {
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js';
+    script.onload = () => {
+      chartJsLoaded = true;
+      if (window.Chart && window['chartjs-plugin-annotation']) {
+        Chart.register(window['chartjs-plugin-annotation'].AnnotationPlugin);
+        console.log('Chart.js and annotation plugin loaded successfully');
+      } else {
+        console.error('Annotation plugin not available');
+      }
+      callback();
+    };
+    script.onerror = () => {
+      console.error('Failed to load Chart.js from CDN, attempting local copy');
+      const fallbackScript = document.createElement('script');
+      fallbackScript.src = '/js/chart.umd.min.js';
+      fallbackScript.onload = () => {
         chartJsLoaded = true;
-        // Register annotation plugin
         if (window.Chart && window['chartjs-plugin-annotation']) {
           Chart.register(window['chartjs-plugin-annotation'].AnnotationPlugin);
-          console.log('Chart.js and annotation plugin loaded successfully');
+          console.log('Chart.js and annotation plugin loaded from fallback');
         } else {
-          console.error('Annotation plugin not available');
+          console.error('Annotation plugin not available on fallback');
         }
         callback();
       };
-      script.onerror = () => {
-        console.error('Failed to load Chart.js from CDN, attempting local copy');
-        const fallbackScript = document.createElement('script');
-        fallbackScript.src = '/js/chart.umd.min.js';
-        fallbackScript.onload = () => {
-          chartJsLoaded = true;
-          if (window.Chart && window['chartjs-plugin-annotation']) {
-            Chart.register(window['chartjs-plugin-annotation'].AnnotationPlugin);
-            console.log('Chart.js and annotation plugin loaded from fallback');
-          } else {
-            console.error('Annotation plugin not available on fallback');
-          }
-          callback();
-        };
-        fallbackScript.onerror = () => {
-          console.error('Failed to load Chart.js');
-          document.getElementById('chartError').classList.remove('hidden');
-          document.getElementById('chartErrorMessage').textContent = 'Chart library failed to load.';
-        };
-        document.head.appendChild(fallbackScript);
+      fallbackScript.onerror = () => {
+        console.error('Failed to load Chart.js');
+        document.getElementById('chartError').classList.remove('hidden');
+        document.getElementById('chartErrorMessage').textContent = 'Chart library failed to load.';
       };
-      document.head.appendChild(script);
-    }
+      document.head.appendChild(fallbackScript);
+    };
+    document.head.appendChild(script);
+  }
 
-    // Disable animations for reduced motion
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      if (window.Chart) Chart.defaults.animation = false;
-    }
+  // Disable animations for reduced motion
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    if (window.Chart) Chart.defaults.animation = false;
+  }
 
-    // Chart filter handling
-    document.querySelector('select[name="reportType"]').addEventListener('change', function(e) {
-      const customDates = document.querySelectorAll('.custom-dates');
-      customDates.forEach(el => el.classList.toggle('hidden', e.target.value !== 'custom'));
-    });
+  // Chart filter handling
+  document.querySelector('select[name="reportType"]').addEventListener('change', function(e) {
+    const customDates = document.querySelectorAll('.custom-dates');
+    customDates.forEach(el => el.classList.toggle('hidden', e.target.value !== 'custom'));
+  });
 
-    // Form submission for chart update
-    document.getElementById('dashboardForm').addEventListener('submit', async function(e) {
-      e.preventDefault();
-      await fetchChartData();
-      await fetchLedgerData();
-    });
+  // Form submission for chart update
+  document.getElementById('dashboardForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    await fetchChartData();
+    await fetchLedgerData();
+  });
 
-    // Fetch chart data
-    async function fetchChartData() {
-      const chartError = document.getElementById('chartError');
-      const chartErrorMessage = document.getElementById('chartErrorMessage');
-      const chartLoading = document.getElementById('chartLoading');
-      chartError.classList.add('hidden');
-      chartLoading.style.display = 'block';
-      try {
-        const formData = new FormData(document.getElementById('dashboardForm'));
-        const params = new URLSearchParams(formData);
-        console.log('Fetching chart data with params:', params.toString());
-        const response = await fetch(`/admin/api/chart-data?${params.toString()}`, {
-          headers: { 'Accept': 'application/json' }
-        });
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error('Chart data fetch failed:', response.status, errorText);
-          throw new Error(`HTTP error: ${response.status} - ${errorText}`);
-        }
-        const data = await response.json();
-        console.log('Chart data received:', data);
-        if (data.error) {
-          console.error('API returned error:', data.error);
-          throw new Error(data.error);
-        }
-        if (!data.labels || !data.values || data.labels.length === 0) {
-          console.warn('Chart data missing or empty:', data);
-          updateChartData({ labels: ['No Data'], values: [0] });
-          chartErrorMessage.textContent = 'No sales data available for the selected period.';
-          chartError.classList.remove('hidden');
-          return;
-        }
-        updateChartData(data);
-      } catch (error) {
-        console.error('Error fetching chart data:', error.message, error.stack);
-        chartErrorMessage.textContent = error.message || 'Failed to fetch chart data.';
-        chartError.classList.remove('hidden');
-      } finally {
-        chartLoading.style.display = 'none';
-      }
-    }
-
-    // Update chart
-    function updateChartData(data) {
-      const canvas = document.getElementById('salesChart');
-      if (!canvas || !canvas.getContext('2d')) {
-        console.error('Canvas or context not found');
-        document.getElementById('chartError').classList.remove('hidden');
-        document.getElementById('chartErrorMessage').textContent = 'Chart initialization failed.';
-        return;
-      }
-      const ctx = canvas.getContext('2d');
-      // Create gradient fill
-      const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-      gradient.addColorStop(0, 'rgba(59, 130, 246, 0.3)');
-      gradient.addColorStop(1, 'rgba(59, 130, 246, 0.05)');
-
-      // Destroy existing chart safely
-      if (window.salesChart && typeof window.salesChart.destroy === 'function') {
-        console.log('Destroying existing chart');
-        window.salesChart.destroy();
-        window.salesChart = null;
-      }
-
-      try {
-        console.log('Creating new chart with data:', data);
-        window.salesChart = new Chart(ctx, {
-          type: 'line',
-          data: {
-            labels: data.labels,
-            datasets: [{
-              label: 'Sales (₹)',
-              data: data.values,
-              borderColor: '#3b82f6',
-              backgroundColor: gradient,
-              fill: true,
-              tension: 0.4,
-              pointRadius: 4,
-              pointHoverRadius: 8,
-              pointBackgroundColor: '#ffffff',
-              pointBorderColor: '#3b82f6',
-              pointBorderWidth: 2,
-              pointHoverBackgroundColor: '#3b82f6',
-              pointHoverBorderColor: '#ffffff',
-              pointStyle: 'circle'
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            animation: {
-              duration: 1000,
-              easing: 'easeOutQuart'
-            },
-            scales: {
-              x: {
-                title: { display: true, text: 'Date' },
-                ticks: { maxRotation: 45, minRotation: 45 }
-              },
-              y: {
-                title: { display: true, text: 'Revenue' },
-                beginAtZero: true,
-                ticks: {
-                  callback: function(value) { return '₹' + Math.round(value).toLocaleString(); }
-                }
-              }
-            },
-            plugins: {
-              legend: { display: true, position: 'top' },
-              tooltip: {
-                callbacks: {
-                  label: function(context) { return `₹${Math.round(context.parsed.y).toLocaleString()}`; }
-                }
-              },
-              annotation: {
-                annotations: data.values.length > 0 && data.values.some(v => v > 0) ? {
-                  peak: {
-                    type: 'point',
-                    xValue: data.labels[data.values.indexOf(Math.max(...data.values))],
-                    yValue: Math.max(...data.values),
-                    backgroundColor: '#ef4444',
-                    radius: 10,
-                    label: {
-                      enabled: true,
-                      content: 'Peak Sales',
-                      position: 'top',
-                      backgroundColor: 'rgba(239, 68, 68, 0.8)',
-                      color: '#ffffff',
-                      padding: 6
-                    }
-                  }
-                } : {}
-              }
-            },
-            interaction: {
-              mode: 'nearest',
-              intersect: false
-            }
-          }
-        });
-        console.log('Chart created successfully');
-      } catch (error) {
-        console.error('Error creating chart:', error.message, error.stack);
-        document.getElementById('chartError').classList.remove('hidden');
-        document.getElementById('chartErrorMessage').textContent = 'Chart rendering failed: ' + error.message;
-      }
-    }
-
-    // Fetch ledger data
-    async function fetchLedgerData() {
-      const ledgerTable = document.getElementById('ledgerTable');
-      const ledgerBody = ledgerTable.querySelector('tbody');
-      const noLedgerData = document.getElementById('noLedgerData');
-      const ledgerError = document.getElementById('ledgerError');
-      ledgerTable.classList.add('hidden');
-      noLedgerData.classList.add('hidden');
-      ledgerError.classList.add('hidden');
-      try {
-        const formData = new FormData(document.getElementById('dashboardForm'));
-        const params = new URLSearchParams(formData);
-        console.log('Fetching ledger data with params:', params.toString());
-        const response = await fetch(`/admin/api/ledger?${params.toString()}&format=json`, {
-          headers: { 'Accept': 'application/json' }
-        });
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error('Ledger fetch failed:', response.status, errorText);
-          throw new Error(`HTTP error: ${response.status} - ${errorText}`);
-        }
-        const orders = await response.json();
-        ledgerBody.innerHTML = '';
-        if (orders && orders.length > 0) {
-          orders.forEach(order => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-              <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-600">${new Date(order.invoiceDate).toISOString().split('T')[0]}</td>
-              <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-600">${order.orderId.slice(-12)}</td>
-              <td class="px-4 py-2 text-sm text-gray-600">${order.product?.productName || 'Unknown'}</td>
-              <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-600">₹${Math.round(order.finalAmount).toLocaleString()}</td>
-              <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-600">₹${Math.round(order.discount).toLocaleString()}</td>
-            `;
-            ledgerBody.appendChild(row);
-          });
-          ledgerTable.classList.remove('hidden');
-        } else {
-          noLedgerData.classList.remove('hidden');
-        }
-      } catch (error) {
-        console.error('Error fetching ledger data:', error.message, error.stack);
-        ledgerError.classList.remove('hidden');
-      }
-    }
-
-    // Ledger book download
-    function generateLedger() {
+  // Fetch chart data
+  async function fetchChartData() {
+    const chartError = document.getElementById('chartError');
+    const chartErrorMessage = document.getElementById('chartErrorMessage');
+    const chartLoading = document.getElementById('chartLoading');
+    chartError.classList.add('hidden');
+    chartLoading.style.display = 'block';
+    try {
       const formData = new FormData(document.getElementById('dashboardForm'));
       const params = new URLSearchParams(formData);
-      params.append('format', 'pdf');
-      console.log('Generating ledger PDF with params:', params.toString());
-      window.location.href = `/admin/api/ledger?${params.toString()}`;
+      console.log('Fetching chart data with params:', params.toString());
+      const response = await fetch(`/admin/api/chart-data?${params.toString()}`, {
+        headers: { 'Accept': 'application/json' }
+      });
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Chart data fetch failed:', response.status, errorText);
+        throw new Error(`HTTP error: ${response.status} - ${errorText}`);
+      }
+      const data = await response.json();
+      console.log('Chart data received:', data);
+      if (data.error) {
+        console.error('API returned error:', data.error);
+        throw new Error(data.error);
+      }
+      if (!data.labels || !data.values || data.labels.length === 0) {
+        console.warn('Chart data missing or empty:', data);
+        updateChartData({ labels: ['No Data'], values: [0] });
+        chartErrorMessage.textContent = 'No sales data available for the selected period.';
+        chartError.classList.remove('hidden');
+        return;
+      }
+      updateChartData(data);
+    } catch (error) {
+      console.error('Error fetching chart data:', error.message, error.stack);
+      chartErrorMessage.textContent = error.message || 'Failed to fetch chart data.';
+      chartError.classList.remove('hidden');
+    } finally {
+      chartLoading.style.display = 'none';
+    }
+  }
+
+  // Update chart
+  function updateChartData(data) {
+    const canvas = document.getElementById('salesChart');
+    if (!canvas || !canvas.getContext('2d')) {
+      console.error('Canvas or context not found');
+      document.getElementById('chartError').classList.remove('hidden');
+      document.getElementById('chartErrorMessage').textContent = 'Chart initialization failed.';
+      return;
+    }
+    const ctx = canvas.getContext('2d');
+    const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+    gradient.addColorStop(0, 'rgba(59, 130, 246, 0.3)');
+    gradient.addColorStop(1, 'rgba(59, 130, 246, 0.05)');
+
+    if (window.salesChart && typeof window.salesChart.destroy === 'function') {
+      console.log('Destroying existing chart');
+      window.salesChart.destroy();
+      window.salesChart = null;
     }
 
-    // Initialize dashboard
-    function initializeDashboard() {
-      console.log('Initializing dashboard...');
-      fetchChartData();
-      fetchLedgerData();
+    try {
+      console.log('Creating new chart with data:', data);
+      window.salesChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: data.labels,
+          datasets: [{
+            label: 'Sales (₹)',
+            data: data.values,
+            borderColor: '#3b82f6',
+            backgroundColor: gradient,
+            fill: true,
+            tension: 0.4,
+            pointRadius: 4,
+            pointHoverRadius: 8,
+            pointBackgroundColor: '#ffffff',
+            pointBorderColor: '#3b82f6',
+            pointBorderWidth: 2,
+            pointHoverBackgroundColor: '#3b82f6',
+            pointHoverBorderColor: '#ffffff',
+            pointStyle: 'circle'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: {
+            duration: 1000,
+            easing: 'easeOutQuart'
+          },
+          scales: {
+            x: {
+              title: { display: true, text: 'Date' },
+              ticks: { maxRotation: 45, minRotation: 45 }
+            },
+            y: {
+              title: { display: true, text: 'Revenue' },
+              beginAtZero: true,
+              ticks: {
+                callback: function(value) { return '₹' + Math.round(value).toLocaleString(); }
+              }
+            }
+          },
+          plugins: {
+            legend: { display: true, position: 'top' },
+            tooltip: {
+              callbacks: {
+                label: function(context) { return `₹${Math.round(context.parsed.y).toLocaleString()}`; }
+              }
+            },
+            annotation: {
+              annotations: data.values.length > 0 && data.values.some(v => v > 0) ? {
+                peak: {
+                  type: 'point',
+                  xValue: data.labels[data.values.indexOf(Math.max(...data.values))],
+                  yValue: Math.max(...data.values),
+                  backgroundColor: '#ef4444',
+                  radius: 10,
+                  label: {
+                    enabled: true,
+                    content: 'Peak Sales',
+                    position: 'top',
+                    backgroundColor: 'rgba(239, 68, 68, 0.8)',
+                    color: '#ffffff',
+                    padding: 6
+                  }
+                }
+              } : {}
+            }
+          },
+          interaction: {
+            mode: 'nearest',
+            intersect: false
+          }
+        }
+      });
+      console.log('Chart created successfully');
+    } catch (error) {
+      console.error('Error creating chart:', error.message, error.stack);
+      document.getElementById('chartError').classList.remove('hidden');
+      document.getElementById('chartErrorMessage').textContent = 'Chart rendering failed: ' + error.message;
     }
+  }
 
-    // Load Chart.js and initialize
-    loadChartJs(initializeDashboard);
-  </script>
+  // Fetch ledger data
+  async function fetchLedgerData(page = 1) {
+    const ledgerTable = document.getElementById('ledgerTable');
+    const ledgerBody = ledgerTable.querySelector('tbody');
+    const noLedgerData = document.getElementById('noLedgerData');
+    const ledgerError = document.getElementById('ledgerError');
+    const ledgerPagination = document.getElementById('ledgerPagination');
+    ledgerTable.classList.add('hidden');
+    noLedgerData.classList.add('hidden');
+    ledgerError.classList.add('hidden');
+    ledgerPagination.classList.add('hidden');
+    try {
+      const formData = new FormData(document.getElementById('dashboardForm'));
+      formData.append('page', page);
+      formData.append('limit', 10);
+      const params = new URLSearchParams(formData);
+      console.log('Fetching ledger data with params:', params.toString());
+      const response = await fetch(`/admin/api/ledger?${params.toString()}&format=json`, {
+        headers: { 'Accept': 'application/json' }
+      });
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Ledger fetch failed:', response.status, errorText);
+        throw new Error(`HTTP error: ${response.status} - ${errorText}`);
+      }
+      const data = await response.json();
+      ledgerBody.innerHTML = '';
+      if (data.orders && data.orders.length > 0) {
+        data.orders.forEach(order => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-600">${new Date(order.invoiceDate).toISOString().split('T')[0]}</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-600">${order.orderId.slice(-12)}</td>
+            <td class="px-4 py-2 text-sm text-gray-600">${order.product?.productName || 'Unknown'}</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-600">₹${Math.round(order.finalAmount).toLocaleString()}</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-600">₹${Math.round(order.discount).toLocaleString()}</td>
+          `;
+          ledgerBody.appendChild(row);
+        });
+        ledgerTable.classList.remove('hidden');
+        // Render pagination
+        if (data.pagination && data.pagination.totalPages > 1) {
+          const { currentPage, totalPages } = data.pagination;
+          const baseUrl = '/admin';
+          const queryParams = `&${params.toString().replace(/&page=\d+/, '')}`;
+          ledgerPagination.innerHTML = `
+            <a 
+              href="${currentPage > 1 ? `${baseUrl}?page=${currentPage - 1}${queryParams}` : '#'}" 
+              class="nav-button ${currentPage === 1 ? 'disabled' : ''}"
+              aria-label="Previous page"
+              ${currentPage === 1 ? 'aria-disabled="true"' : ''}
+              onclick="${currentPage > 1 ? `fetchLedgerData(${currentPage - 1}); return false;` : ''}"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+              </svg>
+            </a>
+            <span class="page-indicator">
+              Page ${currentPage} of ${totalPages}
+            </span>
+            <a 
+              href="${currentPage < totalPages ? `${baseUrl}?page=${currentPage + 1}${queryParams}` : '#'}" 
+              class="nav-button ${currentPage === totalPages ? 'disabled' : ''}"
+              aria-label="Next page"
+              ${currentPage === totalPages ? 'aria-disabled="true"' : ''}
+              onclick="${currentPage < totalPages ? `fetchLedgerData(${currentPage + 1}); return false;` : ''}"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+              </svg>
+            </a>
+          `;
+          ledgerPagination.classList.remove('hidden');
+        }
+      } else {
+        noLedgerData.classList.remove('hidden');
+      }
+    } catch (error) {
+      console.error('Error fetching ledger data:', error.message, error.stack);
+      ledgerError.classList.remove('hidden');
+    }
+  }
+
+  // Ledger book download
+  function generateLedger() {
+    const formData = new FormData(document.getElementById('dashboardForm'));
+    const params = new URLSearchParams(formData);
+    params.append('format', 'pdf');
+    console.log('Generating ledger PDF with params:', params.toString());
+    window.location.href = `/admin/api/ledger?${params.toString()}`;
+  }
+
+  // Initialize dashboard
+  function initializeDashboard() {
+    console.log('Initializing dashboard...');
+    fetchChartData();
+    fetchLedgerData();
+  }
+
+  // Load Chart.js and initialize
+  loadChartJs(initializeDashboard);
+</script>
 <%- include("../partials/admin/footer") %>
 </body>
