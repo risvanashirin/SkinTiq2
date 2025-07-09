@@ -2,6 +2,8 @@
 <html lang="en">
   <head>
     <title>Skintiq-Skincare Products</title>
+    <link rel="icon" type="image/png" href="/uploads/profile/profile-1752042228149-49651732.jpg">
+
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     
@@ -10,24 +12,19 @@
 
     <link rel="stylesheet" href="css/open-iconic-bootstrap.min.css">
     <link rel="stylesheet" href="css/animate.css">
-    
     <link rel="stylesheet" href="css/owl.carousel.min.css">
     <link rel="stylesheet" href="css/owl.theme.default.min.css">
     <link rel="stylesheet" href="css/magnific-popup.css">
-
     <link rel="stylesheet" href="css/aos.css">
-
     <link rel="stylesheet" href="css/ionicons.min.css">
-
     <link rel="stylesheet" href="css/bootstrap-datepicker.css">
     <link rel="stylesheet" href="css/jquery.timepicker.css">
-
     <link rel="stylesheet" href="css/flaticon.css">
     <link rel="stylesheet" href="css/icomoon.css">
     <link rel="stylesheet" href="css/style.css">
 
     <style>
-      /* Original styles with enhanced responsiveness and requested fixes */
+      /* Enhanced responsive styles for header */
       .dropdown {
         position: relative;
         display: inline-block;
@@ -50,7 +47,7 @@
         text-decoration: none;
         display: block;
         width: 100%;
-        font-size: 1rem;
+        font-size: clamp(0.9rem, 2.5vw, 1rem);
       }
 
       .dropdown-content a:hover {
@@ -70,17 +67,16 @@
         height: auto;
         min-height: 60px;
         padding: 0.5rem 1rem;
-        position: fixed; /* Fix navbar to the top */
-        top: -21px;
+        position: fixed;
+        top: -31px;
         left: 0;
         right: 0;
-        z-index: 1000; /* Ensure navbar stays above other content */
-        background-color: white; /* Ensure background is solid */
+        z-index: 1000;
+        background-color: white;
       }
 
-      /* Enhanced: Structured and attractive Skintiq logo */
       .navbar-bran {
-        font-size: clamp(1.5rem, 5vw, 2rem);
+        font-size: clamp(1.2rem, 4vw, 1.8rem);
         font-family: 'Playfair Display', serif;
         font-weight: 900;
         background: linear-gradient(45deg, #44351c, #efe10a);
@@ -92,7 +88,7 @@
         text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
         transition: transform 0.3s ease, text-shadow 0.3s ease;
         display: inline-block;
-          margin-bottom: -0.5rem;
+        margin-bottom: -0.5rem;
       }
 
       .navbar-bran:hover {
@@ -100,12 +96,11 @@
         text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4);
       }
 
-      /* Responsive navbar adjustments */
       .navbar-nav {
         display: flex;
         align-items: center;
         flex-wrap: wrap;
-        gap: 1rem;
+        gap: clamp(0.5rem, 2vw, 1rem);
       }
 
       .nav-item {
@@ -113,9 +108,14 @@
       }
 
       .nav-link {
-        font-size: clamp(0.9rem, 3vw, 1rem);
+        font-size: clamp(0.85rem, 2.5vw, 0.95rem);
         padding: 0.5rem 1rem;
         white-space: nowrap;
+        transition: color 0.3s ease;
+      }
+
+      .nav-link:hover {
+        color: #4CAF50;
       }
 
       .navbar-collapse {
@@ -126,29 +126,27 @@
         border: none;
         font-size: 1.25rem;
         padding: 0.5rem;
-        display: flex; /* Ensure hamburger is visible */
+        display: flex;
         align-items: center;
         justify-content: center;
         background: transparent;
       }
 
       .navbar-toggler .oi-menu {
-        font-size: 2.2rem; /* Increase hamburger icon size */
-        color: #44351c; /* Match logo gradient start color for consistency */
+        font-size: clamp(1.2rem, 3vw, 1.5rem);
+        color: #44351c;
       }
 
       .navbar-toggler:focus {
         outline: none;
-        box-shadow: 0 0 5px rgba(0, 0, 0, 0.2); /* Subtle focus style */
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
       }
 
-      /* Minimize icon sizes */
       .nav-link span.icon-heart,
       .nav-link span.icon-shopping_cart {
-        font-size: clamp(0.9rem, 2.5vw, -19.9rem); /* Smaller icon size */
+        font-size: clamp(0.9rem, 2.5vw, 1.1rem);
       }
 
-      /* Dropdown menu responsiveness */
       .dropdown-menu {
         min-width: 160px;
         width: 100%;
@@ -156,10 +154,19 @@
         right: 0;
         left: auto;
         color: black;
+        font-size: clamp(0.85rem, 2.5vw, 0.95rem);
       }
 
-      /* Media Queries for Responsiveness */
+      .dropdown-item {
+        padding: 0.5rem 1rem;
+      }
+
+      /* Responsive adjustments */
       @media (max-width: 991.98px) {
+        .navbar {
+          padding: 0.5rem 1rem;
+        }
+
         .navbar-collapse {
           background-color: white;
           padding: 1rem;
@@ -194,61 +201,59 @@
         .dropdown-content a,
         .dropdown-menu a {
           padding: 10px 15px;
-          font-size: 0.95rem;
+          font-size: clamp(0.85rem, 2.5vw, 0.95rem);
         }
 
         .navbar-bran {
-          font-size: clamp(1.25rem, 4vw, 1.75rem);
+          font-size: clamp(1.1rem, 3.5vw, 1.5rem);
           padding: 6px 10px;
         }
 
         .navbar-toggler .oi-menu {
-          font-size: 1.2rem; /* Slightly smaller hamburger icon */
-          top:10px;
-          margin-left: -63px;
-          
+          font-size: clamp(1.1rem, 2.8vw, 1.3rem);
+          margin-left: 0;
         }
       }
 
       @media (max-width: 576px) {
         .navbar {
-          padding: 0.5rem;
+          padding: 0.4rem 0.8rem;
         }
 
         .navbar-bran {
-          font-size: clamp(1rem, 3.5vw, 1.5rem);
+          font-size: clamp(0.9rem, 3vw, 1.2rem);
         }
 
         .navbar-toggler {
-          font-size: 1rem;
-          padding: 0.25rem;
+          padding: 0.3rem;
         }
 
         .navbar-toggler .oi-menu {
-          font-size: 1.2rem;
+          font-size: clamp(1rem, 2.5vw, 1.2rem);
         }
 
         .nav-link {
-          font-size: 0.9rem;
-          padding: 0.5rem;
+          font-size: clamp(0.8rem, 2.2vw, 0.9rem);
+          padding: 0.5rem 0.8rem;
         }
 
         .nav-link span.icon-heart,
         .nav-link span.icon-shopping_cart {
-          font-size: clamp(0.9rem, 2.5vw, -19.9rem)
+          font-size: clamp(0.8rem, 2.2vw, 1rem);
         }
 
         .dropdown-content a,
         .dropdown-menu a {
-          font-size: 0.9rem;
+          font-size: clamp(0.8rem, 2.2vw, 0.9rem);
           padding: 8px 12px;
         }
       }
-.ftco-navbar-light.scrolled .nav-item.cta > a {
-  color: #000000 !important;
-    background: white;
-  border: none !important;
-}
+
+      .ftco-navbar-light.scrolled .nav-item.cta > a {
+        color: #000000 !important;
+        background: white;
+        border: none !important;
+      }
     </style>
   </head>
   <body class="goto-here">

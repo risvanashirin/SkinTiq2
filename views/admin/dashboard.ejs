@@ -111,13 +111,13 @@
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1" for="reportType">Report Type</label>
-             <select name="reportType" id="reportType" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700">
-  <option value="daily" <%= reportType === 'daily' ? 'selected' : '' %>>Daily</option>
-  <option value="weekly" <%= reportType === 'weekly' ? 'selected' : '' %>>Weekly</option>
-  <option value="monthly" <%= reportType === 'monthly' ? 'selected' : '' %>>Monthly</option>
-  <option value="yearly" <%= reportType === 'yearly' ? 'selected' : '' %>>Yearly</option>
-  <option value="custom" <%= reportType === 'custom' ? 'selected' : '' %>>Custom Range</option>
-</select>
+              <select name="reportType" id="reportType" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700">
+                <option value="daily" <%= reportType === 'daily' ? 'selected' : '' %>>Daily</option>
+                <option value="weekly" <%= reportType === 'weekly' ? 'selected' : '' %>>Weekly</option>
+                <option value="monthly" <%= reportType === 'monthly' ? 'selected' : '' %>>Monthly</option>
+                <option value="yearly" <%= reportType === 'yearly' ? 'selected' : '' %>>Yearly</option>
+                <option value="custom" <%= reportType === 'custom' ? 'selected' : '' %>>Custom Range</option>
+              </select>
             </div>
             <div class="custom-dates <%= reportType === 'custom' ? '' : 'hidden' %>">
               <label class="block text-sm font-medium text-gray-700 mb-1" for="startDate">Start Date</label>
