@@ -99,7 +99,7 @@ router.post('/add-to-cart', cartController.addToCart);
 router.post('/add-to-cart-shop/:productId', cartController.shopaddToCart);
 router.post('/cart/remove/:productId', userAuth, cartController.removeFromCart);
 router.post('/user/cart/update', userAuth, cartController.updateCartQuantity);
-router.get('/cart/total', userAuth, orderController.getCartTotal); // Added route for cart total
+router.get('/cart/total', userAuth, orderController.getCartTotal); 
 
 // Address
 router.get('/addresses', userAuth, addressController.loadAddressPage);
@@ -114,7 +114,7 @@ router.get('/shop', userController.loadshop);
 router.get('/productDetails', userController.productDetails);
 router.get('/about',userController.getaboutPage)
 router.get('/contact',userController.getContactPage)
-router.post('/contact',userController.postContactForm)
+// router.post('/contact',userController.postContactForm)
 
   // Orders & Checkout
   router.get('/checkout', userAuth, orderController.loadCheckout);

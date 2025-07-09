@@ -25,7 +25,7 @@ const loadCheckout = async (req, res) => {
   try {
     const userId = req.session.user;
     if (!userId) {
-      return res.status(401).render("checkout", { error: "User not authenticated", cart: null, addresses: [], discount: 0, couponDiscount: 0, gst: 0, shippingCharge: 0, finalPrice: 0, totalPrice: 0, appliedCoupon: null, coupons: [], user: null, defaultAddress: null, defaultAddressId: '' });
+      return res.status(401).render("checkout", { error: "User not authenticated", cart: null, addresses: [], discount: 0, couponDiscount: 0, gst: 0, shippingCharge: 0, finalPrice: 0, totalPrice: 0, appliedCoupon: null, coupons: [], user: null, defaultAddress: null, defaultAddressId: '', adjustedQuantities: null });
     }
 
     let cart = await Cart.findOne({ userId }).populate({
@@ -34,7 +34,8 @@ const loadCheckout = async (req, res) => {
     });
 
     if (!cart || !cart.cart || cart.cart.length === 0) {
-      return res.render("checkout", { error: "Your cart is empty", cart: null, addresses: [], discount: 0, couponDiscount: 0, gst: 0, shippingCharge: 0, finalPrice: 0, totalPrice: 0, appliedCoupon: null, coupons: [], user: req.user, defaultAddress: null, defaultAddressId: '' });
+      // Render checkout page with empty cart and adjustedQuantities: null
+      return res.render("checkout", { error: null, cart: null, addresses: [], discount: 0, couponDiscount: 0, gst: 0, shippingCharge: 0, finalPrice: 0, totalPrice: 0, appliedCoupon: null, coupons: [], user: req.user, defaultAddress: null, defaultAddressId: '', adjustedQuantities: null });
     }
 
     const itemsToRemove = [];
@@ -159,20 +160,17 @@ const loadCheckout = async (req, res) => {
       defaultAddressId = defaultAddress ? defaultAddress._id.toString() : '';
     }
 
-      const currentDate = new Date();
-      const coupons = await Coupon.find({
-        isList: true,
-        startDate: { $lte: currentDate },
-        endDate: { $gte: currentDate },
-        $or: [
-          { userId: { $size: 0 } },
-          { userId: new mongoose.Types.ObjectId(userId) }
-        ],
-        usedBy: { $ne: new mongoose.Types.ObjectId(userId) }
-      }).sort({ endDate: 1 }); // Ascending
-
-
-
+    const currentDate = new Date();
+    const coupons = await Coupon.find({
+      isList: true,
+      startDate: { $lte: currentDate },
+      endDate: { $gte: currentDate },
+      $or: [
+        { userId: { $size: 0 } },
+        { userId: new mongoose.Types.ObjectId(userId) }
+      ],
+      usedBy: { $ne: new mongoose.Types.ObjectId(userId) }
+    }).sort({ endDate: 1 }); // Ascending
 
     const discount = newPrice > 1500 ? newPrice * 0.1 : 0;
     const appliedCoupon = req.session.appliedCoupon || null;
@@ -203,11 +201,6 @@ const loadCheckout = async (req, res) => {
     res.render("checkout", { error: "An error occurred while loading the checkout page", cart: null, addresses: [], discount: 0, couponDiscount: 0, gst: 0, shippingCharge: 0, finalPrice: 0, totalPrice: 0, appliedCoupon: null, coupons: [], user: null, adjustedQuantities: null, defaultAddress: null, defaultAddressId: '' });
   }
 };
-
-
-
-
-
 const applyCoupon = async (req, res) => {
   try {
     const { couponCode, cartTotal } = req.body;

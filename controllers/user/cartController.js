@@ -344,7 +344,7 @@ const getCart = async (req, res) => {
   try {
     const userId = req.session.user;
     if (!userId) {
-      return res.status(401).render("cart", { cart: null, error: "User not authenticated" });
+      return res.status(401).render("cart", { cart: null, error: "User not authenticated", adjustedQuantities: null });
     }
 
     let cart = await Cart.findOne({ userId }).populate({
@@ -353,7 +353,8 @@ const getCart = async (req, res) => {
     });
 
     if (!cart) {
-      return res.render("cart", { cart: null, error: "Cart not found" });
+      // Render cart page with empty cart instead of error
+      return res.render("cart", { cart: null, error: null, adjustedQuantities: null });
     }
 
     const itemsToRemove = [];
@@ -479,7 +480,6 @@ const getCart = async (req, res) => {
     res.render("cart", { cart: null, error: "An error occurred while fetching the cart", adjustedQuantities: null });
   }
 };
-
 
 const removeFromCart = async (req, res) => {
   try {

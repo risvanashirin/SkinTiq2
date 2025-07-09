@@ -62,47 +62,47 @@ const getaboutPage = (req, res) => {
 
 const getContactPage = (req,res)=>{
   try {
-    return res.render('contact');
+    return res.render('contact', { user: req.session.user || null });
   } catch (error) {
     console.log('contact page not loading:',error);
     res.status(500).send('server Error')
   }
 }
 
-const postContactForm = async (req, res) => {
-  const { name, email, message } = req.body;
+// const postContactForm = async (req, res) => {
+//   const { name, email, message } = req.body;
 
-  if (!name || !email || !message) {
-    return res.status(400).json({ error: 'All fields are required.' });
-  }
+//   if (!name || !email || !message) {
+//     return res.status(400).json({ error: 'All fields are required.' });
+//   }
 
-  try {
-    // Step 1: Configure transporter
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: 'yourEmail@gmail.com',         // 🔁 replace with your Gmail
-        pass: 'your_app_password_here'       // 🔁 use App Password, NOT Gmail password
-      }
-    });
+//   try {
+//     // Step 1: Configure transporter
+//     const transporter = nodemailer.createTransport({
+//       service: 'gmail',
+//       auth: {
+//         user: 'yourEmail@gmail.com',         // 🔁 replace with your Gmail
+//         pass: 'your_app_password_here'       // 🔁 use App Password, NOT Gmail password
+//       }
+//     });
 
-    // Step 2: Email options
-    const mailOptions = {
-      from: email,
-      to: 'risvanashirinak@gmail.com',            
-      subject: `Contact Form - ${name}`,
-      text: `You received a new message from ${name} (${email}):\n\n${message}`
-    };
+//     // Step 2: Email options
+//     const mailOptions = {
+//       from: email,
+//       to: 'risvanashirinak@gmail.com',            
+//       subject: `Contact Form - ${name}`,
+//       text: `You received a new message from ${name} (${email}):\n\n${message}`
+//     };
 
-    // Step 3: Send the email
-    await transporter.sendMail(mailOptions);
+//     // Step 3: Send the email
+//     await transporter.sendMail(mailOptions);
 
-    return res.status(200).json({ message: 'Email sent successfully!' });
-  } catch (error) {
-    console.error('Error sending email:', error);
-    return res.status(500).json({ error: 'Failed to send email.' });
-  }
-};
+//     return res.status(200).json({ message: 'Email sent successfully!' });
+//   } catch (error) {
+//     console.error('Error sending email:', error);
+//     return res.status(500).json({ error: 'Failed to send email.' });
+//   }
+// };
 
 const loadSignup = async (req, res) => {
     try {
@@ -581,5 +581,5 @@ module.exports = {
     productDetails,
     getaboutPage,
     getContactPage,
-    postContactForm
+    // postContactForm
 };
