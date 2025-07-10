@@ -208,82 +208,6 @@ const uploadProfilePhoto = async (req, res) => {
   }
 };
 
-// const loadAddressPage = async (req, res) => {
-//     try {
-//         const userId = req.session.userId;
-//         const user = await User.findById(userId);
-//         res.render('address', { user, currentPath: '/address' });
-//     } catch (error) {
-//         res.redirect('/pageNotFound');
-//     }
-// };
-
-
-// const addAddress = async (req, res) => {
-//     try {
-//         console.log("req.body",req.body)
-//         const userId = req.session.user;
-//         // console.log('userId:',userId)
-  
-//       if (!userId){
-//         return res.status(401).json({
-//           success: false,
-//           message: 'User not authenticated',
-//         });
-//       }
-  
-//       const { name, city, landMark, state, pincode, phone, altPhone } = req.body;
-  
-//       if (!name || !city || !landMark || !state || !pincode || !phone) {
-//         return res.status(400).json({
-//           success: false,
-//           message: 'All required fields must be filled',
-//         });
-//       }
-  
-//       const newAddressData = {
-//         name,
-//         city,
-//         landMark,
-//         state,
-//         pincode,
-//         phone,
-//         altPhone: altPhone || '',
-//       };
-
-//       console.log("newAddress:",newAddressData)
-
-//       const useraddress = await Address.findOne({userId : userId })
-
-//       if(useraddress){
-//             useraddress.address.push(newAddressData)
-//       }else{
-//         const newAddress = new Address({
-//             userId : userId,
-//             address : [{ name,
-//                 city,
-//                 landMark,
-//                 state,
-//                 pincode,
-//                 phone,
-//                 altPhone: altPhone || ''}]
-//         })
-//         await newAddress.save()
-//       }
-
-//       res.status(200).json({
-//         success: true,
-//         address: newAddressData,
-//       });
-//     } catch (error) {
-//       console.error('Error adding address:', error);
-//       res.status(500).json({
-//         success: false,
-//         message: 'An error occurred while adding the address',
-//       });
-//     }
-//   };
-  
 const getProfile = async (req, res) => {
     try {
         const userId = req.user._id;
@@ -295,28 +219,6 @@ const getProfile = async (req, res) => {
         res.status(500).send('Server error');
     }
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 const loadOrders = async (req, res) => {
@@ -657,12 +559,7 @@ module.exports = {
 
 
 
-    // loadChangePassword,
-    // updatePassword,
-    // loadWalletPage,
-    // loadCouponsPage,
-    // loadCartPage,
-    // loadCheckoutPage,
+   
     userProfile,
     // addAddress1
 uploadProfilePhoto

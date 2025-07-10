@@ -1,12 +1,12 @@
 const User = require('../models/userSchema');
 
-// User authentication middleware
+
 const userAuth = (req, res, next) => {
   if (req.session.user) {
     User.findById(req.session.user)
       .then(data => {
         if (data && !data.isBlocked) {
-          req.user = data; // Attach user data to request for convenience
+          req.user = data; 
           next();
         } else {
           res.redirect('/login');

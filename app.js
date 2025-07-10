@@ -8,8 +8,6 @@ const userRouter = require('./routes/userRouter');
 const adminRouter = require('./routes/adminRouter');
 
 
-
-
 dotenv.config();
 
 const app = express();
@@ -29,11 +27,6 @@ app.use(session({
 }));
 
 
-// Middleware for parsing multipart/form-data
-// const multer = require('multer');
-// const upload = multer(); 
-// Parse multipart/form-data without file uploads
-// app.use(upload.none()); 
 
 
 

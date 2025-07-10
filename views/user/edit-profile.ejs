@@ -349,17 +349,21 @@
         </button>
       </div>
     </div>
-    <div class="form-card" aria-label="Edit profile form">
+     <div class="form-card" aria-label="Edit profile form">
       <form class="edit-profile-form" id="editProfileForm">
         <label for="username">Username</label>
         <input type="text" id="username" name="username" value="<%= user?.name || '' %>" required />
-        <label for="email">Email</label>
-        <input type="email" id="email" name="email" value="<%= user?.email || '' %>" readonly />
-        <div class="action-buttons">
-          <button type="button" class="btn-edit-email" onclick="openCurrentEmailModal()">Edit Email</button>
-          <button type="button" class="btn-edit-password" onclick="openPasswordModal()">Edit Password</button>
-          <button type="submit" class="btn-save">Save Changes</button>
-        </div>
+        <% if (!user.googleId) { %>
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" value="<%= user?.email || '' %>" readonly />
+          <div class="action-buttons">
+            <button type="button" class="btn-edit-email" onclick="openCurrentEmailModal()">Edit Email</button>
+            <button type="button" class="btn-edit-password" onclick="openPasswordModal()">Edit Password</button>
+              <% } %>
+            <button type="submit" class="btn-save">Save Changes</button>
+          </div>
+       
+      
       </form>
     </div>
     <%- include("../../views/partials/user/sidebar.ejs") %>

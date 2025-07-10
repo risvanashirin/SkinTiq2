@@ -1,7 +1,3 @@
-
-
-
-
 const express = require('express');
 const router = express.Router();
 const adminController = require('../controllers/admin/adminController');
@@ -23,7 +19,7 @@ router.get('/login', adminController.loadLogin);
 router.post('/login', adminController.login);
 router.get('/logout', adminAuth, adminController.logout);
 
-// Dashboard (protected)
+// Dashboard 
 router.get('/', adminAuth, adminController.loadDashboard);
 router.get('/api/chart-data', adminAuth, adminController.getChartData);
 router.get('/api/ledger', adminAuth, adminController.generateLedger);

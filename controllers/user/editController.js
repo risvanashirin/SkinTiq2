@@ -38,35 +38,6 @@ const sendVerificationEmail = async (email, otp) => {
     return false;
   }
 };
-// async function newMailConfirmation(req, res) {
-//   try {
-   
-    
-//     const userId = req.session.user;
-//     const { otp, email } = req.body;
-
-//     console.log("Rendering edit profile, session userId:", userId);
-
-//     if (!userId) {
-//       console.warn("No userId in session, redirecting to login");
-//       return res.redirect("/login");
-//     }
-
-//     const userData = await User.findById(userId);
-//     if (!userData) return res.redirect("/login");
-
-//     if (userData.otp == otp) {
-//       await User.findByIdAndUpdate(userId, { email }); 
-//       return res.json({ok:true,msg:"Profile updated succes fully"});
-//     } else {
-//       return res.render("editProfile", { error: "Invalid OTP" }); 
-//     }
-
-//   } catch (error) {
-//     console.error(error);
-//     return res.status(500).send("Server error"); 
-//   }
-// }
 
 const securePassword = async (password) => {
   try {

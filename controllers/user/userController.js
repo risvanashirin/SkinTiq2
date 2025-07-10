@@ -69,40 +69,7 @@ const getContactPage = (req,res)=>{
   }
 }
 
-// const postContactForm = async (req, res) => {
-//   const { name, email, message } = req.body;
 
-//   if (!name || !email || !message) {
-//     return res.status(400).json({ error: 'All fields are required.' });
-//   }
-
-//   try {
-//     // Step 1: Configure transporter
-//     const transporter = nodemailer.createTransport({
-//       service: 'gmail',
-//       auth: {
-//         user: 'yourEmail@gmail.com',         // 🔁 replace with your Gmail
-//         pass: 'your_app_password_here'       // 🔁 use App Password, NOT Gmail password
-//       }
-//     });
-
-//     // Step 2: Email options
-//     const mailOptions = {
-//       from: email,
-//       to: 'risvanashirinak@gmail.com',            
-//       subject: `Contact Form - ${name}`,
-//       text: `You received a new message from ${name} (${email}):\n\n${message}`
-//     };
-
-//     // Step 3: Send the email
-//     await transporter.sendMail(mailOptions);
-
-//     return res.status(200).json({ message: 'Email sent successfully!' });
-//   } catch (error) {
-//     console.error('Error sending email:', error);
-//     return res.status(500).json({ error: 'Failed to send email.' });
-//   }
-// };
 
 const loadSignup = async (req, res) => {
     try {
@@ -126,14 +93,6 @@ function generateReferralCode() {
     return referralCode;
 }
 
-function generateRandomString(length) {
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    let result = '';
-    for (let i = 0; i < length; i++) {
-        result += characters.charAt(Math.floor(Math.random() * characters.length));
-    }
-    return result;
-}
 
 async function sendVerificationEmail(email, otp) {
     try {
@@ -221,7 +180,7 @@ const verifyOtp = async (req, res) => {
             console.log('User saved with ID:', saveUserData._id);
             req.session.user = saveUserData._id;
 
-            // Handle referral coupon logic
+            //  referral coupon 
             if (user.referralCode) {
                 console.log('Processing referral code:', user.referralCode);
                 const referrer = await User.findOne({ referalCode: user.referralCode });
@@ -238,7 +197,7 @@ const verifyOtp = async (req, res) => {
                         endDate,
                         offerPrice: 100,
                         minimumPrice: 150,
-                        isList: true, // Active by default
+                        isList: true, 
                         userId: [referrer._id]
                     });
                     await referrerCoupon.save();
@@ -251,7 +210,7 @@ const verifyOtp = async (req, res) => {
                         endDate,
                         offerPrice: 50,
                         minimumPrice: 150,
-                        isList: true, // Active by default
+                        isList: true, 
                         userId: [saveUserData._id]
                     });
                     await newUserCoupon.save();
@@ -469,7 +428,7 @@ const loadshop = async (req, res) => {
       currentBrand: brand || "",
       priceRanges,
       user: userData,
-      cart, // Pass the cart to the template
+      cart, 
       filterParams: getFilterParams(req.query)
     });
   } catch (error) {

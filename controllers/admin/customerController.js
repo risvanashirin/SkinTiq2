@@ -21,15 +21,15 @@ const customerInfo = async (req, res) => {
       };
   
       const userData = await User.find(filter)
-        .sort({ createdOn: -1 }) // Sort by createdOn in descending order
+        .sort({ createdOn: -1 }) 
         .skip((page - 1) * limit)
         .limit(limit);
   
-      // Correct count for pagination
+     
       const count = await User.countDocuments(filter); 
       const totalPages = Math.ceil(count / limit);
   
-      // Redirect to last page if user somehow lands on empty page
+    
       if (page > totalPages && totalPages !== 0) {
         return res.redirect(`/admin/customers?page=${totalPages}${search ? `&search=${search}` : ""}`);
       }

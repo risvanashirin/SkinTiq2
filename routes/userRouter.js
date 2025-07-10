@@ -17,7 +17,7 @@ const orderController = require('../controllers/user/orderController');
 
 const { userAuth } = require('../middlewares/auth');
 
-// --- Multer Config ---
+//  Multer Config 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, 'public/uploads/profile/');
@@ -37,7 +37,7 @@ const upload = multer({
   fileFilter
 });
 
-// --- Public & Auth Routes ---
+//  Public routes
 router.get('/pageNotFound', userController.pageNotFound);
 router.get('/', userController.loadHomepage);
 router.get('/signup', userController.loadSignup);
@@ -61,7 +61,7 @@ router.get('/login', userController.loadLogin);
 router.post('/login', userController.login);
 router.get('/logout', userController.logout);
 
-// --- Password Reset ---
+// Password Reset 
 router.get('/forgot-password', profileController.getForgotPassPage);
 router.post('/forgot-email-valid', profileController.forgotEmailValid);
 router.post('/verify-passForgot-otp', profileController.verifyForgotPassOtp);
@@ -69,7 +69,6 @@ router.get('/reset-password', profileController.getResetPassPage);
 router.post('/resend-forgot-otp', profileController.resendOtp);
 router.post('/reset-password', profileController.postNewPassword);
 
-// --- Protected Routes (need userAuth) ---
 // Profile
 router.get('/userProfile', userAuth, profileController.userProfile);
 
@@ -114,7 +113,6 @@ router.get('/shop', userController.loadshop);
 router.get('/productDetails', userController.productDetails);
 router.get('/about',userController.getaboutPage)
 router.get('/contact',userController.getContactPage)
-// router.post('/contact',userController.postContactForm)
 
   // Orders & Checkout
   router.get('/checkout', userAuth, orderController.loadCheckout);

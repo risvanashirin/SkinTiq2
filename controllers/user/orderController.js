@@ -1615,18 +1615,7 @@ const retryOrderCheckout = async (req, res) => {
     );
 
         const adjustedQuantityProductNames = [];
-      //    for (let item of cart.cart) {
-      //     if (item.quantity > product.quantity) {
-      //   adjustedQuantityProductNames.push({
-      //     name: product.productName,
-      //     oldQuantity: item.quantity,
-      //     newQuantity: product.quantity,
-      //   });
-      //   item.quantity = product.quantity;
-      //  } // Adjust to available stock
-      // }
-
-
+      
     // Store the original orderId in the session for use in placeorder
     req.session.retryOrderId = orderId;
 

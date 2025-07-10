@@ -57,7 +57,7 @@ const loadDashboard = async (req, res) => {
       return res.redirect('/admin/login');
     }
 
-    // Set default reportType to 'monthly' explicitly
+    //  default reportType to monthly reports
     const reportType = req.query.reportType || 'monthly';
     let startDate, endDate;
     if (reportType === 'custom') {
