@@ -64,7 +64,7 @@ const getCoupons = async (req, res) => {
         });
     }
 };
-// In addCoupon function, after existing validations
+
 const addCoupon = async (req, res) => {
     try {
         if (!req.body || Object.keys(req.body).length === 0) {
@@ -77,6 +77,8 @@ const addCoupon = async (req, res) => {
             return res.status(400).json({ success: false, message: 'All fields are required' });
         }
 
+
+
         if (name.startsWith('REF-') || name.startsWith('NEW-')) {
             return res.status(400).json({ success: false, message: 'Coupon code prefix REF- or NEW- is reserved for referral coupons' });
         }
@@ -84,6 +86,9 @@ const addCoupon = async (req, res) => {
         if (new Date(startDate) > new Date(endDate)) {
             return res.status(400).json({ success: false, message: 'Start date must be before or on end date' });
         }
+        
+
+        
 
         if (parseInt(offerPrice) < 1 || parseInt(minimumPrice) < 1) {
             return res.status(400).json({ success: false, message: 'Discount and minimum purchase must be at least 1' });

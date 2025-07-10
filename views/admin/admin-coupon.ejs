@@ -446,8 +446,23 @@
             }
         });
 
+        const currentdate =new Date()
+        const yesterday = new Date().setDate(currentdate.getDate() - 1);
+        
         const startDate = new Date(form.querySelector('[name="startDate"]').value);
+
         const endDate = new Date(form.querySelector('[name="endDate"]').value);
+        if(yesterday> startDate){
+            form.querySelector('[name="startDate"]').classList.add('is-invalid');
+            form.querySelector('[name="startDate"]').nextElementSibling.textContent = 'Start date  must be from today onwards';
+            isValid = false;
+        }
+    if(currentdate> endDate){
+            form.querySelector('[name="endDate"]').classList.add('is-invalid');
+            form.querySelector('[name="endDate"]').nextElementSibling.textContent = 'End date must be after current date';
+            isValid = false;
+        }
+
         if (startDate > endDate) {
             form.querySelector('[name="startDate"]').classList.add('is-invalid');
             form.querySelector('[name="startDate"]').nextElementSibling.textContent = 'Start date must be before end date';
@@ -457,7 +472,6 @@
         return isValid;
     }
 
-    // Rest of the script remains unchanged
     // Add Coupon
     document.getElementById('addCouponForm').addEventListener('submit', async (e) => {
         e.preventDefault();
