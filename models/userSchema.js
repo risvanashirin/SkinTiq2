@@ -7,7 +7,7 @@ const Schema = mongoose.Schema;
 const userSchema = new Schema({
     name: {
         type: String,
-        required: true 
+        required: true
     },
     email: {
         type: String,
@@ -26,40 +26,42 @@ const userSchema = new Schema({
     },
     password: {
         type: String,
-        required: false 
+        required: false
     },
-    // profilePhoto: {
-    //     type: String,
-    //     default:  '/uploads/profile/default.jpg' // Added for profile image
-    // },
     profilePhoto: {
         type: String,
-        default: '/uploads/profile/default.jpg',
+        default: '/Uploads/profile/default.jpg',
         validate: {
-            validator: function(v) {
-                return v === '/uploads/profile/default.jpg' || /^\/uploads\/profile\/[a-zA-Z0-9-_]+\.(jpg|jpeg|png|webp)$/.test(v);
+            validator: function (v) {
+                return (
+                    v === '/Uploads/profile/default.jpg' ||
+                    /^https?:\/\/res\.cloudinary\.com\/[a-zA-Z0-9-_]+\/image\/upload\/.*\.(jpg|jpeg|png|webp)$/.test(v)
+                );
             },
-            message: props => `${props.value} is not a valid profile photo path!`
+            message: props => `${props.value} is not a valid profile photo URL!`
         }
     },
+
+    profilePhotoPublicId: { type: String, default: '' },
+
     addresses: [{
         street: { type: String, required: false },
         city: { type: String, required: false },
         state: { type: String, required: false },
         zip: { type: String, required: false },
         isDefault: { type: Boolean, default: false } // Supports default address
-    }], 
+    }],
     otp: {
-        type: String 
+        type: String
     },
     otpExpires: {
-        type: Date 
+        type: Date
     },
     resetPasswordToken: {
-        type: String 
+        type: String
     },
     resetPasswordExpires: {
-        type: Date 
+        type: Date
     },
     isBlocked: {
         type: Boolean,
@@ -92,11 +94,11 @@ const userSchema = new Schema({
         type: Boolean
     },
     tempNewEmail: {
-    type: String,
-  },
-  tempNewPassword: {
-    type: String,
-  },
+        type: String,
+    },
+    tempNewPassword: {
+        type: String,
+    },
     redeemedUsers: [{
         type: Schema.Types.ObjectId,
         ref: "User"

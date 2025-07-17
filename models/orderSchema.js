@@ -105,6 +105,10 @@ const orderSchema = new Schema(
       type: Boolean,
       default: false,
     },
+    couponApplied: {
+      type: Boolean,
+      default: false,
+    },
     couponCode: {
       type: String,
       required: false,
@@ -115,7 +119,14 @@ const orderSchema = new Schema(
     stockRestored: {
       type: Boolean,
       default: false,
-    }
+    },
+
+    razorpayStatus: {
+    type: String,
+    enum: ['processing', 'success', 'failed'],
+    default: 'processing', 
+    
+  },
   },
   { timestamps: true }
 );

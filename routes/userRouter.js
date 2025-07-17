@@ -14,28 +14,41 @@ const addressController = require('../controllers/user/addressController');
 const wishlistController = require('../controllers/user/wishlistController');
 const cartController = require('../controllers/user/cartController');
 const orderController = require('../controllers/user/orderController');
+const couponController = require('../controllers/user/couponController');
 
 const { userAuth } = require('../middlewares/auth');
+const {ProfileUpload} = require('../middlewares/multer')
+
+
+
+
+// const { storage } = require('../utils/cloudinary');
+// const upload = multer({ storage });
+
+
+
+
+
 
 //  Multer Config 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'public/uploads/profile/');
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    cb(null, `profile-${uniqueSuffix}${path.extname(file.originalname)}`);
-  }
-});
-const fileFilter = (req, file, cb) => {
-  const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-  cb(null, allowedTypes.includes(file.mimetype));
-};
-const upload = multer({
-  storage,
-  limits: { fileSize: 1 * 1024 * 1024 }, 
-  fileFilter
-});
+// const storage = multer.diskStorage({
+//   destination: (req, file, cb) => {
+//     cb(null, 'public/uploads/profile/');
+//   },
+//   filename: (req, file, cb) => {
+//     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+//     cb(null, `profile-${uniqueSuffix}${path.extname(file.originalname)}`);
+//   }
+// });
+// const fileFilter = (req, file, cb) => {
+//   const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+//   cb(null, allowedTypes.includes(file.mimetype));
+// };
+// const upload = multer({
+//   storage,
+//   limits: { fileSize: 1 * 1024 * 1024 }, 
+//   fileFilter
+// });
 
 //  Public routes
 router.get('/pageNotFound', userController.pageNotFound);
@@ -75,11 +88,15 @@ router.get('/userProfile', userAuth, profileController.userProfile);
 // Edit Profile
 router.get('/edit-profile', userAuth, editController.renderEditProfile);
 router.post('/update-profile', userAuth, editController.updateProfile);
-router.post('/upload-profile-photo', userAuth, upload.single('profilePhoto'), profileController.uploadProfilePhoto);
+router.post('/upload-profile-photo', userAuth, ProfileUpload.single('profilePhoto'), profileController.uploadProfilePhoto);
+
 router.post('/send-otp', userAuth, editController.sendOtp);
+router.post('/editprofile/resendotp', userAuth, editController.resendOtp);
+
 router.post('/edit/verify-otp', userAuth, editController.verifyOtp);
 router.post('/confirm-new/email', userAuth, editController.newMailConfirmation); 
-router.post('/editprofile/resendotp', userAuth, editController.resendOtp);
+router.post('/send-otp-new-email', userAuth, editController.sendOtpForNewEmail);
+router.post('/editprofile/editresendOtp', userAuth, editController.editresendOtp);
 
 
 router.post('/change-password', userAuth, editController.changePassword);
@@ -100,6 +117,7 @@ router.post('/cart/remove/:productId', userAuth, cartController.removeFromCart);
 router.post('/user/cart/update', userAuth, cartController.updateCartQuantity);
 router.get('/cart/total', userAuth, orderController.getCartTotal); 
 
+
 // Address
 router.get('/addresses', userAuth, addressController.loadAddressPage);
 router.post('/add-address', userAuth, addressController.addAddress);
@@ -111,6 +129,10 @@ router.get('/primary-address', userAuth, addressController.getPrimaryAddress);
 // Shop (public)
 router.get('/shop', userController.loadshop);
 router.get('/productDetails', userController.productDetails);
+router.get('/shop/data', userController.getShopData);
+router.get('/productDetails/data', userController.getProductDetailsData);
+router.get('/check-session', userController.checkSession);
+
 router.get('/about',userController.getaboutPage)
 router.get('/contact',userController.getContactPage)
 
@@ -118,8 +140,14 @@ router.get('/contact',userController.getContactPage)
   router.get('/checkout', userAuth, orderController.loadCheckout);
   router.post('/add-address-checkout', userAuth, orderController.newaddress);
   router.post('/edit-address-checkout/:id', userAuth, orderController.editAddressCheckout);
+
+
+
   router.post('/apply-coupon', userAuth, orderController.applyCoupon); 
   router.post('/remove-coupon', userAuth, orderController.removeCoupon); 
+
+  //   router.post('/apply-coupon', userAuth, couponController.applyCoupon); 
+  // router.post('/remove-coupon', userAuth, couponController.clearCoupon); 
 
 
 

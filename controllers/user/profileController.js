@@ -2,12 +2,15 @@ const User = require("../../models/userSchema");
 const Order = require("../../models/orderSchema");
 const Product = require("../../models/productSchema");
 const Address =require('../../models/addressSchema')
+const STATUS_CODES = require('../../helpers/statusCodes');
+
 const nodemailer = require('nodemailer');
 const bcrypt = require("bcrypt");
 const crypto = require('crypto');
 const fs = require('fs').promises;
 const path = require('path');
 const env = require("dotenv").config();
+const { cloudinary } = require('../../helpers/cloudinary');
 
 
 
@@ -96,7 +99,7 @@ const verifyForgotPassOtp = async (req, res) => {
             res.json({ success: false, message: "OTP not matching" });
         }
     } catch (error) {
-        res.status(500).json({ success: false, message: "An error occurred, please try again" });
+        res.status(STATUS_CODES . INTERNAL_SERVER_ERROR).json({ success: false, message: "An error occurred, please try again" });
     }
 };
 
@@ -172,29 +175,71 @@ const updateProfile = async (req, res) => {
     }
 };
 
+// const uploadProfilePhoto = async (req, res) => {
+//   try {
+//     if (!req.file) {
+//       return res.status(STATUS_CODES .BAD_REQUEST).json({ success: false, message: 'No file uploaded' });
+//     }
+
+//     const userId = req.session.user; // Assuming req.user is set by authMiddleware
+//     const user = await User.findById(userId);
+//     if (!user) {
+//       return res.status(STATUS_CODES .NOT_FOUND).json({ success: false, message: 'User not found' });
+//     }
+
+//     // Delete old profile photo if it's not the default
+//     if (user.profilePhoto && user.profilePhoto !== '/uploads/profile/default.jpg') {
+//       try {
+//         await fs.unlink(path.join(__dirname, '../public', user.profilePhoto));
+//       } catch (err) {
+//         console.error('Error deleting old profile photo:', err);
+//       }
+//     }
+
+//     // Update user with new profile photo path
+//     user.profilePhoto = `/uploads/profile/${req.file.filename}`;
+//     await user.save();
+
+//     res.json({
+//       success: true,
+//       message: 'Profile photo updated successfully',
+//       profilePhotoUrl: user.profilePhoto
+//     });
+//   } catch (error) {
+//     console.error('Error in uploadProfilePhoto:', error);
+//     res.status(STATUS_CODES . INTERNAL_SERVER_ERROR).json({ success: false, message: 'Server error' });
+//   }
+// };
+
+
+
+
 const uploadProfilePhoto = async (req, res) => {
   try {
     if (!req.file) {
-      return res.status(400).json({ success: false, message: 'No file uploaded' });
+      return res.status(STATUS_CODES.BAD_REQUEST).json({
+        success: false,
+        message: 'No file uploaded'
+      });
     }
 
-    const userId = req.session.user; // Assuming req.user is set by authMiddleware
+    const userId = req.session.user;
     const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).json({ success: false, message: 'User not found' });
+      return res.status(STATUS_CODES.NOT_FOUND).json({
+        success: false,
+        message: 'User not found'
+      });
     }
 
-    // Delete old profile photo if it's not the default
-    if (user.profilePhoto && user.profilePhoto !== '/uploads/profile/default.jpg') {
-      try {
-        await fs.unlink(path.join(__dirname, '../public', user.profilePhoto));
-      } catch (err) {
-        console.error('Error deleting old profile photo:', err);
-      }
+    // Delete old image from cloudinary if available
+    if (user.profilePhotoPublicId) {
+      await cloudinary.uploader.destroy(user.profilePhotoPublicId);
     }
 
-    // Update user with new profile photo path
-    user.profilePhoto = `/uploads/profile/${req.file.filename}`;
+    // Save new Cloudinary URL and public_id
+    user.profilePhoto = req.file.path; 
+    user.profilePhotoPublicId = req.file.filename; 
     await user.save();
 
     res.json({
@@ -203,10 +248,15 @@ const uploadProfilePhoto = async (req, res) => {
       profilePhotoUrl: user.profilePhoto
     });
   } catch (error) {
-    console.error('Error in uploadProfilePhoto:', error);
-    res.status(500).json({ success: false, message: 'Server error' });
+    console.error('Upload error:', error);
+    res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: 'Server error'
+    });
   }
 };
+
+
 
 const getProfile = async (req, res) => {
     try {
@@ -216,7 +266,7 @@ const getProfile = async (req, res) => {
         res.render('user/profile', { address: addresses });
     } catch (error) {
         console.error('Error fetching profile:', error);
-        res.status(500).send('Server error');
+        res.status(STATUS_CODES . INTERNAL_SERVER_ERROR).send('Server error');
     }
 };
 
@@ -360,11 +410,11 @@ const transporter = nodemailer.createTransport({
       res.json({ success: true, message: 'OTP sent to your new email' });
     } catch (error) {
       console.error('Error sending OTP:', error);
-      res.status(400).json({ success: false, message: error.message || 'Server error' });
+      res.status(STATUS_CODES .BAD_REQUEST).json({ success: false, message: error.message || 'Server error' });
     }
   };
   
-  // Controller: Verify OTP and update email
+  //  Verify OTP and update email
   const verifyOtpAndUpdateEmail = async (req, res) => {
     try {
       const { email, otp } = req.body;
@@ -378,7 +428,7 @@ const transporter = nodemailer.createTransport({
       res.json({ success: true, message: 'Email updated successfully' });
     } catch (error) {
       console.error('Error updating email:', error);
-      res.status(400).json({ success: false, message: error.message || 'Server error' });
+      res.status(STATUS_CODES .BAD_REQUEST).json({ success: false, message: error.message || 'Server error' });
     }
   };
   
@@ -402,7 +452,7 @@ const transporter = nodemailer.createTransport({
       res.json({ success: true, message: 'New OTP sent to your email' });
     } catch (error) {
       console.error('Error resending OTP:', error);
-      res.status(400).json({ success: false, message: error.message || 'Server error' });
+      res.status(STATUS_CODES .BAD_REQUEST).json({ success: false, message: error.message || 'Server error' });
     }
   };
 
@@ -494,7 +544,7 @@ const userProfile = async (req, res) => {
 
   } catch (error) {
     console.log("error while rendering userProfile ", error);
-    res.status(500).send("Server error");
+    res.status(STATUS_CODES . INTERNAL_SERVER_ERROR).send("Server error");
   }
 };
 
@@ -555,11 +605,7 @@ module.exports = {
     cancelOrder,
     sendOtp,
     verifyOtpAndUpdateEmail,
-    resendOtp,
-
-
-
-   
+    resendOtp,   
     userProfile,
     // addAddress1
 uploadProfilePhoto

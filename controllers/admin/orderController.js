@@ -4,6 +4,8 @@ const Sale = require("../../models/salesSchema");
 const User = require("../../models/userSchema");
 const Product = require("../../models/productSchema");
 const Wallet = require("../../models/walletSchema");
+const STATUS_CODES = require('../../helpers/statusCodes');
+
 
 const getOrders = async (req, res) => {
   try {
@@ -103,7 +105,7 @@ const getOrders = async (req, res) => {
     });
   } catch (error) {
     console.error("Error fetching orders:", error);
-    res.status(500).send("Internal Server Error");
+    res.status(STATUS_CODES . INTERNAL_SERVER_ERROR).send("Internal Server Error");
   }
 };
 
@@ -117,7 +119,7 @@ const getOrderDetails = async (req, res) => {
 
     if (!order) {
       console.log("Order not found:", orderId);
-      return res.status(404).send("Order not found");
+      return res.status(STATUS_CODES .NOT_FOUND).send("Order not found");
     }
 
     const formattedOrder = {
@@ -135,7 +137,7 @@ const getOrderDetails = async (req, res) => {
     res.render("admin-order-details", { order: formattedOrder });
   } catch (error) {
     console.error("Error fetching order details:", error);
-    res.status(500).send("Internal Server Error");
+    res.status(STATUS_CODES . INTERNAL_SERVER_ERROR).send("Internal Server Error");
   }
 };
 
@@ -146,34 +148,34 @@ const updateOrderStatus = async (req, res) => {
 
     if (!orderId || !status) {
       console.log("Missing orderId or status");
-      return res.status(400).json({ success: false, message: "Order ID and status are required" });
+      return res.status(STATUS_CODES .BAD_REQUEST).json({ success: false, message: "Order ID and status are required" });
     }
 
     if (!mongoose.Types.ObjectId.isValid(orderId)) {
       console.log("Invalid orderId format:", orderId);
-      return res.status(400).json({ success: false, message: "Invalid order ID format" });
+      return res.status(STATUS_CODES .BAD_REQUEST).json({ success: false, message: "Invalid order ID format" });
     }
 
     const order = await Order.findById(orderId);
     if (!order) {
       console.log("Order not found:", orderId);
-      return res.status(404).json({ success: false, message: "Order not found" });
+      return res.status(STATUS_CODES .NOT_FOUND).json({ success: false, message: "Order not found" });
     }
 
     if (order.status === "cancelled") {
       console.log("Cannot update cancelled order:", orderId);
-      return res.status(400).json({ success: false, message: "Cannot update cancelled order" });
+      return res.status(STATUS_CODES .BAD_REQUEST).json({ success: false, message: "Cannot update cancelled order" });
     }
 
     const validStatuses = ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled', 'return request', 'returned', 'failed'];
 
     if (!validStatuses.includes(status)) {
       console.log("Invalid status:", status);
-      return res.status(400).json({ success: false, message: "Invalid status" });
+      return res.status(STATUS_CODES .BAD_REQUEST).json({ success: false, message: "Invalid status" });
     }
 
     if (status === "return request") {
-      return res.status(403).json({ success: false, message: "You cannot manually set 'return request' status" });
+      return res.status(STATUS_CODES .FORBIDDEN).json({ success: false, message: "You cannot manually set 'return request' status" });
     }
 
     // Define status progression
@@ -184,7 +186,7 @@ const updateOrderStatus = async (req, res) => {
     // Prevent moving to a previous status
     if (newStatusIndex <= currentStatusIndex) {
       console.log(`Cannot move from ${order.status} to ${status}`);
-      return res.status(400).json({
+      return res.status(STATUS_CODES .BAD_REQUEST).json({
         success: false,
         message: `Cannot set status to ${status}. Only upcoming statuses are allowed.`,
       });
@@ -219,7 +221,7 @@ const updateOrderStatus = async (req, res) => {
     res.json({ success: true, message: "Order status updated successfully" });
   } catch (error) {
     console.error("Error updating order status:", error);
-    res.status(500).json({ success: false, message: `Internal server error: ${error.message}` });
+    res.status(STATUS_CODES . INTERNAL_SERVER_ERROR).json({ success: false, message: `Internal server error: ${error.message}` });
   }
 };
 
@@ -230,23 +232,23 @@ const cancelOrder = async (req, res) => {
 
     if (!orderId || !reason) {
       console.log("Missing orderId or reason");
-      return res.status(400).json({ success: false, message: "Order ID and reason are required" });
+      return res.status(STATUS_CODES .BAD_REQUEST).json({ success: false, message: "Order ID and reason are required" });
     }
 
     if (!mongoose.Types.ObjectId.isValid(orderId)) {
       console.log("Invalid orderId format:", orderId);
-      return res.status(400).json({ success: false, message: "Invalid order ID format" });
+      return res.status(STATUS_CODES .BAD_REQUEST).json({ success: false, message: "Invalid order ID format" });
     }
 
     const order = await Order.findById(orderId);
     if (!order) {
       console.log("Order not found:", orderId);
-      return res.status(404).json({ success: false, message: "Order not found" });
+      return res.status(STATUS_CODES .NOT_FOUND).json({ success: false, message: "Order not found" });
     }
 
     if (order.status === "cancelled" || order.status === "delivered") {
       console.log("Cannot cancel order in status:", order.status);
-      return res.status(400).json({ success: false, message: `Cannot cancel order in ${order.status} status` });
+      return res.status(STATUS_CODES .BAD_REQUEST).json({ success: false, message: `Cannot cancel order in ${order.status} status` });
     }
 
     order.status = "cancelled";
@@ -258,7 +260,7 @@ const cancelOrder = async (req, res) => {
       const product = await Product.findById(order.product);
       if (!product) {
         console.warn("Product not found for order:", orderId);
-        return res.status(404).json({ success: false, message: "Associated product not found" });
+        return res.status(STATUS_CODES .NOT_FOUND).json({ success: false, message: "Associated product not found" });
       }
       await Product.findByIdAndUpdate(order.product, {
         $inc: { quantity: order.quantity || 0 }
@@ -288,7 +290,7 @@ const cancelOrder = async (req, res) => {
 
       if (!wallet) {
         console.error('Failed to update wallet for user:', order.userId);
-        return res.status(500).json({ success: false, message: 'Failed to process refund to wallet' });
+        return res.status(STATUS_CODES . INTERNAL_SERVER_ERROR).json({ success: false, message: 'Failed to process refund to wallet' });
       }
     } else {
       console.log(`Skipping wallet credit for COD order ${orderId} (status: ${order.status})`);
@@ -303,7 +305,7 @@ const cancelOrder = async (req, res) => {
     });
   } catch (error) {
     console.error("Error cancelling order:", error);
-    res.status(500).json({ success: false, message: `Internal server error: ${error.message}` });
+    res.status(STATUS_CODES . INTERNAL_SERVER_ERROR).json({ success: false, message: `Internal server error: ${error.message}` });
   }
 };
 
@@ -313,7 +315,7 @@ const handleReturnRequest = async (req, res) => {
 
     if (!orderId || !action || !requestToken) {
       console.log("Missing orderId, action, or requestToken:", { orderId, action, requestToken });
-      return res.status(400).json({
+      return res.status(STATUS_CODES .BAD_REQUEST).json({
         success: false,
         message: "Order ID, action, and request token are required",
       });
@@ -321,7 +323,7 @@ const handleReturnRequest = async (req, res) => {
 
     if (!mongoose.Types.ObjectId.isValid(orderId)) {
       console.log("Invalid orderId format:", orderId);
-      return res.status(400).json({
+      return res.status(STATUS_CODES .BAD_REQUEST).json({
         success: false,
         message: "Invalid order ID format",
       });
@@ -348,7 +350,7 @@ const handleReturnRequest = async (req, res) => {
 
     if (!order) {
       console.log("Order not found or already processed:", orderId);
-      return res.status(400).json({
+      return res.status(STATUS_CODES .BAD_REQUEST).json({
         success: false,
         message: "Order not found, not in return request state, or already processed",
       });
@@ -360,7 +362,7 @@ const handleReturnRequest = async (req, res) => {
         const product = await Product.findById(order.product);
         if (!product) {
           console.warn("Product not found for order:", orderId);
-          return res.status(404).json({
+          return res.status(STATUS_CODES .NOT_FOUND).json({
             success: false,
             message: "Associated product not found",
           });
@@ -390,7 +392,7 @@ const handleReturnRequest = async (req, res) => {
 
       if (!wallet) {
         console.error('Failed to update wallet for user:', order.userId);
-        return res.status(500).json({ success: false, message: 'Failed to process refund to wallet' });
+        return res.status(STATUS_CODES . INTERNAL_SERVER_ERROR).json({ success: false, message: 'Failed to process refund to wallet' });
       }
     }
 
@@ -401,7 +403,7 @@ const handleReturnRequest = async (req, res) => {
     });
   } catch (error) {
     console.error(`Error handling return request for order ${orderId}:`, error);
-    res.status(500).json({
+    res.status(STATUS_CODES . INTERNAL_SERVER_ERROR).json({
       success: false,
       message: `Internal server error: ${error.message}`,
     });

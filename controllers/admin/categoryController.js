@@ -1,5 +1,6 @@
 const Category = require("../../models/categorySchema");
 const Product = require('../../models/productSchema');
+const STATUS_CODES = require('../../helpers/statusCodes');
 const mongoose = require('mongoose');
 
 const categoryInfo = async (req, res) => {
@@ -40,29 +41,40 @@ const categoryInfo = async (req, res) => {
 
 const addCategory = async (req, res) => {
   try {
-    const { name, description } = req.body;
+    const lettersOnlyRegex = /^[A-Za-z\s]+$/;
+    const name = req.body.name.trim();
+    const description = req.body.description.trim();
 
+    // Empty check
     if (!name || !description) {
-      return res.status(400).json({ message: "Name and description are required" });
+      return res.status(STATUS_CODES.BAD_REQUEST).json({ message: "Name and description are required" });
     }
 
+    // Letters-only check
+    if (!lettersOnlyRegex.test(name)) {
+      return res.status(STATUS_CODES.BAD_REQUEST).json({ message: "Category name must contain characters" });
+    }
+
+    if (!lettersOnlyRegex.test(description)) {
+      return res.status(STATUS_CODES.BAD_REQUEST).json({ message: "Description must contain only letters and spaces" });
+    }
+
+    // Check for duplicates
     const existingCategory = await Category.findOne({
       name: { $regex: `^${name}$`, $options: 'i' }
     });
     if (existingCategory) {
-      return res.status(400).json({ message: "Category already exists" });
+      return res.status(STATUS_CODES.BAD_REQUEST).json({ message: "Category already exists" });
     }
 
-    const newCategory = new Category({
-      name,
-      description,
-    });
+    // Save category
+    const newCategory = new Category({ name, description });
     await newCategory.save();
 
-    return res.status(200).json({ success: true, message: "Category added successfully" });
+    return res.status(STATUS_CODES.OK).json({ success: true, message: "Category added successfully" });
   } catch (error) {
     console.error("Error adding category:", error.message);
-    return res.status(500).json({ error: "Internal Server Error" });
+    return res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({ error: "Internal Server Error" });
   }
 };
 
@@ -73,17 +85,17 @@ const addCategoryOffer = async (req, res) => {
     const { percentage, categoryId } = req.body;
 
     if (!categoryId || !mongoose.isValidObjectId(categoryId)) {
-      return res.status(400).json({ status: false, message: "Invalid category ID" });
+      return res.status(STATUS_CODES .BAD_REQUEST).json({ status: false, message: "Invalid category ID" });
     }
 
     const offerPercentage = parseInt(percentage);
     if (isNaN(offerPercentage) || offerPercentage < 0 || offerPercentage > 99) {
-      return res.status(400).json({ status: false, message: "Offer percentage must be between 0 and 99" });
+      return res.status(STATUS_CODES .BAD_REQUEST).json({ status: false, message: "Offer percentage must be between 0 and 99" });
     }
 
     const category = await Category.findById(categoryId);
     if (!category) {
-      return res.status(404).json({ status: false, message: "Category not found" });
+      return res.status(STATUS_CODES .NOT_FOUND).json({ status: false, message: "Category not found" });
     }
 
     category.categoryOffer = offerPercentage;
@@ -98,7 +110,7 @@ const addCategoryOffer = async (req, res) => {
     res.json({ status: true, message: "Offer added successfully" });
   } catch (error) {
     console.error("Error adding category offer:", error.message);
-    res.status(500).json({ status: false, message: "Internal server error" });
+    res.status(STATUS_CODES .INTERNAL_SERVER_ERROR).json({ status: false, message: "Internal server error" });
   }
 };
 
@@ -107,17 +119,17 @@ const editCategoryOffer = async (req, res) => {
     const { percentage, categoryId } = req.body;
 
     if (!categoryId || !mongoose.isValidObjectId(categoryId)) {
-      return res.status(400).json({ status: false, message: "Invalid category ID" });
+      return res.status(STATUS_CODES .BAD_REQUEST).json({ status: false, message: "Invalid category ID" });
     }
 
     const offerPercentage = parseInt(percentage);
     if (isNaN(offerPercentage) || offerPercentage < 0 || offerPercentage > 99) {
-      return res.status(400).json({ status: false, message: "Offer percentage must be between 0 and 99" });
+      return res.status(STATUS_CODES .BAD_REQUEST).json({ status: false, message: "Offer percentage must be between 0 and 99" });
     }
 
     const category = await Category.findById(categoryId);
     if (!category) {
-      return res.status(404).json({ status: false, message: "Category not found" });
+      return res.status(STATUS_CODES .NOT_FOUND).json({ status: false, message: "Category not found" });
     }
 
     category.categoryOffer = offerPercentage;
@@ -132,7 +144,7 @@ const editCategoryOffer = async (req, res) => {
     res.json({ status: true, message: "Offer updated successfully" });
   } catch (error) {
     console.error("Error editing category offer:", error.message);
-    res.status(500).json({ status: false, message: "Internal server error" });
+    res.status(STATUS_CODES .INTERNAL_SERVER_ERROR).json({ status: false, message: "Internal server error" });
   }
 };
 
@@ -141,12 +153,12 @@ const removeCategoryOffer = async (req, res) => {
     const { categoryId } = req.body;
 
     if (!categoryId || !mongoose.isValidObjectId(categoryId)) {
-      return res.status(400).json({ status: false, message: "Invalid category ID" });
+      return res.status(STATUS_CODES .BAD_REQUEST).json({ status: false, message: "Invalid category ID" });
     }
 
     const category = await Category.findById(categoryId);
     if (!category) {
-      return res.status(404).json({ status: false, message: "Category not found" });
+      return res.status(STATUS_CODES .NOT_FOUND).json({ status: false, message: "Category not found" });
     }
 
     category.categoryOffer = 0;
@@ -161,7 +173,7 @@ const removeCategoryOffer = async (req, res) => {
     res.json({ status: true, message: "Offer removed successfully" });
   } catch (error) {
     console.error("Error removing category offer:", error.message);
-    res.status(500).json({ status: false, message: "Internal server error" });
+    res.status(STATUS_CODES .INTERNAL_SERVER_ERROR).json({ status: false, message: "Internal server error" });
   }
 };
 
@@ -169,10 +181,10 @@ const getListCategory = async (req, res) => {
   try {
     let id = req.query.id;
     if (!mongoose.isValidObjectId(id)) {
-      return res.status(400).json({ success: false, message: "Invalid category ID" });
+      return res.status(STATUS_CODES .BAD_REQUEST).json({ success: false, message: "Invalid category ID" });
     }
     await Category.updateOne({ _id: id }, { $set: { isListed: false } });
-    res.status(200).json({ success: true, message: "Unlisted successfully" });
+    res.status(STATUS_CODES .OK).json({ success: true, message: "Unlisted successfully" });
   } catch (error) {
     console.error("Error unlisting category:", error.message);
     res.redirect("/pageerror");
@@ -183,10 +195,10 @@ const getUnlistCategory = async (req, res) => {
   try {
     let id = req.query.id;
     if (!mongoose.isValidObjectId(id)) {
-      return res.status(400).json({ success: false, message: "Invalid category ID" });
+      return res.status(STATUS_CODES .BAD_REQUEST).json({ success: false, message: "Invalid category ID" });
     }
     await Category.updateOne({ _id: id }, { $set: { isListed: true } });
-    res.status(200).json({ success: true, message: "Listed successfully" });
+    res.status(STATUS_CODES .OK).json({ success: true, message: "Listed successfully" });
   } catch (error) {
     console.error("Error listing category:", error.message);
     res.redirect("/pageerror");
@@ -214,12 +226,12 @@ const editCategory = async (req, res) => {
   try {
     const id = req.params.id;
     if (!mongoose.isValidObjectId(id)) {
-      return res.status(400).json({ message: "Invalid category ID" });
+      return res.status(STATUS_CODES .BAD_REQUEST).json({ message: "Invalid category ID" });
     }
     const { name, description } = req.body;
 
     if (!name || !description) {
-      return res.status(400).json({ message: "Name and description are required" });
+      return res.status(STATUS_CODES .BAD_REQUEST).json({ message: "Name and description are required" });
     }
 
     const existingCategory = await Category.findOne({
@@ -228,7 +240,7 @@ const editCategory = async (req, res) => {
     });
 
     if (existingCategory) {
-      return res.status(400).json({ message: "Category name already exists" });
+      return res.status(STATUS_CODES .BAD_REQUEST).json({ message: "Category name already exists" });
     }
 
     const updateCategory = await Category.findByIdAndUpdate(
@@ -238,26 +250,40 @@ const editCategory = async (req, res) => {
     );
 
     if (!updateCategory) {
-      return res.status(404).json({ error: "Category not found" });
+      return res.status(STATUS_CODES .NOT_FOUND).json({ error: "Category not found" });
     }
 
     return res.json({ success: true, message: "Category updated successfully" });
   } catch (error) {
     console.error("Error editing category:", error.message);
-    res.status(500).json({ error: "Internal Server Error" });
+    res.status(STATUS_CODES .INTERNAL_SERVER_ERROR).json({ error: "Internal Server Error" });
   }
 };
 
 const updateCategory = async (req, res) => {
   try {
     const id = req.params.id;
-    if (!mongoose.isValidObjectId(id)) {
-      return res.status(400).json({ error: "Invalid category ID" });
-    }
-    const { categoryname, description } = req.body;
+    const lettersOnlyRegex = /^[A-Za-z\s]+$/;
 
+    if (!mongoose.isValidObjectId(id)) {
+      return res.status(STATUS_CODES.BAD_REQUEST).json({ error: "Invalid category ID" });
+    }
+
+    const categoryname = req.body.categoryname.trim();
+    const description = req.body.description.trim();
+
+    // Empty check
     if (!categoryname || !description) {
-      return res.status(400).json({ error: "Name and description are required" });
+      return res.status(STATUS_CODES.BAD_REQUEST).json({ error: "Name and description are required" });
+    }
+
+    // Letters-only check
+    if (!lettersOnlyRegex.test(categoryname)) {
+      return res.status(STATUS_CODES.BAD_REQUEST).json({ error: "Category name must contain characters" });
+    }
+
+    if (!lettersOnlyRegex.test(description)) {
+      return res.status(STATUS_CODES.BAD_REQUEST).json({ error: "Description must contain only letters and spaces" });
     }
 
     const updatedCategory = await Category.findByIdAndUpdate(
@@ -270,15 +296,16 @@ const updateCategory = async (req, res) => {
     );
 
     if (!updatedCategory) {
-      return res.status(404).json({ error: "Category not found" });
+      return res.status(STATUS_CODES.NOT_FOUND).json({ error: "Category not found" });
     }
 
     res.redirect("/admin/category");
   } catch (error) {
     console.error("Error updating category:", error.message);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({ error: "Internal server error" });
   }
 };
+
 
 module.exports = {
   categoryInfo,

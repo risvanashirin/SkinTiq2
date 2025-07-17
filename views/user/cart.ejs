@@ -327,7 +327,7 @@
         </svg>
     </button>
 
-    <div class="cart-container mx-auto pt-24 md:pt-10">
+    <div class="cart-container mx-auto   pt-24 md:pt-10" >
         <div class="flex flex-col items-center mb-6">
             <h1 class="text-2xl font-bold text-gray-800 text-center">Your Cart</h1>
         </div>
@@ -339,7 +339,7 @@
         <% } %>
 
         <% if (!cart || cart.cart.length === 0) { %>
-            <div class="bg-white p-6 rounded-lg border border-gray-200 text-center shadow-md hover:shadow-lg transition">
+            <div class="bg-white p-6 rounded-lg border border-gray-200 text-center  shadow-md hover:shadow-lg transition" >
                 <p class="text-gray-600 text-lg">Your cart is empty.</p>
                 <div>
 <a href="/shop"
@@ -415,6 +415,14 @@
                         <a href="/checkout" class="btn-gradient">Check Out</a>
                         <a href="/shop" class="btn-gradient">Continue Shopping</a>
                     </div>
+
+                     <!-- <div class="btn-container flex justify-center gap-4 mt-6">
+                 <form action="/checkout" method="POST">
+                 <button type="submit" class="btn-gradient">Check Out</button>
+                </form>
+                <a href="/shop" class="btn-gradient">Continue Shopping</a>
+                </div> -->
+                    
                 </div>
             </div>
         <% } %>

@@ -1,40 +1,43 @@
 <style>
   body {
     overflow-x: hidden; /* Prevent horizontal overflow */
+    margin: 0; /* Reset default margin */
   }
+
   .sidebar-partial {
     background: linear-gradient(145deg, #ffffff, #f5f5f5);
-    border: none;
     border-radius: 12px;
-    padding: 2rem;
+    padding: 1.5rem;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     user-select: none;
-    width: min(250px, 80vw);
+    width: 250px; /* Fixed width for desktop */
     font-family: 'Poppins', sans-serif;
     position: fixed;
-    top: 4vh;
-    left: 0;
-    height: calc(92vh - 2rem);
+    top: 2rem;
+    left: 1rem;
+    height: calc(100vh - 4rem); /* Full height minus padding */
     z-index: 50;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
-    will-change: transform; /* Optimize animation */
+    will-change: transform;
   }
+
   .sidebar-partial:hover {
     box-shadow: 0 6px 16px rgba(126, 107, 0, 0.15);
     transform: translateY(-2px);
   }
+
   .sidebar-partial nav {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 2.9rem;
   }
+
   .sidebar-partial nav a {
     text-decoration: none;
     font-weight: 600;
     color: #2a2a2a;
-    padding: 0.75rem 1.25rem;
+    padding: 0.75rem 1rem;
     border-radius: 8px;
-    border: none;
     display: flex;
     align-items: center;
     gap: 0.75rem;
@@ -43,40 +46,49 @@
     background: #fff;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
   }
+
   .sidebar-partial nav a:hover,
   .sidebar-partial nav a.active {
     background: linear-gradient(90deg, #7e6b00, #a68c00);
     color: #fff;
     box-shadow: 0 4px 10px rgba(126, 107, 0, 0.3);
   }
+
   .sidebar-partial nav a svg {
     fill: #2a2a2a;
     transition: fill 0.3s ease;
     width: 18px;
     height: 18px;
   }
+
   .sidebar-partial nav a:hover svg,
   .sidebar-partial nav a.active svg {
     fill: #fff;
   }
+
   .sidebar-partial nav a[href="/logout"] {
     color: #b34747;
   }
+
   .sidebar-partial nav a[href="/logout"]:hover,
   .sidebar-partial nav a[href="/logout"].active {
     background: linear-gradient(90deg, #b34747, #d9534f);
     color: #fff7f7;
     box-shadow: 0 4px 10px rgba(185, 71, 71, 0.3);
   }
+
   .sidebar-partial nav a[href="/logout"] svg {
     fill: #b34747;
   }
+
   .sidebar-partial nav a[href="/logout"]:hover svg,
   .sidebar-partial nav a[href="/logout"].active svg {
     fill: #fff;
   }
+
   .sidebar-close {
     display: none;
+    background: #fff;
     color: #1e1b1b;
     border: none;
     border-radius: 8px;
@@ -88,74 +100,17 @@
     box-shadow: 0 2px 6px rgba(185, 71, 71, 0.2);
     transition: all 0.3s ease;
   }
+
   .sidebar-close:hover {
     box-shadow: 0 4px 10px rgba(185, 71, 71, 0.3);
   }
+
   .sidebar-close svg {
     width: 18px;
     height: 18px;
     fill: #1a1717;
   }
-  @media (max-width: 768px) {
-    .sidebar-partial {
-      transform: translateX(-100%); /* Ensure fully hidden */
-      width: min(220px, 70vw);
-      padding: 1.5rem;
-      border-radius: 10px;
-      top: 10vh;
-      height: calc(90vh - 2rem);
-    }
-    .sidebar-partial.open {
-      transform: translateX(0);
-    }
-    .sidebar-partial nav a {
-      font-size: 0.9rem;
-      padding: 0.6rem 1rem;
-    }
-    .sidebar-partial nav a svg {
-      width: 16px;
-      height: 16px;
-    }
-    .sidebar-close {
-      display: block;
-    }
-  }
-  @media (max-width: 480px) {
-    .sidebar-partial {
-      width: min(180px, 65vw);
-      padding: 1rem;
-      border-radius: 8px;
-      top: 8vh;
-      height: calc(88vh - 2rem);
-    }
-    .sidebar-partial nav a {
-      font-size: 0.85rem;
-      padding: 0.5rem 0.8rem;
-    }
-    .sidebar-partial nav a svg {
-      width: 14px;
-      height: 14px;
-    }
-    .sidebar-close {
-      padding: 0.5rem;
-      font-size: 0.8rem;
-    }
-  }
-  @media (max-width: 320px) {
-    .sidebar-partial {
-      width: min(160px, 60vw);
-      padding: 0.8rem;
-      border-radius: 6px;
-    }
-    .sidebar-partial nav a {
-      font-size: 0.8rem;
-      padding: 0.4rem 0.6rem;
-    }
-    .sidebar-partial nav a svg {
-      width: 12px;
-      height: 12px;
-    }
-  }
+
   .sidebar-toggle {
     display: none;
     position: fixed;
@@ -171,46 +126,114 @@
     transition: all 0.3s ease;
     cursor: pointer;
   }
+
   .sidebar-toggle:hover {
     background: linear-gradient(90deg, #655700, #8c7500);
     box-shadow: 0 4px 10px rgba(126, 107, 0, 0.3);
   }
+
   .sidebar-toggle svg {
     width: 20px;
     height: 20px;
     fill: #fff;
   }
+
+  /* Main content area */
+  .main-content {
+    margin-left: 280px; /* Sidebar width (250px) + padding (30px) */
+    padding: 1rem;
+    transition: margin-left 0.3s ease;
+  }
+
   @media (max-width: 768px) {
+    .sidebar-partial {
+      transform: translateX(-100%);
+      width: 220px;
+      padding: 1rem;
+      top: 1rem;
+      height: calc(100vh - 2rem);
+      left: 0;
+    }
+
+    .sidebar-partial.open {
+      transform: translateX(0);
+    }
+
+    .sidebar-partial nav a {
+      font-size: 0.9rem;
+      padding: 0.6rem 0.8rem;
+    }
+
+    .sidebar-partial nav a svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .sidebar-close {
+      display: block;
+    }
+
     .sidebar-toggle {
       display: block;
     }
+
     .sidebar-partial.open ~ .sidebar-toggle {
       display: none;
     }
-    .profile-container {
+
+    .main-content {
       margin-left: 0;
-      transition: margin-left 0.3s ease;
-      padding-left: 1rem;
     }
-    .profile-container.sidebar-open {
-      margin-left: min(220px, 70vw);
+
+    .main-content.sidebar-open {
+      margin-left: 240px; /* Sidebar width (220px) + padding (20px) */
     }
   }
+
   @media (max-width: 480px) {
-    .profile-container.sidebar-open {
-      margin-left: min(180px, 65vw);
+    .sidebar-partial {
+      width: 180px;
+      padding: 0.8rem;
     }
-    .sidebar-toggle {
+
+    .sidebar-partial nav a {
+      font-size: 0.85rem;
+      padding: 0.5rem 0.7rem;
+    }
+
+    .sidebar-partial nav a svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .sidebar-close {
       padding: 0.5rem;
+      font-size: 0.8rem;
     }
-    .sidebar-toggle svg {
-      width: 18px;
-      height: 18px;
+
+    .main-content.sidebar-open {
+      margin-left: 200px; /* Sidebar width (180px) + padding (20px) */
     }
   }
+
   @media (max-width: 320px) {
-    .profile-container.sidebar-open {
-      margin-left: min(160px, 60vw);
+    .sidebar-partial {
+      width: 160px;
+      padding: 0.6rem;
+    }
+
+    .sidebar-partial nav a {
+      font-size: 0.8rem;
+      padding: 0.4rem 0.6rem;
+    }
+
+    .sidebar-partial nav a svg {
+      width: 12px;
+      height: 12px;
+    }
+
+    .main-content.sidebar-open {
+      margin-left: 180px; /* Sidebar width (160px) + padding (20px) */
     }
   }
 </style>
@@ -220,6 +243,7 @@
     <svg viewBox="0 0 24 24" aria-hidden="true">
       <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
     </svg>
+    Close
   </button>
   <nav>
     <a href="/userProfile" tabindex="0" title="Profile">
@@ -252,12 +276,6 @@
       </svg>
       Cart
     </a>
-    <a href="/checkout" tabindex="0" title="Checkout">
-      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-        <path d="M20 7H7.83l5.58-5.59L12 1 4 9l8 8 1.41-1.41L7.83 11H20v-4z"/>
-      </svg>
-      Checkout
-    </a>
     <a href="/edit-profile" tabindex="0" title="Edit Profile">
       <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
         <path d="M14.06 9.02l.92.92L6.91 17H6v-.91l8.06-7.07m4.28-3.77c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 1.41 1.41 1.83-1.83c.39-.39.39-1.02 0-1.41M3 17.25V21h3.75l11.06-11.06-3.75-3.75L3 17.25z"/>
@@ -270,7 +288,7 @@
       </svg>
       Wallet
     </a>
-    <a href="/logout" tabindex="0" title="Logout" style="color: #b34747;">
+    <a href="/logout" tabindex="0" title="Logout">
       <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
         <path d="M16 13v-2H7V8l-5 4 5 4v-3h9zM18 19h3v-14h-3v3h-2v-5h7v18h-7v-5h2v3z"/>
       </svg>
@@ -292,16 +310,9 @@
     const toggleButton = document.querySelector('.sidebar-toggle');
     const closeButton = document.querySelector('.sidebar-close');
     const sidebar = document.querySelector('.sidebar-partial');
-    const profileContainer = document.querySelector('.profile-container');
+    const mainContent = document.querySelector('.main-content');
 
-    // Ensure sidebar is hidden and toggle is visible on load for mobile
-    if (window.innerWidth <= 768) {
-      sidebar.classList.remove('open');
-      profileContainer.classList.remove('sidebar-open');
-      toggleButton.style.display = 'block'; // Ensure toggle is visible
-    }
-
-    // Set active link based on current path
+    // Set active link
     navLinks.forEach(link => {
       link.classList.remove('active');
       if (link.getAttribute('href') === currentPath) {
@@ -309,37 +320,51 @@
       }
     });
 
-    // Toggle sidebar open
-    if (toggleButton && sidebar && profileContainer) {
-      toggleButton.addEventListener('click', () => {
-        sidebar.classList.add('open');
-        profileContainer.classList.add('sidebar-open');
-        toggleButton.style.display = 'none'; // Hide toggle immediately
-      });
-    }
+    // Initialize sidebar state
+    const updateSidebarState = () => {
+      if (window.innerWidth <= 768) {
+        sidebar.classList.remove('open');
+        mainContent.classList.remove('sidebar-open');
+        toggleButton.style.display = 'block';
+      } else {
+        sidebar.classList.remove('open');
+        mainContent.classList.remove('sidebar-open');
+        toggleButton.style.display = 'none';
+      }
+    };
+
+    updateSidebarState();
+
+    // Toggle sidebar
+    toggleButton.addEventListener('click', () => {
+      sidebar.classList.add('open');
+      mainContent.classList.add('sidebar-open');
+      toggleButton.style.display = 'none';
+    });
 
     // Close sidebar
-    if (closeButton && sidebar && profileContainer) {
-      closeButton.addEventListener('click', () => {
-        sidebar.classList.remove('open');
-        profileContainer.classList.remove('sidebar-open');
-        toggleButton.style.display = 'block'; // Show toggle immediately
-        // Force layout recalculation to avoid transition delay
-        sidebar.offsetHeight; // Trigger reflow
-      });
-    }
+    closeButton.addEventListener('click', () => {
+      sidebar.classList.remove('open');
+      mainContent.classList.remove('sidebar-open');
+      toggleButton.style.display = 'block';
+    });
 
-    // Handle window resize to maintain consistent state
-    window.addEventListener('resize', () => {
-      if (window.innerWidth > 768) {
-        sidebar.classList.remove('open');
-        profileContainer.classList.remove('sidebar-open');
-        toggleButton.style.display = 'none';
-      } else {
-        if (!sidebar.classList.contains('open')) {
+    // Close sidebar when clicking a nav link (optional, for better UX on mobile)
+    navLinks.forEach(link => {
+      link.addEventListener('click', () => {
+        if (window.innerWidth <= 768) {
+          sidebar.classList.remove('open');
+          mainContent.classList.remove('sidebar-open');
           toggleButton.style.display = 'block';
         }
-      }
+      });
+    });
+
+    // Handle resize
+    let resizeTimeout;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(updateSidebarState, 100); // Debounce resize
     });
   });
 </script>

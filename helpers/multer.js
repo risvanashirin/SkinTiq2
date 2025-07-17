@@ -1,6 +1,3 @@
-
-
-
 const multer = require('multer');
 const path = require('path');
 
@@ -23,18 +20,18 @@ const productUpload = multer({
 });
 
 // brand images
-const brandStorage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, path.join(__dirname, "../public/uploads/brands"));
-  },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + "-" + file.originalname);
-  }
-});
+// const brandStorage = multer.diskStorage({
+//   destination: function (req, file, cb) {
+//     cb(null, path.join(__dirname, "../public/uploads/brands"));
+//   },
+//   filename: function (req, file, cb) {
+//     cb(null, Date.now() + "-" + file.originalname);
+//   }
+// });
 
-const brandUpload = multer({ storage: brandStorage });
+// const brandUpload = multer({ storage: brandStorage });
 
 module.exports = {
   productUpload,
-  brandUpload
+//   brandUpload
 };

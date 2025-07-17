@@ -3,6 +3,7 @@
 const mongoose = require('mongoose');
 const Coupon = require('../../models/couponSchema');
 const User = require('../../models/userSchema');
+const STATUS_CODES = require('../../helpers/statusCodes');
 
 const getCoupons = async (req, res) => {
     try {
@@ -68,40 +69,40 @@ const getCoupons = async (req, res) => {
 const addCoupon = async (req, res) => {
     try {
         if (!req.body || Object.keys(req.body).length === 0) {
-            return res.status(400).json({ success: false, message: 'Request body is empty' });
+            return res.status(STATUS_CODES .BAD_REQUEST).json({ success: false, message: 'Request body is empty' });
         }
 
         const { name, startDate, endDate, offerPrice, minimumPrice } = req.body;
 
         if (!name || !startDate || !endDate || !offerPrice || !minimumPrice) {
-            return res.status(400).json({ success: false, message: 'All fields are required' });
+            return res.status(STATUS_CODES .BAD_REQUEST).json({ success: false, message: 'All fields are required' });
         }
 
 
 
         if (name.startsWith('REF-') || name.startsWith('NEW-')) {
-            return res.status(400).json({ success: false, message: 'Coupon code prefix REF- or NEW- is reserved for referral coupons' });
+            return res.status(STATUS_CODES .BAD_REQUEST).json({ success: false, message: 'Coupon code prefix REF- or NEW- is reserved for referral coupons' });
         }
 
         if (new Date(startDate) > new Date(endDate)) {
-            return res.status(400).json({ success: false, message: 'Start date must be before or on end date' });
+            return res.status(STATUS_CODES .BAD_REQUEST).json({ success: false, message: 'Start date must be before or on end date' });
         }
         
 
         
 
         if (parseInt(offerPrice) < 1 || parseInt(minimumPrice) < 1) {
-            return res.status(400).json({ success: false, message: 'Discount and minimum purchase must be at least 1' });
+            return res.status(STATUS_CODES .BAD_REQUEST).json({ success: false, message: 'Discount and minimum purchase must be at least 1' });
         }
 
         if (name.length < 3 || name.length > 20) {
-            return res.status(400).json({ success: false, message: 'Coupon code must be 3-20 characters' });
+            return res.status(STATUS_CODES .BAD_REQUEST).json({ success: false, message: 'Coupon code must be 3-20 characters' });
         }
 
         // New validation for coupon name format
         const nameRegex = /^[A-Za-z0-9_-]+$/;
         if (!nameRegex.test(name)) {
-            return res.status(400).json({ success: false, message: 'Coupon code can only contain letters, numbers, hyphens, or underscores' });
+            return res.status(STATUS_CODES .BAD_REQUEST).json({ success: false, message: 'Coupon code can only contain letters, numbers, hyphens, or underscores' });
         }
 
         const coupon = new Coupon({
@@ -120,9 +121,9 @@ const addCoupon = async (req, res) => {
     } catch (error) {
         console.error('Error adding coupon:', error);
         if (error.code === 11000) {
-            return res.status(400).json({ success: false, message: 'Coupon code already exists' });
+            return res.status(STATUS_CODES .BAD_REQUEST).json({ success: false, message: 'Coupon code already exists' });
         }
-        res.status(500).json({ success: false, message: error.message || 'Failed to add coupon' });
+        res.status(STATUS_CODES .INTERNAL_SERVER_ERROR).json({ success: false, message: error.message || 'Failed to add coupon' });
     }
 };
 
@@ -130,35 +131,35 @@ const addCoupon = async (req, res) => {
 const editCoupon = async (req, res) => {
     try {
         if (!req.body || Object.keys(req.body).length === 0) {
-            return res.status(400).json({ success: false, message: 'Request body is empty' });
+            return res.status(STATUS_CODES .BAD_REQUEST).json({ success: false, message: 'Request body is empty' });
         }
 
         const { name, startDate, endDate, offerPrice, minimumPrice } = req.body;
 
         if (!name || !startDate || !endDate || !offerPrice || !minimumPrice) {
-            return res.status(400).json({ success: false, message: 'All fields are required' });
+            return res.status(STATUS_CODES .BAD_REQUEST).json({ success: false, message: 'All fields are required' });
         }
 
         if (name.startsWith('REF-') || name.startsWith('NEW-')) {
-            return res.status(400).json({ success: false, message: 'Coupon code prefix REF- or NEW- is reserved for referral coupons' });
+            return res.status(STATUS_CODES .BAD_REQUEST).json({ success: false, message: 'Coupon code prefix REF- or NEW- is reserved for referral coupons' });
         }
 
         if (new Date(startDate) > new Date(endDate)) {
-            return res.status(400).json({ success: false, message: 'Start date must be before or on end date' });
+            return res.status(STATUS_CODES .BAD_REQUEST).json({ success: false, message: 'Start date must be before or on end date' });
         }
 
         if (parseInt(offerPrice) < 1 || parseInt(minimumPrice) < 1) {
-            return res.status(400).json({ success: false, message: 'Discount and minimum purchase must be at least 1' });
+            return res.status(STATUS_CODES .BAD_REQUEST).json({ success: false, message: 'Discount and minimum purchase must be at least 1' });
         }
 
         if (name.length < 3 || name.length > 20) {
-            return res.status(400).json({ success: false, message: 'Coupon code must be 3-20 characters' });
+            return res.status(STATUS_CODES .BAD_REQUEST).json({ success: false, message: 'Coupon code must be 3-20 characters' });
         }
 
         // New validation for coupon name format
         const nameRegex = /^[A-Za-z0-9_-]+$/;
         if (!nameRegex.test(name)) {
-            return res.status(400).json({ success: false, message: 'Coupon code can only contain letters, numbers, hyphens, or underscores' });
+            return res.status(STATUS_CODES .BAD_REQUEST).json({ success: false, message: 'Coupon code can only contain letters, numbers, hyphens, or underscores' });
         }
 
         const coupon = await Coupon.findByIdAndUpdate(
@@ -174,16 +175,16 @@ const editCoupon = async (req, res) => {
         );
 
         if (!coupon) {
-            return res.status(404).json({ success: false, message: 'Coupon not found' });
+            return res.status(STATUS_CODES .NOT_FOUND).json({ success: false, message: 'Coupon not found' });
         }
 
         res.json({ success: true, message: 'Coupon updated successfully' });
     } catch (error) {
         console.error('Error updating coupon:', error);
         if (error.code === 11000) {
-            return res.status(400).json({ success: false, message: 'Coupon code already exists' });
+            return res.status(STATUS_CODES .BAD_REQUEST).json({ success: false, message: 'Coupon code already exists' });
         }
-        res.status(500).json({ success: false, message: error.message || 'Failed to update coupon' });
+        res.status(STATUS_CODES .INTERNAL_SERVER_ERROR).json({ success: false, message: error.message || 'Failed to update coupon' });
     }
 };
 
@@ -191,7 +192,7 @@ const toggleCouponStatus = async (req, res) => {
     try {
         const coupon = await Coupon.findById(req.params.id);
         if (!coupon) {
-            return res.status(404).json({ success: false, message: 'Coupon not found' });
+            return res.status(STATUS_CODES .NOT_FOUND).json({ success: false, message: 'Coupon not found' });
         }
 
         coupon.isList = !coupon.isList;
@@ -200,7 +201,7 @@ const toggleCouponStatus = async (req, res) => {
         res.json({ success: true, message: `Coupon ${coupon.isList ? 'activated' : 'deactivated'}` });
     } catch (error) {
         console.error('Error toggling coupon:', error);
-        res.status(500).json({ success: false, message: 'Failed to toggle coupon status' });
+        res.status(STATUS_CODES .INTERNAL_SERVER_ERROR).json({ success: false, message: 'Failed to toggle coupon status' });
     }
 };
 
@@ -208,18 +209,18 @@ const deleteCoupon = async (req, res) => {
     try {
         const coupon = await Coupon.findById(req.params.id);
         if (!coupon) {
-            return res.status(404).json({ success: false, message: 'Coupon not found' });
+            return res.status(STATUS_CODES .NOT_FOUND).json({ success: false, message: 'Coupon not found' });
         }
 
         if (coupon.name.startsWith('REF-') || coupon.name.startsWith('NEW-')) {
-            return res.status(400).json({ success: false, message: 'Referral coupons cannot be deleted' });
+            return res.status(STATUS_CODES .BAD_REQUEST).json({ success: false, message: 'Referral coupons cannot be deleted' });
         }
 
         await Coupon.findByIdAndDelete(req.params.id);
         res.json({ success: true, message: 'Coupon deleted successfully' });
     } catch (error) {
         console.error('Error deleting coupon:', error);
-        res.status(500).json({ success: false, message: 'Failed to delete coupon' });
+        res.status(STATUS_CODES .INTERNAL_SERVER_ERROR).json({ success: false, message: 'Failed to delete coupon' });
     }
 };
 

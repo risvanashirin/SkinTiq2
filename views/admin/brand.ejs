@@ -1,140 +1,193 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <%- include("../../views/partials/admin/header") %>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Admin Dashboard - Skintiq</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Admin Dashboard - Skintiq</title>
 
-  <!-- FontAwesome for icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- SweetAlert2 -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.css" />
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- SweetAlert2 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.css" />
 
-  <style>
-    * {
-      box-sizing: border-box;
-    }
+    <style>
+      * {
+        box-sizing: border-box;
+      }
 
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #ecf0f1;
-      margin-left: 250px; /* Offset to match the fixed sidebar width */
-    }
-
-    .main-content {
-      width: 100%; /* Full width to allow centering */
-      padding: 2rem 1rem;
-      background: #ecf0f1;
-      overflow-y: auto;
-      display: flex; /* Use flexbox to center content */
-      justify-content: center; /* Center horizontally */
-    }
-
-    .content-main {
-      width: 100%;
-      max-width: 1200px; /* Optional: set a max-width for larger screens */
-      margin: 0 auto; /* Center the content-main within main-content */
-    }
-
-    .card {
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-      padding: 20px;
-      margin-bottom: 20px;
-      width: 100%; /* Ensure card takes full available width */
-    }
-
-    .card-header {
-      border-bottom: 1px solid #e0e0e0;
-      margin-bottom: 15px;
-    }
-
-    .card-title {
-      font-size: 20px;
-      font-weight: 600;
-      margin: 0;
-    }
-
-    .form-control {
-      width: 100%;
-      padding: 10px 14px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      margin-bottom: 15px;
-      font-size: 14px;
-      transition: border-color 0.3s;
-    }
-
-    .form-control:focus {
-      border-color: rgb(29, 78, 216);
-      outline: none;
-    }
-
-    .btn {
-      padding: 10px 18px;
-      font-weight: 600;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-
-    .btn-primary { background: rgb(29, 78, 216); color: #fff; }
-    .btn-primary:hover { background: #5a54d1; }
-
-    .btn-info { background: #17a2b8; color: #fff; }
-    .btn-info:hover { background: #138496; }
-
-    .btn-danger { background: #dc3545; color: #fff; }
-    .btn-danger:hover { background: #c82333; }
-
-    .btn-success { background: #28a745; color: #fff; }
-    .btn-success:hover { background: #218838; }
-
-    .table {
-      width: 100%;
-      border-collapse: collapse;
-      background: white;
-    }
-
-    .table th, .table td {
-      padding: 12px;
-      border-bottom: 1px solid #dee2e6;
-      text-align: left;
-    }
-
-    .table thead th {
-      background: #f8f9fa;
-      font-weight: bold;
-    }
-
-    .badge {
-      padding: 5px 10px;
-      font-size: 12px;
-      border-radius: 12px;
-    }
-
-    .bg-success { background-color: #28a745; color: white; }
-    .bg-danger { background-color: #dc3545; color: white; }
-
-    .brand-logo {
-      width: 50px;
-      height: 50px;
-      object-fit: cover; /* Ensure image fills round shape */
-      border-radius: 50%; /* Make logo round */
-    }
-
-    @media screen and (max-width: 768px) {
       body {
-        margin-left: 0; /* Remove offset for mobile as sidebar becomes horizontal */
+        margin: 0;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #ecf0f1;
+        margin-left: 250px;
+        /* Offset to match the fixed sidebar width */
       }
+
       .main-content {
-        padding: 1rem; /* Adjust padding for mobile */
+        width: 100%;
+        /* Full width to allow centering */
+        padding: 2rem 1rem;
+        background: #ecf0f1;
+        overflow-y: auto;
+        display: flex;
+        /* Use flexbox to center content */
+        justify-content: center;
+        /* Center horizontally */
       }
-    }
-  </style>
+
+      .content-main {
+        width: 100%;
+        max-width: 1200px;
+        /* Optional: set a max-width for larger screens */
+        margin: 0 auto;
+        /* Center the content-main within main-content */
+      }
+
+      .card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        padding: 20px;
+        margin-bottom: 20px;
+        width: 100%;
+        /* Ensure card takes full available width */
+      }
+
+      .card-header {
+        border-bottom: 1px solid #e0e0e0;
+        margin-bottom: 15px;
+      }
+
+      .card-title {
+        font-size: 20px;
+        font-weight: 600;
+        margin: 0;
+      }
+
+      .form-control {
+        width: 100%;
+        padding: 10px 14px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        margin-bottom: 15px;
+        font-size: 14px;
+        transition: border-color 0.3s;
+      }
+
+      .form-control:focus {
+        border-color: rgb(29, 78, 216);
+        outline: none;
+      }
+
+      .btn {
+        padding: 10px 18px;
+        font-weight: 600;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+      }
+
+      .btn-primary {
+        background: rgb(29, 78, 216);
+        color: #fff;
+      }
+
+      .btn-primary:hover {
+        background: #5a54d1;
+      }
+
+      .btn-info {
+        background: #17a2b8;
+        color: #fff;
+      }
+
+      .btn-info:hover {
+        background: #138496;
+      }
+
+      .btn-danger {
+        background: #dc3545;
+        color: #fff;
+      }
+
+      .btn-danger:hover {
+        background: #c82333;
+      }
+
+      .btn-success {
+        background: #28a745;
+        color: #fff;
+      }
+
+      .btn-success:hover {
+        background: #218838;
+      }
+
+      .table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+      }
+
+      .table th,
+      .table td {
+        padding: 12px;
+        border-bottom: 1px solid #dee2e6;
+        text-align: left;
+      }
+
+      .table thead th {
+        background: #f8f9fa;
+        font-weight: bold;
+      }
+
+      .badge {
+        padding: 5px 10px;
+        font-size: 12px;
+        border-radius: 12px;
+      }
+
+      .bg-success {
+        background-color: #28a745;
+        color: white;
+      }
+
+      .bg-danger {
+        background-color: #dc3545;
+        color: white;
+      }
+
+      .brand-logo {
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+        /* Ensure image fills round shape */
+        border-radius: 50%;
+        /* Make logo round */
+      }
+
+      .error-message {
+        color: #dc3545;
+        font-size: 12px;
+        margin-top: -10px;
+        margin-bottom: 10px;
+        display: none;
+      }
+
+      @media screen and (max-width: 768px) {
+        body {
+          margin-left: 0;
+          /* Remove offset for mobile as sidebar becomes horizontal */
+        }
+
+        .main-content {
+          padding: 1rem;
+          /* Adjust padding for mobile */
+        }
+      }
+    </style>
 </head>
 
 <body>
@@ -146,7 +199,8 @@
       <div class="card">
         <div class="card-body">
           <form action="/admin/brand" method="get" class="input-group">
-            <input type="text" class="form-control" name="search" placeholder="Search brands" value="<%= search || '' %>">
+            <input type="text" class="form-control" name="search" placeholder="Search brands"
+              value="<%= search || '' %>">
             <button class="btn btn-primary" type="submit">Search</button>
             <a href="/admin/brand" class="btn btn-primary" type="submit">Clear</a>
           </form>
@@ -159,8 +213,11 @@
         </div>
         <div class="card-body">
           <form id="addBrandForm" enctype="multipart/form-data">
-            <input type="text" name="brandName" placeholder="Brand name" class="form-control" id="brand_name" required />
+            <input type="text" name="brandName" placeholder="Brand name" class="form-control" id="brand_name"
+              required />
+            <div id="name-error" class="error-message"></div>
             <input type="file" name="brandImage" class="form-control" id="brand_image" accept="image/*" required />
+            <div id="image-error" class="error-message"></div>
             <button type="submit" class="btn btn-primary w-100">Create Brand</button>
           </form>
         </div>
@@ -171,6 +228,7 @@
           <h4 class="card-title">Brand List</h4>
         </div>
         <div class="card-body table-responsive">
+          <!-- Brands are sorted by createdAt in descending order (newest first) by the server -->
           <table class="table table-hover">
             <thead>
               <tr>
@@ -181,47 +239,46 @@
               </tr>
             </thead>
             <tbody>
-              <% brands.forEach((brand) => { %>
-              <tr>
-                <td><%= brand.brandName %></td>
-                <td>
-                  <% if (brand.brandImage && brand.brandImage.length > 0) { %>
-                    <img src="<%= brand.brandImage[0] %>" alt="<%= brand.brandName %>" class="brand-logo">
-                  <% } else { %>
-                    No Image
-                  <% } %>
-                </td>
-                <td>
-                  <% if (brand.isListed) { %>
-                    <span class="badge bg-success">Listed</span>
-                  <% } else { %>
-                    <span class="badge bg-danger">Unlisted</span>
-                  <% } %>
-                </td>
-                <td>
-                  <button class="btn btn-sm btn-info" onclick="editBrand('<%= brand._id %>', '<%= brand.brandName %>')">
-                    <i class="fas fa-pen"></i>
-                  </button>
-                  <% if (brand.isListed) { %>
-                    <button class="btn btn-sm btn-danger" onclick="unlistBrand('<%= brand._id %>')">Unlist</button>
-                  <% } else { %>
-                    <button class="btn btn-sm btn-success" onclick="listBrand('<%= brand._id %>')">List</button>
-                  <% } %>
-                </td>
-              </tr>
-              <% }) %>
+              <% brands.forEach((brand)=> { %>
+                <tr>
+                  <td>
+                    <%= brand.brandName %>
+                  </td>
+                  <td>
+                    <% if (brand.brandImage && brand.brandImage.length> 0) { %>
+                      <img src="<%= brand.brandImage[0] %>" alt="<%= brand.brandName %>" class="brand-logo">
+                      <% } else { %>
+                        No Image
+                        <% } %>
+                  </td>
+                  <td>
+                    <% if (brand.isListed) { %>
+                      <span class="badge bg-success">Listed</span>
+                      <% } else { %>
+                        <span class="badge bg-danger">Unlisted</span>
+                        <% } %>
+                  </td>
+                  <td>
+                    <button class="btn btn-sm btn-info"
+                      onclick="editBrand('<%= brand._id %>', '<%= brand.brandName %>')">
+                      <i class="fas fa-pen"></i>
+                    </button>
+                    <% if (brand.isListed) { %>
+                      <button class="btn btn-sm btn-danger" onclick="unlistBrand('<%= brand._id %>')">Unlist</button>
+                      <% } else { %>
+                        <button class="btn btn-sm btn-success" onclick="listBrand('<%= brand._id %>')">List</button>
+                        <% } %>
+                  </td>
+                </tr>
+                <% }) %>
             </tbody>
           </table>
         </div>
       </div>
 
       <!-- Pagination -->
-      <%- include('../../views/partials/admin/pagination', { 
-        baseUrl: '/admin/brand', 
-        currentPage: currentPage, 
-        totalPages: totalPages, 
-        queryParams: search ? `&search=${search}` : '' 
-      }) %>
+      <%- include('../../views/partials/admin/pagination', { baseUrl: '/admin/brand' , currentPage: currentPage,
+        totalPages: totalPages, queryParams: search ? `&search=${search}` : '' }) %>
 
     </section>
   </div>
@@ -230,40 +287,102 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 
   <script>
-    document.getElementById('addBrandForm').addEventListener('submit', function(e) {
+    document.getElementById('addBrandForm').addEventListener('submit', function (e) {
       e.preventDefault();
-      const formData = new FormData(this);
 
-      fetch('/admin/addBrand', {
-        method: 'POST',
-        body: formData,
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          Swal.fire({
-            title: 'Success!',
-            text: data.message,
-            icon: 'success',
-          }).then(() => {
-            location.reload();
-          });
-        } else {
-          Swal.fire({
-            title: 'Error!',
-            text: data.message || 'Unable to add brand',
-            icon: 'error',
-          });
-        }
-      })
-      .catch(error => {
-        console.error('Error:', error);
+      const nameInput = document.getElementById('brand_name');
+      const imageInput = document.getElementById('brand_image');
+      const nameError = document.getElementById('name-error');
+      const imageError = document.getElementById('image-error');
+
+      // Reset error messages
+      nameError.style.display = 'none';
+      imageError.style.display = 'none';
+
+      // Validation flags
+      let isValid = true;
+
+      // Name validation
+      const name = nameInput.value.trim();
+      const nameRegex = /^[A-Za-z\s]+$/;
+
+      if (!name) {
+        nameError.textContent = 'Brand name is required';
+        nameError.style.display = 'block';
+        isValid = false;
+      } else if (name.length < 3) {
+        nameError.textContent = 'Brand name must be at least 3 characters long';
+        nameError.style.display = 'block';
+        isValid = false;
+      } else if (name.length > 50) {
+        nameError.textContent = 'Brand name cannot exceed 50 characters';
+        nameError.style.display = 'block';
+        isValid = false;
+      } else if (!nameRegex.test(name)) {
+        nameError.textContent = 'Brand name can only contain letters';
+        nameError.style.display = 'block';
+        isValid = false;
+      }
+
+      // Image validation
+      const file = imageInput.files[0];
+      const validImageTypes = ['image/jpeg', 'image/png', 'image/gif'];
+
+      if (!file) {
+        imageError.textContent = 'Brand image is required';
+        imageError.style.display = 'block';
+        isValid = false;
+      } else if (!validImageTypes.includes(file.type)) {
+        imageError.textContent = 'Only JPG, PNG, or GIF files are allowed';
+        imageError.style.display = 'block';
+        isValid = false;
+      }
+
+      // Proceed with form submission if valid
+      if (isValid) {
+        const formData = new FormData(this);
+
         Swal.fire({
-          title: 'Error!',
-          text: 'An error occurred while adding the brand',
-          icon: 'error',
+          title: 'Uploading...',
+          text: 'Please wait while your photo is being uploaded',
+          allowOutsideClick: false,
+          showConfirmButton: false,
+          didOpen: () => {
+            Swal.showLoading();
+          },
         });
-      });
+
+        fetch('/admin/addBrand', {
+          method: 'POST',
+          body: formData,
+        })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              Swal.fire({
+                title: 'Success!',
+                text: data.message,
+                icon: 'success',
+              }).then(() => {
+                location.reload();
+              });
+            } else {
+              Swal.fire({
+                title: 'Error!',
+                text: data.message || 'Unable to add brand',
+                icon: 'error',
+              });
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error);
+            Swal.fire({
+              title: 'Error!',
+              text: 'An error occurred while adding the brand',
+              icon: 'error',
+            });
+          });
+      }
     });
 
     function editBrand(id, name) {
@@ -271,15 +390,64 @@
         title: 'Edit Brand',
         html: `
           <input id="swal-input1" class="swal2-input" value="${name}" placeholder="Brand Name">
+          <div id="swal-name-error" class="error-message" style="color: #dc3545; font-size: 12px; display: none;"></div>
           <input type="file" id="swal-input2" class="swal2-file" accept="image/*">
+          <div id="swal-image-error" class="error-message" style="color: #dc3545; font-size: 12px; display: none;"></div>
         `,
         focusConfirm: false,
         showCancelButton: true,
         confirmButtonText: 'Update',
         preConfirm: () => {
-          const formData = new FormData();
-          formData.append('brandName', document.getElementById('swal-input1').value);
+          const name = document.getElementById('swal-input1').value.trim();
           const fileInput = document.getElementById('swal-input2');
+          const nameError = document.getElementById('swal-name-error');
+          const imageError = document.getElementById('swal-image-error');
+          const nameRegex = /^[a-zA-Z0-9\s]+$/;
+          const validImageTypes = ['image/jpeg', 'image/png', 'image/gif'];
+
+          // Reset error messages
+          nameError.style.display = 'none';
+          imageError.style.display = 'none';
+
+          let isValid = true;
+
+          // Name validation
+          if (!name) {
+            nameError.textContent = 'Brand name is required';
+            nameError.style.display = 'block';
+            isValid = false;
+          } else if (name.length < 3) {
+            nameError.textContent = 'Brand name must be at least 3 characters long';
+            nameError.style.display = 'block';
+            isValid = false;
+          } else if (name.length > 50) {
+            nameError.textContent = 'Brand name cannot exceed 50 characters';
+            nameError.style.display = 'block';
+            isValid = false;
+          } else if (!nameRegex.test(name)) {
+            nameError.textContent = 'Brand name can only contain letters, numbers, and spaces';
+            nameError.style.display = 'block';
+            isValid = false;
+          }
+
+          // Image validation (only if a file is selected)
+          const file = fileInput.files[0];
+          if (file && !validImageTypes.includes(file.type)) {
+            imageError.textContent = 'Only JPG, PNG, or GIF files are allowed';
+            imageError.style.display = 'block';
+            isValid = false;
+          }
+
+
+          if (!isValid) {
+            Swal.showValidationMessage('Please correct the errors');
+            return false;
+          }
+
+
+
+          const formData = new FormData();
+          formData.append('brandName', name);
           if (fileInput.files.length > 0) {
             formData.append('brandImage', fileInput.files[0]);
           }
@@ -287,24 +455,34 @@
         },
       }).then((result) => {
         if (result.isConfirmed) {
+          Swal.fire({
+            title: 'Uploading...',
+            text: 'Please wait while your photo is being uploaded',
+            allowOutsideClick: false,
+            showConfirmButton: false,
+            didOpen: () => {
+              Swal.showLoading();
+            },
+          });
+
           fetch(`/admin/editBrand/${id}`, {
             method: 'POST',
             body: result.value,
           })
-          .then(response => response.json())
-          .then(data => {
-            if (data.success) {
-              Swal.fire('Updated!', 'Brand has been updated.', 'success').then(() => {
-                location.reload();
-              });
-            } else {
-              Swal.fire('Error', data.message || 'Failed to update brand', 'error');
-            }
-          })
-          .catch(error => {
-            console.error('Error:', error);
-            Swal.fire('Error', 'An error occurred while updating the brand', 'error');
-          });
+            .then(response => response.json())
+            .then(data => {
+              if (data.success) {
+                Swal.fire('Updated!', 'Brand has been updated.', 'success').then(() => {
+                  location.reload();
+                });
+              } else {
+                Swal.fire('Error', data.message || 'Failed to update brand', 'error');
+              }
+            })
+            .catch(error => {
+              console.error('Error:', error);
+              Swal.fire('Error', 'An error occurred while updating the brand', 'error');
+            });
         }
       });
     }
@@ -323,24 +501,24 @@
           fetch(`/admin/unlistBrand?id=${id}`, {
             method: 'POST',
           })
-          .then(response => response.json())
-          .then(data => {
-            if (data.success) {
-              Swal.fire('Unlisted!', 'Brand has been unlisted.', 'success').then(() => {
-                location.reload();
+            .then(response => response.json())
+            .then(data => {
+              if (data.success) {
+                Swal.fire('Unlisted!', 'Brand has been unlisted.', 'success').then(() => {
+                  location.reload();
+                });
+              } else {
+                Swal.fire('Error', data.message || 'Failed to unlist brand', 'error');
+              }
+            })
+            .catch(error => {
+              console.error('Error:', error);
+              Swal.fire({
+                title: 'Error',
+                text: 'An error occurred while unlisting the brand',
+                icon: 'error',
               });
-            } else {
-              Swal.fire('Error', data.message || 'Failed to unlist brand', 'error');
-            }
-          })
-          .catch(error => {
-            console.error('Error:', error);
-            Swal.fire({
-              title: 'Error',
-              text: 'An error occurred while unlisting the brand',
-              icon: 'error',
             });
-          });
         }
       });
     }
@@ -359,27 +537,28 @@
           fetch(`/admin/listBrand?id=${id}`, {
             method: 'POST',
           })
-          .then(response => response.json())
-          .then(data => {
-            if (data.success) {
-              Swal.fire('Listed!', 'Brand has been listed.', 'success').then(() => {
-                location.reload();
+            .then(response => response.json())
+            .then(data => {
+              if (data.success) {
+                Swal.fire('Listed!', 'Brand has been listed.', 'success').then(() => {
+                  location.reload();
+                });
+              } else {
+                Swal.fire('Error', data.message || 'Failed to list brand', 'error');
+              }
+            })
+            .catch(error => {
+              console.error('Error:', error);
+              Swal.fire({
+                title: 'Error',
+                text: 'An error occurred while listing the brand',
+                icon: 'error',
               });
-            } else {
-              Swal.fire('Error', data.message || 'Failed to list brand', 'error');
-            }
-          })
-          .catch(error => {
-            console.error('Error:', error);
-            Swal.fire({
-              title: 'Error',
-              text: 'An error occurred while listing the brand',
-              icon: 'error',
             });
-          });
         }
       });
     }
   </script>
 </body>
+
 </html>

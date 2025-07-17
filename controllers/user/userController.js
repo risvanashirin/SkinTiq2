@@ -4,7 +4,7 @@ const Product = require('../../models/productSchema');
 const Coupon = require('../../models/couponSchema');
 const Brand = require('../../models/brandSchema');
 const Cart = require('../../models/cartSchema');
-
+const STATUS_CODES = require('../../helpers/statusCodes');
 
 const env = require('dotenv').config();
 const nodemailer = require('nodemailer');
@@ -46,7 +46,7 @@ const loadHomepage = async (req, res) => {
         }
     } catch (error) {
         console.log('Home page not loading', error);
-        res.status(500).send('server error');
+      res.status(STATUS_CODES . INTERNAL_SERVER_ERROR).send('server error');
     }
 };
 
@@ -55,7 +55,7 @@ const getaboutPage = (req, res) => {
     return res.render('about', { user: req.session.user || null });
   } catch (error) {
     console.log('about page not loading:', error);
-    res.status(500).send('Server Error');
+  res.status(STATUS_CODES . INTERNAL_SERVER_ERROR).send('Server Error');
   }
 };
 
@@ -65,7 +65,7 @@ const getContactPage = (req,res)=>{
     return res.render('contact', { user: req.session.user || null });
   } catch (error) {
     console.log('contact page not loading:',error);
-    res.status(500).send('server Error')
+  res.status(STATUS_CODES . INTERNAL_SERVER_ERROR).send('server Error')
   }
 }
 
@@ -76,7 +76,7 @@ const loadSignup = async (req, res) => {
         return res.render('signup');
     } catch (error) {
         console.log('Home page not loading:', error);
-        res.status(500).send('Server Error');
+      res.status(STATUS_CODES . INTERNAL_SERVER_ERROR).send('Server Error');
     }
 };
 
@@ -93,6 +93,14 @@ function generateReferralCode() {
     return referralCode;
 }
 
+function generateRandomString(length) {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let result = '';
+    for (let i = 0; i < length; i++) {
+        result += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+    return result;
+}
 
 async function sendVerificationEmail(email, otp) {
     try {
@@ -222,11 +230,11 @@ const verifyOtp = async (req, res) => {
 
             res.json({ success: true, redirect: "/" });
         } else {
-            res.status(400).json({ success: false, message: "Invalid OTP, Please try again" });
+            res.status(STATUS_CODES.  BAD_REQUEST).json({ success: false, message: "Invalid OTP, Please try again" });
         }
     } catch (error) {
         console.error('Error Verifying OTP:', error);
-        res.status(500).json({ success: false, message: "An error occurred" });
+      res.status(STATUS_CODES . INTERNAL_SERVER_ERROR).json({ success: false, message: "An error occurred" });
     }
 };
 
@@ -234,7 +242,7 @@ const resendOtp = async (req, res) => {
     try {
         if (!req.session.userData || !req.session.userData.email) {
             console.log('Session data missing in resendOtp');
-            return res.status(400).json({ success: false, message: "Session data not found. Please start signup again." });
+            return res.status(STATUS_CODES.  BAD_REQUEST).json({ success: false, message: "Session data not found. Please start signup again." });
         }
         const { email } = req.session.userData;
         const otp = generateOtp();
@@ -244,14 +252,14 @@ const resendOtp = async (req, res) => {
         const emailSent = await sendVerificationEmail(email, otp);
         if (emailSent) {
             console.log('Resend OTP sent:', otp);
-            return res.status(200).json({ success: true, message: "OTP Resend Successfully" });
+            return res.status(STATUS_CODES.OK).json({ success: true, message: "OTP Resend Successfully" });
         } else {
             console.log('Failed to resend OTP');
             return res.status(500).json({ success: false, message: "Failed to resend OTP. Please try again" });
         }
     } catch (error) {
         console.error('Error resending OTP:', error);
-        res.status(500).json({ success: false, message: "Internal Server Error. Please try again" });
+      res.status(STATUS_CODES . INTERNAL_SERVER_ERROR).json({ success: false, message: "Internal Server Error. Please try again" });
     }
 };
 
@@ -396,8 +404,8 @@ const loadshop = async (req, res) => {
     });
 
     const priceRanges = {
-      from: [500, 1000, 1500, 2000, 2500, 3000, 3500],
-      to: [1000, 1500, 2000, 2500, 3000, 3500, 4000]
+      from: [500, 1000, 1500, STATUS_CODES.OK0, 2500, 3000, 3500],
+      to: [1000, 1500, STATUS_CODES.OK0, 2500, 3000, 3500, STATUS_CODES.  BAD_REQUEST0]
     };
 
     const listedCategories = await Category.find({ isListed: true });
@@ -526,6 +534,179 @@ const productDetails = async (req, res) => {
   }
 };
 
+// controllers/userController.js
+const getShopData = async (req, res) => {
+  try {
+    const userId = req.session.user;
+    const userData = userId ? await User.findById(userId) : null;
+
+    if (userData && userData.isBlocked) {
+      return res.status(STATUS_CODES.FORBIDDEN).json({ success: false, message: "Your account has been blocked by the admin" });
+    }
+
+    const { search, category, brand, sort, minPrice, maxPrice, page = 1 } = req.query;
+    const perPage = 12;
+
+    const filter = {
+      isBlocked: false,
+      category: { $in: (await Category.find({ isListed: true })).map(c => c._id) },
+      brand: { $in: (await Brand.find({ isListed: true })).map(b => b._id) }
+    };
+
+    if (search) filter.productName = { $regex: search, $options: "i" };
+    if (category) {
+      const categoryExists = await Category.findOne({ _id: category, isListed: true });
+      if (categoryExists) {
+        filter.category = category;
+      } else {
+        delete filter.category;
+      }
+    }
+    if (brand) {
+      const brandExists = await Brand.findOne({ _id: brand, isListed: true });
+      if (brandExists) {
+        filter.brand = brand;
+      }
+    }
+    if (minPrice && maxPrice) {
+      filter.salePrice = { $gte: Number(minPrice), $lte: Number(maxPrice) };
+    }
+
+    const sortOptions = {
+      lowToHigh: { salePrice: 1 },
+      highToLow: { salePrice: -1 },
+      aToZ: { productName: 1 },
+      zToA: { productName: -1 },
+      newArrivals: { createdAt: -1 }
+    };
+
+    const totalProducts = await Product.countDocuments(filter);
+    const totalPages = Math.ceil(totalProducts / perPage) || 1;
+    const currentPage = Math.max(1, Math.min(parseInt(page) || 1, totalPages));
+
+    const products = await Product.find(filter)
+      .populate('category')
+      .populate('brand')
+      .sort(sortOptions[sort] || { createdAt: -1 })
+      .skip((currentPage - 1) * perPage)
+      .limit(perPage);
+
+    const productsWithOffers = products.map(product => {
+      const categoryOffer = product.category?.categoryOffer || 0;
+      const productOffer = product.productOffer || 0;
+      const maxOffer = Math.max(categoryOffer, productOffer);
+      const salePrice = product.regularPrice - (product.regularPrice * maxOffer / 100);
+      return {
+        ...product._doc,
+        maxOffer,
+        salePrice,
+        inCart: false // Will be updated below
+      };
+    });
+
+    // Fetch the user's cart
+    const cart = userId ? await Cart.findOne({ userId }).populate('cart.productId') : null;
+    if (cart) {
+      productsWithOffers.forEach(product => {
+        product.inCart = cart.cart.some(item => item.productId && item.productId._id.toString() === product._id.toString());
+      });
+    }
+
+    res.json({
+      success: true,
+      products: productsWithOffers,
+      totalPages,
+      currentPage
+    });
+  } catch (error) {
+    console.error("Error fetching shop data:", error);
+  res.status(STATUS_CODES . INTERNAL_SERVER_ERROR).json({ success: false, message: "Error fetching shop data" });
+  }
+};
+// controllers/userController.js
+const getProductDetailsData = async (req, res) => {
+  try {
+    const userId = req.session.user;
+    const userData = userId ? await User.findById(userId) : null;
+
+    if (userData && userData.isBlocked) {
+      return res.status(STATUS_CODES.FORBIDDEN).json({ success: false, message: "Your account has been blocked by the admin" });
+    }
+
+    const productId = req.query.id;
+    const product = await Product.findById(productId).populate('category').populate('brand');
+    if (!product || product.isBlocked) {
+      return res.status(STATUS_CODES .  NOT_FOUND).json({ success: false, message: "Product not found or blocked" });
+    }
+
+    const findCategory = product.category;
+    const categoryOffer = findCategory?.categoryOffer || 0;
+    const productOffer = product.productOffer || 0;
+
+    let offerSource = "No Offer";
+    let maxOffer = 0;
+    if (productOffer > 0 || categoryOffer > 0) {
+      maxOffer = Math.max(categoryOffer, productOffer);
+      offerSource = productOffer >= categoryOffer ? "Product Offer" : "Category Offer";
+    }
+
+    const salePrice = product.regularPrice - (product.regularPrice * maxOffer / 100);
+
+    const relatedProducts = await Product.find({
+      category: product.category,
+      _id: { $ne: productId },
+      isBlocked: false
+    })
+      .populate('category')
+      .populate('brand')
+      .limit(4);
+
+    const relatedProductsWithOffers = relatedProducts.map(relatedProduct => {
+      const relCategoryOffer = relatedProduct.category?.categoryOffer || 0;
+      const relProductOffer = relatedProduct.productOffer || 0;
+      const relMaxOffer = Math.max(relCategoryOffer, relProductOffer);
+      const relSalePrice = relatedProduct.regularPrice - (relatedProduct.regularPrice * relMaxOffer / 100);
+      const relOfferSource = relMaxOffer > 0 ? (relProductOffer >= relCategoryOffer ? "Product Offer" : "Category Offer") : "No Offer";
+      return {
+        ...relatedProduct._doc,
+        maxOffer: relMaxOffer,
+        salePrice: relSalePrice,
+        offerSource: relOfferSource
+      };
+    });
+
+    res.json({
+      success: true,
+      product: {
+        ...product._doc,
+        maxOffer,
+        offerSource,
+        salePrice
+      },
+      relatedProducts: relatedProductsWithOffers
+    });
+  } catch (error) {
+    console.error("Error fetching product details data:", error);
+  res.status(STATUS_CODES . INTERNAL_SERVER_ERROR).json({ success: false, message: "Error fetching product details" });
+  }
+};
+// controllers/userController.js
+const checkSession = async (req, res) => {
+  try {
+    const userId = req.session.user;
+    const userData = userId ? await User.findById(userId) : null;
+
+    if (userData && !userData.isBlocked) {
+      return res.json({ isLoggedIn: true });
+    } else {
+      return res.json({ isLoggedIn: false });
+    }
+  } catch (error) {
+    console.error('Error checking session:', error);
+    res.status(500).json({ isLoggedIn: false });
+  }
+};
+
 module.exports = {
     loadHomepage,
     pageNotFound,
@@ -538,6 +719,9 @@ module.exports = {
     logout,
     loadshop,
     productDetails,
+  getShopData,
+  getProductDetailsData,
+  checkSession,
     getaboutPage,
     getContactPage,
     // postContactForm

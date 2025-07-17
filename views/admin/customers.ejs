@@ -1,9 +1,11 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <%- include("../../views/partials/admin/header") %>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="csrf-token" content="<%= csrfToken %>">
   <title>Customers - Skintiq Admin</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -16,7 +18,7 @@
       margin: 0;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background-color: #ecf0f1;
-      margin-left: 250px; /* Offset to match the fixed sidebar width */
+      margin-left: 250px;
     }
 
     .table-container {
@@ -34,7 +36,6 @@
     .action-btn:hover {
       transform: translateY(-1px);
     }
-    /* Smooth modal transition */
     #confirmationModal {
       transition: opacity 0.3s ease-in-out;
     }
@@ -45,7 +46,6 @@
     #confirmationModal:not(.hidden) {
       opacity: 1;
     }
-    /* Toast animation */
     #toast {
       transition: opacity 0.3s ease-in-out;
     }
@@ -58,7 +58,7 @@
 
     @media screen and (max-width: 768px) {
       body {
-        margin-left: 0; /* Remove offset for mobile as sidebar becomes horizontal */
+        margin-left: 0;
       }
       .container {
         padding-left: 1rem;
@@ -119,33 +119,35 @@
         </thead>
         <tbody id="customerTable">
           <% for(let i = 0; i < data.length; i++) { %>
-            <tr class="hover:bg-gray-50 transition-colors">
+            <tr class="hover:bg-gray-50 transition-colors" data-user-id="<%= data[i]._id %>">
               <td class="py-4 px-6 border-b text-gray-700"><%= data[i].name %></td>
               <td class="py-4 px-6 border-b text-gray-700"><%= data[i].email %></td>
-              <td class="py-4 px-6 border-b text-gray-700"><%= data[i].phone %></td>
+              <td class="py-4 px-6 border-b text-gray-700"><%= data[i].phone || 'N/A' %></td>
               <td class="py-4 px-6 border-b">
                 <% if (data[i].isBlocked === false) { %>
-                  <a 
-                    href="/admin/blockCustomer?id=<%= data[i].id %>" 
+                  <button 
                     class="action-btn inline-flex items-center bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500"
+                    data-action="block"
+                    data-user-id="<%= data[i]._id %>"
                     aria-label="Block customer <%= data[i].name %>"
                   >
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636A9 9 0 115.636 18.364M18.364 5.636L5.636 18.364"></path>
                     </svg>
                     Block
-                  </a>
+                  </button>
                 <% } else { %>
-                  <a 
-                    href="/admin/unblockCustomer?id=<%= data[i].id %>" 
+                  <button 
                     class="action-btn inline-flex items-center bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500"
+                    data-action="unblock"
+                    data-user-id="<%= data[i]._id %>"
                     aria-label="Unblock customer <%= data[i].name %>"
                   >
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                     </svg>
                     Unblock
-                  </a>
+                  </button>
                 <% } %>
               </td>
             </tr>
@@ -199,13 +201,15 @@
       const cancelBtn = document.getElementById('cancelBtn');
       let actionUrl = '';
       let isBlockAction = false;
+      let currentRow = null;
 
       // Show modal
-      function showModal(title, message, url, isBlock) {
+      function showModal(title, message, url, isBlock, row) {
         modalTitle.textContent = title;
         modalMessage.textContent = message;
         actionUrl = url;
         isBlockAction = isBlock;
+        currentRow = row;
         modal.classList.remove('hidden');
       }
 
@@ -214,44 +218,112 @@
         modal.classList.add('hidden');
         actionUrl = '';
         isBlockAction = false;
+        currentRow = null;
       }
 
-      // Handle block/unblock button clicks
-      document.querySelectorAll('.action-btn').forEach(button => {
-        button.addEventListener('click', (e) => {
-          e.preventDefault();
-          const isBlock = button.classList.contains('bg-red-500');
-          const userName = button.closest('tr').querySelector('td').textContent;
-          const title = isBlock ? 'Block Customer' : 'Unblock Customer';
-          const message = isBlock 
-            ? `Are you sure you want to block ${userName}? They will lose access to their account.`
-            : `Are you sure you want to unblock ${userName}? They will regain access to their account.`;
-          showModal(title, message, button.getAttribute('href'), isBlock);
+      // Update table row
+      function updateTableRow(row, isBlocked) {
+        const actionCell = row.querySelector('td:last-child');
+        const userId = row.getAttribute('data-user-id');
+        if (isBlocked) {
+          actionCell.innerHTML = `
+            <button 
+              class="action-btn inline-flex items-center bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500"
+              data-action="unblock"
+              data-user-id="${userId}"
+              aria-label="Unblock customer"
+            >
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+              Unblock
+            </button>
+          `;
+        } else {
+          actionCell.innerHTML = `
+            <button 
+              class="action-btn inline-flex items-center bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500"
+              data-action="block"
+              data-user-id="${userId}"
+              aria-label="Block customer"
+            >
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636A9 9 0 115.636 18.364M18.364 5.636L5.636 18.364"></path>
+              </svg>
+              Block
+            </button>
+          `;
+        }
+        attachActionButtonListeners();
+      }
+
+      // Attach event listeners to action buttons
+      function attachActionButtonListeners() {
+        document.querySelectorAll('.action-btn').forEach(button => {
+          button.removeEventListener('click', handleActionClick);
+          button.addEventListener('click', handleActionClick);
         });
-      });
+      }
+
+      // Handle action button clicks
+      function handleActionClick(e) {
+        e.preventDefault();
+        const button = e.currentTarget;
+        const isBlock = button.getAttribute('data-action') === 'block';
+        const userId = button.getAttribute('data-user-id');
+        const userName = button.closest('tr').querySelector('td').textContent;
+        const title = isBlock ? 'Block Customer' : 'Unblock Customer';
+        const message = isBlock 
+          ? `Are you sure you want to block ${userName}? They will lose access to their account.`
+          : `Are you sure you want to unblock ${userName}? They will regain access to their account.`;
+        const url = isBlock ? `/admin/blockCustomer?id=${userId}` : `/admin/unblockCustomer?id=${userId}`;
+        showModal(title, message, url, isBlock, button.closest('tr'));
+      }
+
+      // Initial attachment of event listeners
+      attachActionButtonListeners();
 
       // Confirm action
       confirmBtn.addEventListener('click', async () => {
         try {
-          const response = await fetch(actionUrl, { method: 'GET' });
+          console.log('Sending request to:', actionUrl);
+          const response = await fetch(actionUrl, { 
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || ''
+            }
+          });
+
+          console.log('Response status:', response.status);
+          console.log('Response headers:', response.headers.get('content-type'));
+
+          const contentType = response.headers.get('content-type');
+          if (!contentType || !contentType.includes('application/json')) {
+            const text = await response.text();
+            console.log('Non-JSON response:', text);
+            throw new Error('Received non-JSON response from server.');
+          }
+
+          const result = await response.json();
           if (response.ok) {
             Swal.fire({
               icon: 'success',
               title: isBlockAction ? 'Customer Blocked' : 'Customer Unblocked',
-              text: isBlockAction ? 'Customer blocked successfully.' : 'Customer unblocked successfully.',
+              text: result.message,
               timer: 2000,
               showConfirmButton: false
-            }).then(() => {
-              window.location.href = actionUrl;
             });
+            updateTableRow(currentRow, isBlockAction);
           } else {
-            throw new Error('Server error');
+            throw new Error(result.message || 'Server error');
           }
         } catch (error) {
+          console.error('Error:', error);
           Swal.fire({
             icon: 'error',
             title: 'Error',
-            text: 'Failed to process the request. Please try again.',
+            text: error.message || 'Failed to process the request. Please try again.',
             timer: 2000,
             showConfirmButton: false
           });
@@ -276,4 +348,4 @@
     });
   </script>
 </body>
-</html> 
+</html>

@@ -1,4 +1,5 @@
 const Wallet = require('../../models/walletSchema');
+const STATUS_CODES = require('../../helpers/statusCodes');
 
 
 

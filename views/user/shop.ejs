@@ -2,7 +2,9 @@
 
 <!-- Hero Banner Section -->
 <div class="hero-wrap hero-bread" style="background-image: url('/images/bggg1.jpg');">
-  <div class="container">
+  <div class="
+
+container">
     <div class="row no-gutters slider-text align-items-center justify-content-center">
       <div class="col-md-9 ftco-animate text-center">
         <p class="breadcrumbs">
@@ -71,7 +73,7 @@
     </div>
 
     <!-- Products Grid -->
-    <div class="row">
+    <div class="row" id="product-grid">
       <% if (products.length > 0) { %>
         <% products.forEach(product => { %>
           <div class="col-6 col-md-4 col-lg-3 mb-4">
@@ -110,7 +112,7 @@
                       Go to Cart <i class="ion-ios-cart ml-1"></i>
                     </a>
                   <% } else { %>
-                    <form action="/add-to-cart-shop/<%= product._id %>" method="POST" style="display: inline;">
+                    <form action="/add-to-cart-shop/<%= product._id %>" method="POST" class="add-to-cart-form" style="display: inline;">
                       <button type="submit" class="btn btn-outline-primary flex-fill disabled:opacity-50 disabled:cursor-not-allowed" <%= product.quantity < 1 ? 'disabled' : '' %>>
                         <span>Add to Cart <i class="ion-ios-add ml-1"></i></span>
                       </button>
@@ -134,7 +136,7 @@
     <!-- Pagination -->
     <div class="row mt-5">
       <div class="col text-center">
-        <nav class="pagination-container" role="navigation" aria-label="Pagination">
+        <nav class="pagination-container" role="navigation" aria-label="Pagination" id="pagination-container">
           <% if (totalPages > 1) { %>
             <!-- Left Arrow (Previous) -->
             <a 
@@ -173,54 +175,164 @@
 
 <%- include("../../views/partials/user/footer.ejs") %>
 
+<!-- Add jQuery and SweetAlert2 -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
+  // Function to check if user is logged in
+  async function checkUserSession() {
+    try {
+      const response = await fetch('/check-session', {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      const result = await response.json();
+      return result.isLoggedIn;
+    } catch (error) {
+      console.error('Error checking session:', error);
+      return false;
+    }
+  }
+
+  // Reset filters
   function resetFilters() {
-    const form = document.getElementById('filter-form');
-    form.reset();
+    $('#filter-form')[0].reset();
     window.location.href = "/shop";
   }
 
-  document.querySelectorAll('form[action^="/add-to-cart-shop/"]').forEach(form => {
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const action = form.getAttribute('action');
-      try {
-        const response = await fetch(action, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-        });
-        const data = await response.json();
-
+  // Function to fetch updated products via AJAX
+  function fetchUpdatedProducts() {
+    $.ajax({
+      url: '/shop/data',
+      method: 'GET',
+      data: {
+        sort: $('select[name="sort"]').val(),
+        category: $('select[name="category"]').val(),
+        brand: $('select[name="brand"]').val(),
+        minPrice: $('select[name="minPrice"]').val(),
+        maxPrice: $('select[name="maxPrice"]').val(),
+        search: $('input[name="search"]').val(),
+        page: <%= currentPage %>
+      },
+      success: function (data) {
         if (data.success) {
+          updateProductGrid(data.products, data.totalPages, data.currentPage);
+        } else {
+          console.error('Error fetching products:', data.message);
           Swal.fire({
-            title: 'Product added to cart!',
-            icon: 'success',
-            showCancelButton: true,
-            confirmButtonText: 'Go to Cart',
-            cancelButtonText: 'Continue Shopping',
-            confirmButtonColor: '#007bff'
-          }).then((result) => {
-            if (result.isConfirmed) {
-              window.location.href = '/cart';
-            } else {
-              window.location.reload();
-            }
-          });
-        } else if (data.error === 'out_of_stock') {
-          Swal.fire({
-            title: 'Out of stock!',
-            text: data.message || 'Not enough stock available.',
+            title: 'Error',
+            text: data.message || 'Failed to fetch products.',
             icon: 'error',
             confirmButtonColor: '#007bff'
           });
-        } else if (data.message === 'This item is already in your cart. You can update the quantity in your cart.') {
-          Swal.fire({
-            title: 'Item Already in Cart',
-            text: data.message,
-            icon: 'warning',
-            confirmButtonColor: '#007bff'
-          });
-        } else if (data.message === 'User not logged in') {
+        }
+      },
+      error: function (error) {
+        console.error('Error fetching updated products:', error);
+      }
+    });
+  }
+
+  // Function to update product grid and pagination
+  function updateProductGrid(products, totalPages, currentPage) {
+    const $productContainer = $('#product-grid');
+    $productContainer.fadeOut(200, function () {
+      $productContainer.empty(); // Clear existing products
+
+      if (products.length > 0) {
+        products.forEach(product => {
+          const productHtml = `
+            <div class="col-6 col-md-4 col-lg-3 mb-4">
+              <div class="product card h-100">
+                <a href="/productDetails?id=${product._id}" class="img-prod">
+                  <img class="card-img-top img-fluid" src="${product.productImage && product.productImage.length > 0 ? product.productImage[0] : '/images/default-product.jpg'}" alt="${product.productName}">
+                  ${product.quantity < 1 ? '<span class="out-of-stock">Out of Stock</span>' : product.maxOffer > 0 ? `<span class="offer-badge">${product.maxOffer}% OFF</span>` : ''}
+                  <div class="overlay"></div>
+                </a>
+                <div class="card-body d-flex flex-column">
+                  <div class="cat mb-2">
+                    <span class="text-muted">${product.category && product.category.name ? product.category.name : 'Uncategorized'}</span>
+                  </div>
+                  <h3 class="card-title"><a href="/productDetails?id=${product._id}">${product.productName}</a></h3>
+                  <div class="pricing mb-3">
+                    <p class="price m-0">
+                      ${product.maxOffer > 0 ? `<span class="price-sale">₹${product.salePrice.toFixed(2)}</span><span class="price-original"><del>₹${product.regularPrice.toFixed(2)}</del></span>` : `<span class="price-sale">₹${product.salePrice.toFixed(2)}</span>`}
+                    </p>
+                  </div>
+                  <div class="bottom-area d-flex gap-2 mt-auto">
+                    ${product.inCart ? `
+                      <a href="/cart" class="btn btn-outline-primary flex-fill">
+                        Go to Cart <i class="ion-ios-cart ml-1"></i>
+                      </a>
+                    ` : `
+                      <form action="/add-to-cart-shop/${product._id}" method="POST" class="add-to-cart-form" style="display: inline;">
+                        <button type="submit" class="btn btn-outline-primary flex-fill ${product.quantity < 1 ? 'disabled:opacity-50 disabled:cursor-not-allowed' : ''}" ${product.quantity < 1 ? 'disabled' : ''}>
+                          <span>Add to Cart <i class="ion-ios-add ml-1"></i></span>
+                        </button>
+                      </form>
+                    `}
+                    <button type="button" class="btn btn-outline-danger flex-fill" onclick="addToWishlist('${product._id}')">
+                      <i class="ion-ios-heart mr-1"></i> Wishlist
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+          $productContainer.append(productHtml);
+        });
+      } else {
+        $productContainer.append('<div class="col-12 text-center"><h4>No Products Found</h4></div>');
+      }
+
+      // Update pagination
+      const $paginationContainer = $('#pagination-container');
+      $paginationContainer.empty();
+      if (totalPages > 1) {
+        const filterParams = new URLSearchParams({
+          sort: $('select[name="sort"]').val(),
+          category: $('select[name="category"]').val(),
+          brand: $('select[name="brand"]').val(),
+          minPrice: $('select[name="minPrice"]').val(),
+          maxPrice: $('select[name="maxPrice"]').val(),
+          search: $('input[name="search"]').val()
+        }).toString();
+        const paginationHtml = `
+          <a 
+            href="${currentPage > 1 ? `/shop?page=${currentPage - 1}&${filterParams}` : '#'}" 
+            class="nav-button ${currentPage === 1 ? 'disabled' : ''}"
+            aria-label="Previous page"
+            ${currentPage === 1 ? 'aria-disabled="true"' : ''}
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            </svg>
+          </a>
+          <span class="page-indicator">
+            Page ${currentPage} of ${totalPages}
+          </span>
+          <a 
+            href="${currentPage < totalPages ? `/shop?page=${currentPage + 1}&${filterParams}` : '#'}" 
+            class="nav-button ${currentPage === totalPages ? 'disabled' : ''}"
+            aria-label="Next page"
+            ${currentPage === totalPages ? 'aria-disabled="true"' : ''}
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            </svg>
+          </a>
+        `;
+        $paginationContainer.append(paginationHtml);
+      }
+
+      $productContainer.fadeIn(200);
+
+      // Re-attach event listeners for add-to-cart forms
+      $('.add-to-cart-form').off('submit').on('submit', async function (e) {
+        e.preventDefault();
+        const isLoggedIn = await checkUserSession();
+        if (!isLoggedIn) {
           Swal.fire({
             title: 'Log In Required',
             text: 'Please log in to add items to your cart.',
@@ -232,27 +344,97 @@
               window.location.href = '/login';
             }
           });
-        } else {
-          Swal.fire({
-            title: 'Error',
-            text: data.message || 'Failed to add product to cart.',
-            icon: 'error',
-            confirmButtonColor: '#007bff'
-          });
+          return;
         }
-      } catch (error) {
-        console.error('Error adding to cart:', error);
-        Swal.fire({
-          title: 'Error',
-          text: 'Something went wrong. Please try again.',
-          icon: 'error',
-          confirmButtonColor: '#007bff'
+
+        const $form = $(this);
+        const action = $form.attr('action');
+        $.ajax({
+          url: action,
+          method: 'POST',
+          success: function (data) {
+            if (data.success) {
+              Swal.fire({
+                title: 'Product added to cart!',
+                icon: 'success',
+                showCancelButton: true,
+                confirmButtonText: 'Go to Cart',
+                cancelButtonText: 'Continue Shopping',
+                confirmButtonColor: '#007bff'
+              }).then((result) => {
+                if (result.isConfirmed) {
+                  window.location.href = '/cart';
+                } else {
+                  fetchUpdatedProducts(); // Refresh products
+                }
+              });
+            } else if (data.error === 'out_of_stock') {
+              Swal.fire({
+                title: 'Out of stock!',
+                text: data.message || 'Not enough stock available.',
+                icon: 'error',
+                confirmButtonColor: '#007bff'
+              });
+            } else if (data.message === 'This item is already in your cart. You can update the quantity in your cart.') {
+              Swal.fire({
+                title: 'Item Already in Cart',
+                text: data.message,
+                icon: 'warning',
+                confirmButtonColor: '#007bff'
+              });
+            } else {
+              Swal.fire({
+                title: 'Error',
+                text: data.message || 'Failed to add product to cart.',
+                icon: 'error',
+                confirmButtonColor: '#007bff'
+              });
+            }
+          },
+          error: function (error) {
+            console.error('Error adding to cart:', error);
+            Swal.fire({
+              title: 'Error',
+              text: 'Something went wrong. Please try again.',
+              icon: 'error',
+              confirmButtonColor: '#007bff'
+            });
+          }
         });
-      }
+      });
     });
+  }
+
+  // Poll every 10 seconds for updates
+  setInterval(fetchUpdatedProducts, 10000);
+
+  // Initial fetch on page load
+  fetchUpdatedProducts();
+
+  // Handle filter form submission
+  $('#filter-form').on('submit', function (e) {
+    e.preventDefault();
+    fetchUpdatedProducts();
   });
 
+  // Add-to-wishlist function
   async function addToWishlist(productId) {
+    const isLoggedIn = await checkUserSession();
+    if (!isLoggedIn) {
+      Swal.fire({
+        title: 'Log In Required',
+        text: 'Please log in to add items to your wishlist.',
+        icon: 'warning',
+        confirmButtonText: 'Log In',
+        confirmButtonColor: '#007bff'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          window.location.href = '/login';
+        }
+      });
+      return;
+    }
+
     try {
       const response = await fetch('/addToWishlist', {
         method: 'POST',
@@ -282,12 +464,14 @@
         icon: 'error',
         title: 'Error',
         text: 'An error occurred while adding to wishlist',
+        icon: 'error',
         confirmButtonColor: '#007bff'
       });
     }
   }
 </script>
 
+<!-- Existing styles remain unchanged -->
 <style>
   /* Hero Banner */
   .hero-wrap {
@@ -469,7 +653,7 @@
   .pagination-container a.disabled {
     background-color: #d1d5db;
     color: #9ca3af;
-    cursor stops: not-allowed;
+    cursor: not-allowed;
     pointer-events: none;
   }
 
@@ -559,5 +743,16 @@
     border: 1px solid #dbcc8f;
     color: #fff;
   }
+
+  /* Loading spinner */
+  .loading-spinner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: #007bff;
+    font-size: 1rem;
+    z-index: 1000;
+  }
 </style>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

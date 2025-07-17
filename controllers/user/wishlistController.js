@@ -2,6 +2,8 @@ const Wishlist = require('../../models/wishlistSchema');
 const User = require('../../models/userSchema');
 const Product = require('../../models/productSchema');
 const Cart = require('../../models/cartSchema');
+const STATUS_CODES = require('../../helpers/statusCodes');
+
 
 const getWishlist = async (req, res) => {
     try {
@@ -13,7 +15,7 @@ const getWishlist = async (req, res) => {
         }
 
         if (!userId) {
-            return res.status(401).render('wishlist', { wishlist: null, error: 'Invalid User', user });
+            return res.status(STATUS_CODES .UNAUTHORIZED).render('wishlist', { wishlist: null, error: 'Invalid User', user });
         }
 
         let wishlist = await Wishlist.findOne({ UserId: userId })
@@ -90,7 +92,7 @@ const removeFromWishlist = async (req, res) => {
         const productId = req.body.productId;
 
         if (!userId || !productId) {
-            return res.status(400).json({ success: false, message: 'Missing user or product ID' });
+            return res.status(STATUS_CODES .BAD_REQUEST).json({ success: false, message: 'Missing user or product ID' });
         }
 
         const wishlist = await Wishlist.findOne({ UserId: userId })
@@ -100,28 +102,28 @@ const removeFromWishlist = async (req, res) => {
             });
 
         if (!wishlist) {
-            return res.status(404).json({ success: false, message: 'Wishlist not found' });
+            return res.status(STATUS_CODES .NOT_FOUND).json({ success: false, message: 'Wishlist not found' });
         }
 
         const productIdStr = productId.toString();
         const itemIndex = wishlist.products.findIndex(item => item.ProductId._id.toString() === productIdStr);
 
         if (itemIndex === -1) {
-            return res.status(404).json({ success: false, message: 'Product not found in wishlist' });
+            return res.status(STATUS_CODES .NOT_FOUND).json({ success: false, message: 'Product not found in wishlist' });
         }
 
         const wishlistItem = wishlist.products[itemIndex];
         const actualProduct = wishlistItem.ProductId;
 
         if (actualProduct.isBlocked) {
-            return res.status(403).json({
+            return res.status(STATUS_CODES .FORBIDDEN).json({
                 success: false,
                 message: `${actualProduct.productName} cannot be removed because it is blocked and should not be in the wishlist.`
             });
         }
 
         if (actualProduct.category && !actualProduct.category.isListed) {
-            return res.status(403).json({
+            return res.status(STATUS_CODES .FORBIDDEN).json({
                 success: false,
                 message: `${actualProduct.productName} cannot be removed because its category is unlisted.`
             });
@@ -130,7 +132,7 @@ const removeFromWishlist = async (req, res) => {
         wishlist.products.splice(itemIndex, 1);
         await wishlist.save();
 
-        res.status(200).json({
+        res.status(STATUS_CODES .OK).json({
             status: true,
             message: "Deleted successfully",
             wishlist: {
@@ -139,7 +141,7 @@ const removeFromWishlist = async (req, res) => {
         });
     } catch (error) {
         console.error('Error removing product from wishlist:', error);
-        res.status(500).json({ success: false, message: 'Failed to remove product' });
+        res.status(STATUS_CODES . INTERNAL_SERVER_ERROR).json({ success: false, message: 'Failed to remove product' });
     }
 };
 
@@ -147,25 +149,25 @@ const addToWishlist = async (req, res) => {
     try {
         const userId = req.session.user;
         if (!userId) {
-            return res.status(401).json({ status: 401, message: 'Please log in to add items to your wishlist.' });
+            return res.status(STATUS_CODES .UNAUTHORIZED).json({ status: STATUS_CODES .UNAUTHORIZED, message: 'Please log in to add items to your wishlist.' });
         }
 
         const { productId } = req.body;
         if (!productId) {
-            return res.status(400).json({ status: false, message: 'Product ID is required.' });
+            return res.status(STATUS_CODES .BAD_REQUEST).json({ status: false, message: 'Product ID is required.' });
         }
 
         const product = await Product.findById(productId).populate('category');
         if (!product) {
-            return res.status(404).json({ status: false, message: 'Product not found.' });
+            return res.status(STATUS_CODES .NOT_FOUND).json({ status: false, message: 'Product not found.' });
         }
 
         if (product.isBlocked) {
-            return res.status(403).json({ status: false, message: `${product.productName} is blocked and cannot be added to the wishlist.` });
+            return res.status(STATUS_CODES .FORBIDDEN).json({ status: false, message: `${product.productName} is blocked and cannot be added to the wishlist.` });
         }
 
         if (product.category && !product.category.isListed) {
-            return res.status(403).json({ status: false, message: `${product.productName} belongs to an unlisted category and cannot be added to the wishlist.` });
+            return res.status(STATUS_CODES .FORBIDDEN).json({ status: false, message: `${product.productName} belongs to an unlisted category and cannot be added to the wishlist.` });
         }
 
         let wishlist = await Wishlist.findOne({ UserId: userId });
@@ -175,16 +177,16 @@ const addToWishlist = async (req, res) => {
 
         const isProductInWishlist = wishlist.products.some(item => item.ProductId.toString() === productId);
         if (isProductInWishlist) {
-            return res.status(400).json({ status: false, message: `${product.productName} is already in your wishlist.` });
+            return res.status(STATUS_CODES .BAD_REQUEST).json({ status: false, message: `${product.productName} is already in your wishlist.` });
         }
 
         wishlist.products.push({ ProductId: productId });
         await wishlist.save();
 
-        return res.status(200).json({ status: true, message: `${product.productName} added to wishlist successfully.` });
+        return res.status(STATUS_CODES .OK).json({ status: true, message: `${product.productName} added to wishlist successfully.` });
     } catch (error) {
         console.error('Error adding to wishlist:', error);
-        return res.status(500).json({ status: false, message: 'An error occurred while adding the product to the wishlist.' });
+        return res.status(STATUS_CODES . INTERNAL_SERVER_ERROR).json({ status: false, message: 'An error occurred while adding the product to the wishlist.' });
     }
 };
 
@@ -194,15 +196,15 @@ const addToCartfromwishlist = async (req, res) => {
         const productId = req.body.productId;
 
         if (!userId || !productId) {
-            return res.status(400).json({ success: false, message: "Missing user or product ID" });
+            return res.status(STATUS_CODES .BAD_REQUEST).json({ success: false, message: "Missing user or product ID" });
         }
 
         const product = await Product.findById(productId);
         if (!product) {
-            return res.status(404).json({ success: false, message: "Product not found" });
+            return res.status(STATUS_CODES .NOT_FOUND).json({ success: false, message: "Product not found" });
         }
         if (product.quantity === 0) {
-            return res.status(400).json({ success: false, message: "Product is out of stock" });
+            return res.status(STATUS_CODES .BAD_REQUEST).json({ success: false, message: "Product is out of stock" });
         }
 
         let userCart = await Cart.findOne({ userId });
@@ -237,14 +239,14 @@ const addToCartfromwishlist = async (req, res) => {
             }
         }
 
-        return res.status(200).json({
+        return res.status(STATUS_CODES .OK).json({
             status: true,
             message: "Product successfully moved from wishlist to cart",
             cart: userCart.cart,
         });
     } catch (error) {
         console.error("Error in addToCartfromwishlist:", error);
-        return res.status(500).json({
+        return res.status(STATUS_CODES . INTERNAL_SERVER_ERROR).json({
             success: false,
             message: "Something went wrong. Please try again later.",
         });

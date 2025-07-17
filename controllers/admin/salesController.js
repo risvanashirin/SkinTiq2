@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 const Sale = require("../../models/salesSchema");
 const Order = require("../../models/orderSchema");
+const STATUS_CODES = require('../../helpers/statusCodes');
+
 const PDFDocument = require('pdfkit');
 const ExcelJS = require('exceljs');
 
@@ -12,7 +14,7 @@ const renderSalesReport = async (req, res) => {
     const currentPage = parseInt(page) || 1;
     const itemsPerPage = parseInt(limit) || 5;
     if (currentPage < 1 || itemsPerPage < 1) {
-      return res.status(400).render('admin/pageerror', {
+      return res.status(STATUS_CODES .BAD_REQUEST).render('admin/pageerror', {
         message: 'Invalid pagination parameters',
         error: 'Page and limit must be positive integers'
       });
@@ -46,7 +48,7 @@ const renderSalesReport = async (req, res) => {
         break;
       case 'custom':
         if (!startDate || !endDate || isNaN(new Date(startDate).getTime()) || isNaN(new Date(endDate).getTime())) {
-          return res.status(400).render('admin/pageerror', {
+          return res.status(STATUS_CODES .BAD_REQUEST).render('admin/pageerror', {
             message: 'Invalid date range',
             error: 'Please provide valid start and end dates'
           });
@@ -149,15 +151,15 @@ const renderSalesReport = async (req, res) => {
     };
 
     if (format === 'pdf') {
-      return generatePDF(res, salesData);
+      return generatePDF(res, salesData, query);
     } else if (format === 'excel') {
-      return generateExcel(res, salesData);
+      return generateExcel(res, salesData, query);
     }
 
     res.render('sales-report', { salesData, adminName: req.admin?.name || 'Admin' });
   } catch (error) {
     console.error('Error in renderSalesReport:', error);
-    res.status(500).render('admin/pageerror', {
+    res.status(STATUS_CODES . INTERNAL_SERVER_ERROR).render('admin/pageerror', {
       message: 'Error loading sales report',
       error: error.message
     });
@@ -204,7 +206,7 @@ const getSalesReport = async (req, res) => {
         break;
       case 'custom':
         if (!startDate || !endDate || isNaN(new Date(startDate).getTime()) || isNaN(new Date(endDate).getTime())) {
-          return res.status(400).json({
+          return res.status(STATUS_CODES .BAD_REQUEST).json({
             success: false,
             message: 'Invalid date range'
           });
@@ -273,14 +275,14 @@ const getSalesReport = async (req, res) => {
     res.json({ success: true, salesData });
   } catch (error) {
     console.error('Error in getSalesReport:', error);
-    res.status(500).json({
+    res.status(STATUS_CODES . INTERNAL_SERVER_ERROR).json({
       success: false,
       message: `Internal server error: ${error.message}`
     });
   }
 };
 
-const generatePDF = async (res, salesData) => {
+const generatePDF = async (res, salesData, query) => {
   const doc = new PDFDocument();
   res.setHeader('Content-Type', 'application/pdf');
   res.setHeader('Content-Disposition', 'attachment; filename=sales-report.pdf');
@@ -296,6 +298,16 @@ const generatePDF = async (res, salesData) => {
     .text(`Total Discounts & coupon: ₹${Math.round(salesData.discounts || 0).toLocaleString()}`);
   doc.moveDown();
 
+  // Fetch all sales data using the provided query without pagination
+  const allSales = await Sale.find(query)
+    .populate({
+      path: 'orderId',
+      select: 'orderId status'
+    })
+    .sort({ date: -1 });
+
+  const validSales = allSales.filter(sale => sale.orderId && sale.orderId.orderId);
+
   doc.fontSize(14).text('Detailed Sales');
   const headers = ['Date', 'Order ID', 'Amount', 'Discount'];
   let x = 50, y = doc.y + 20;
@@ -305,7 +317,18 @@ const generatePDF = async (res, salesData) => {
   });
 
   y += 20;
-  (salesData.sales || []).forEach(sale => {
+  validSales.forEach(sale => {
+    // Check if we need a new page
+    if (y > 700) {
+      doc.addPage();
+      y = 50;
+      x = 50;
+      headers.forEach(header => {
+        doc.text(header, x, y);
+        x += 100;
+      });
+      y += 20;
+    }
     x = 50;
     doc.text(new Date(sale.date).toLocaleDateString(), x, y);
     x += 100;
@@ -321,7 +344,7 @@ const generatePDF = async (res, salesData) => {
   doc.end();
 };
 
-const generateExcel = async (res, salesData) => {
+const generateExcel = async (res, salesData, query) => {
   const workbook = new ExcelJS.Workbook();
   const worksheet = workbook.addWorksheet('Sales Report');
 
@@ -332,6 +355,16 @@ const generateExcel = async (res, salesData) => {
   worksheet.addRow(['Total Orders', '', salesData.orderCount || 0]);
   worksheet.addRow(['Total Discounts & Coupons', '', `₹${Math.round(salesData.discounts || 0).toLocaleString()}`]);
   worksheet.addRow([]);
+
+  // Fetch all sales data using the provided query without pagination
+  const allSales = await Sale.find(query)
+    .populate({
+      path: 'orderId',
+      select: 'orderId status'
+    })
+    .sort({ date: -1 });
+
+  const validSales = allSales.filter(sale => sale.orderId && sale.orderId.orderId);
 
   // Add detailed sales section with headers
   worksheet.addRow(['Detailed Sales']).getCell(1).font = { size: 12, bold: true };
@@ -346,7 +379,7 @@ const generateExcel = async (res, salesData) => {
   });
 
   // Add detailed sales data
-  (salesData.sales || []).forEach(sale => {
+  validSales.forEach(sale => {
     worksheet.addRow([
       new Date(sale.date).toLocaleDateString(),
       sale.orderId.orderId.toString(),

@@ -9,7 +9,15 @@ const couponController = require('../controllers/admin/couponController');
 const salesController = require('../controllers/admin/salesController');
 const brandController = require('../controllers/admin/brandController');
 const { userAuth, adminAuth } = require('../middlewares/auth');
-const { productUpload, brandUpload } = require('../helpers/multer');
+// const { productUpload, brandUpload } = require('../helpers/multer');
+const { productUpload} = require('../helpers/multer');
+
+
+
+// const {productUpload,brandUpload} = require('../middlewares/multer')
+const {brandUpload} = require('../middlewares/multer')
+
+
 
 // Error Page
 router.get('/pageerror', adminController.pageerror);
@@ -25,9 +33,13 @@ router.get('/api/chart-data', adminAuth, adminController.getChartData);
 router.get('/api/ledger', adminAuth, adminController.generateLedger);
 
 // Customer management
+// router.get('/users', adminAuth, customerController.customerInfo);
+// router.get('/blockCustomer', adminAuth, customerController.customerBlocked);
+// router.get('/unblockCustomer', adminAuth, customerController.customerunBlocked);
 router.get('/users', adminAuth, customerController.customerInfo);
-router.get('/blockCustomer', adminAuth, customerController.customerBlocked);
-router.get('/unblockCustomer', adminAuth, customerController.customerunBlocked);
+router.post('/blockCustomer', adminAuth, customerController.customerBlocked);
+router.post('/unblockCustomer', adminAuth, customerController.customerunBlocked);
+
 
 // Category management
 router.get('/category', adminAuth, categoryController.categoryInfo);

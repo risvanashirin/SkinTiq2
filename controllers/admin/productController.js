@@ -1,6 +1,8 @@
 const Product = require("../../models/productSchema");
 const Category = require("../../models/categorySchema");
 const Brand = require("../../models/brandSchema");
+const STATUS_CODES = require('../../helpers/statusCodes');
+
 const fs = require("fs");
 const path = require("path");
 const sharp = require("sharp");
@@ -37,14 +39,14 @@ const addProducts = async (req, res) => {
     } = req.body;
 
     if (!productName || !description || !category || !brand || !regularPrice || !quantity || !skinType || !skinConcern) {
-      return res.status(400).json({
+      return res.status(STATUS_CODES.BAD_REQUEST).json({
         success: false,
         message: "All required fields must be provided",
       });
     }
 
     if (!mongoose.isValidObjectId(category) || !mongoose.isValidObjectId(brand)) {
-      return res.status(400).json({
+      return res.status(STATUS_CODES.BAD_REQUEST).json({
         success: false,
         message: "Invalid category or brand ID",
       });
@@ -54,7 +56,7 @@ const addProducts = async (req, res) => {
 
     // Check for minimum 4 images
     if (!files || files.length < 4) {
-      return res.status(400).json({
+      return res.status(STATUS_CODES.BAD_REQUEST).json({
         success: false,
         message: "Please upload at least 4 images",
       });
@@ -65,7 +67,7 @@ const addProducts = async (req, res) => {
       productName: { $regex: `^${productName}$`, $options: 'i' }
     });
     if (productExists) {
-      return res.status(400).json({
+      return res.status(STATUS_CODES.BAD_REQUEST).json({
         success: false,
         message: "Product already exists, try another name",
       });
@@ -101,7 +103,7 @@ const addProducts = async (req, res) => {
     const foundCategory = await Category.findById(category);
     const foundBrand = await Brand.findById(brand);
     if (!foundCategory || !foundBrand) {
-      return res.status(400).json({
+      return res.status(STATUS_CODES.BAD_REQUEST).json({
         success: false,
         message: "Category or brand not found",
       });
@@ -123,14 +125,14 @@ const addProducts = async (req, res) => {
 
     const savedProduct = await newProduct.save();
 
-    return res.status(200).json({
+    return res.status(STATUS_CODES.OK).json({
       success: true,
       message: "Product added successfully",
       product: savedProduct,
     });
   } catch (error) {
     console.error("Error saving product:", error.message);
-    return res.status(500).json({
+    return res.status(STATUS_CODES.  INTERNAL_SERVER_ERROR).json({
       success: false,
       message: "Internal server error while saving product",
     });
@@ -202,7 +204,7 @@ const getAllProducts = async (req, res) => {
         brand: brand,
       });
     } else {
-      res.render("page-404");
+      res.render("page-STATUS_CODES. NOT_FOUND");
     }
   } catch (error) {
     console.error("Error fetching products:", error.message);
@@ -217,17 +219,17 @@ const addProductOffer = async (req, res) => {
     const { productId, percentage } = req.body;
 
     if (!productId || !mongoose.isValidObjectId(productId)) {
-      return res.status(400).json({ status: false, message: "Invalid product ID" });
+      return res.status(STATUS_CODES.BAD_REQUEST).json({ status: false, message: "Invalid product ID" });
     }
 
     const offerPercentage = parseInt(percentage);
     if (isNaN(offerPercentage) || offerPercentage < 0 || offerPercentage > 99) {
-      return res.status(400).json({ status: false, message: "Offer percentage must be between 0 and 99" });
+      return res.status(STATUS_CODES.BAD_REQUEST).json({ status: false, message: "Offer percentage must be between 0 and 99" });
     }
 
     const findProduct = await Product.findById(productId);
     if (!findProduct) {
-      return res.status(404).json({ status: false, message: "Product not found" });
+      return res.status(STATUS_CODES. NOT_FOUND).json({ status: false, message: "Product not found" });
     }
 
     findProduct.productOffer = offerPercentage;
@@ -236,7 +238,7 @@ const addProductOffer = async (req, res) => {
     res.json({ status: true, message: "Offer added successfully" });
   } catch (error) {
     console.error("Error adding product offer:", error.message);
-    res.status(500).json({ status: false, message: "Internal server error" });
+    res.status(STATUS_CODES.  INTERNAL_SERVER_ERROR).json({ status: false, message: "Internal server error" });
   }
 };
 
@@ -245,17 +247,17 @@ const editProductOffer = async (req, res) => {
     const { productId, percentage } = req.body;
 
     if (!productId || !mongoose.isValidObjectId(productId)) {
-      return res.status(400).json({ status: false, message: "Invalid product ID" });
+      return res.status(STATUS_CODES.BAD_REQUEST).json({ status: false, message: "Invalid product ID" });
     }
 
     const offerPercentage = parseInt(percentage);
     if (isNaN(offerPercentage) || offerPercentage < 0 || offerPercentage > 99) {
-      return res.status(400).json({ status: false, message: "Offer percentage must be between 0 and 99" });
+      return res.status(STATUS_CODES.BAD_REQUEST).json({ status: false, message: "Offer percentage must be between 0 and 99" });
     }
 
     const findProduct = await Product.findById(productId);
     if (!findProduct) {
-      return res.status(404).json({ status: false, message: "Product not found" });
+      return res.status(STATUS_CODES. NOT_FOUND).json({ status: false, message: "Product not found" });
     }
 
     findProduct.productOffer = offerPercentage;
@@ -264,7 +266,7 @@ const editProductOffer = async (req, res) => {
     res.json({ status: true, message: "Offer updated successfully" });
   } catch (error) {
     console.error("Error editing product offer:", error.message);
-    res.status(500).json({ status: false, message: "Internal server error" });
+    res.status(STATUS_CODES.  INTERNAL_SERVER_ERROR).json({ status: false, message: "Internal server error" });
   }
 };
 
@@ -273,12 +275,12 @@ const removeProductOffer = async (req, res) => {
     const { productId } = req.body;
 
     if (!productId || !mongoose.isValidObjectId(productId)) {
-      return res.status(400).json({ status: false, message: "Invalid product ID" });
+      return res.status(STATUS_CODES.BAD_REQUEST).json({ status: false, message: "Invalid product ID" });
     }
 
     const findProduct = await Product.findById(productId);
     if (!findProduct) {
-      return res.status(404).json({ status: false, message: "Product not found" });
+      return res.status(STATUS_CODES. NOT_FOUND).json({ status: false, message: "Product not found" });
     }
 
     findProduct.productOffer = 0;
@@ -287,7 +289,7 @@ const removeProductOffer = async (req, res) => {
     res.json({ status: true, message: "Offer removed successfully" });
   } catch (error) {
     console.error("Error removing product offer:", error.message);
-    res.status(500).json({ status: false, message: "Internal server error" });
+    res.status(STATUS_CODES.  INTERNAL_SERVER_ERROR).json({ status: false, message: "Internal server error" });
   }
 };
 
@@ -295,13 +297,13 @@ const blockProduct = async (req, res) => {
   try {
     let id = req.query.id;
     if (!mongoose.isValidObjectId(id)) {
-      return res.status(400).json({ status: false, message: "Invalid product ID" });
+      return res.status(STATUS_CODES.BAD_REQUEST).json({ status: false, message: "Invalid product ID" });
     }
     await Product.updateOne({ _id: id }, { $set: { isBlocked: true } });
     res.json({ status: true, message: "Product blocked successfully" });
   } catch (error) {
     console.error("Error blocking product:", error.message);
-    res.status(500).json({ status: false, message: "Internal server error" });
+    res.status(STATUS_CODES.  INTERNAL_SERVER_ERROR).json({ status: false, message: "Internal server error" });
   }
 };
 
@@ -309,13 +311,13 @@ const unblockProduct = async (req, res) => {
   try {
     const id = req.query.id;
     if (!mongoose.isValidObjectId(id)) {
-      return res.status(400).json({ status: false, message: "Invalid product ID" });
+      return res.status(STATUS_CODES.BAD_REQUEST).json({ status: false, message: "Invalid product ID" });
     }
     await Product.updateOne({ _id: id }, { $set: { isBlocked: false } });
     res.json({ status: true, message: "Product unblocked successfully" });
   } catch (error) {
     console.error("Error unblocking product:", error.message);
-    res.status(500).json({ status: false, message: "Internal server error" });
+    res.status(STATUS_CODES.  INTERNAL_SERVER_ERROR).json({ status: false, message: "Internal server error" });
   }
 };
 
@@ -376,7 +378,7 @@ const geteditProduct = async (req, res) => {
 //   try {
 //     const productId = req.params.id;
 //     if (!mongoose.isValidObjectId(productId)) {
-//       return res.status(400).json({ success: false, message: "Invalid product ID" });
+//       return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: "Invalid product ID" });
 //     }
 
 //     const {
@@ -392,19 +394,19 @@ const geteditProduct = async (req, res) => {
 //     } = req.body;
 
 //     if (!productName || !description || !category || !brand || !regularPrice || !quantity || !skinType || !skinConcern) {
-//       return res.status(400).json({ success: false, message: "All required fields must be provided" });
+//       return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: "All required fields must be provided" });
 //     }
 
 //     if (!mongoose.isValidObjectId(category) || !mongoose.isValidObjectId(brand)) {
-//       return res.status(400).json({ success: false, message: "Invalid category or brand ID" });
+//       return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: "Invalid category or brand ID" });
 //     }
 
 //     if (parseFloat(regularPrice) <= 0) {
-//       return res.status(400).json({ success: false, message: "Regular price must be greater than 0" });
+//       return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: "Regular price must be greater than 0" });
 //     }
 
 //     if (parseInt(quantity) < 0) {
-//       return res.status(400).json({ success: false, message: "Quantity cannot be negative" });
+//       return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: "Quantity cannot be negative" });
 //     }
 
 //     let deletedImagesArray = [];
@@ -412,18 +414,18 @@ const geteditProduct = async (req, res) => {
 //       deletedImagesArray = deletedImages ? JSON.parse(deletedImages) : [];
 //     } catch (error) {
 //       console.error("Error parsing deletedImages:", error.message);
-//       return res.status(400).json({ success: false, message: "Invalid deletedImages format" });
+//       return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: "Invalid deletedImages format" });
 //     }
 
 //     const product = await Product.findById(productId);
 //     if (!product) {
-//       return res.status(404).json({ success: false, message: "Product not found" });
+//       return res.status(STATUS_CODES. NOT_FOUND).json({ success: false, message: "Product not found" });
 //     }
 
 //     const foundCategory = await Category.findById(category);
 //     const foundBrand = await Brand.findById(brand);
 //     if (!foundCategory || !foundBrand) {
-//       return res.status(400).json({ success: false, message: "Category or brand not found" });
+//       return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: "Category or brand not found" });
 //     }
 
 // //  Replace with this retry-safe version for Windows
@@ -442,7 +444,7 @@ const geteditProduct = async (req, res) => {
 //       } catch (err) {
 //         if (err.code === 'EBUSY') {
 //           console.warn(`Image ${imagePath} is busy, retrying...`);
-//           await new Promise((resolve) => setTimeout(resolve, 500)); // wait before retry
+//           await new Promise((resolve) => setTimeout(resolve, STATUS_CODES.  INTERNAL_SERVER_ERROR)); // wait before retry
 //           attempts++;
 //         } else {
 //           console.error(`Failed to delete image ${imagePath}:`, err.message);
@@ -485,10 +487,10 @@ const geteditProduct = async (req, res) => {
 //     const updatedImages = [...product.productImage, ...newImages];
 
 //     if (updatedImages.length < 4) {
-//       return res.status(400).json({ success: false, message: "At least 4 images are required" });
+//       return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: "At least 4 images are required" });
 //     }
 //     if (updatedImages.length > 8) {
-//       return res.status(400).json({ success: false, message: "Cannot upload more than 8 images" });
+//       return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: "Cannot upload more than 8 images" });
 //     }
 
 //     // ✅ Update product fields
@@ -507,7 +509,7 @@ const geteditProduct = async (req, res) => {
 //     res.json({ success: true, message: "Product updated successfully", product: updatedProduct });
 //   } catch (error) {
 //     console.error("Error updating product:", error.message);
-//     res.status(500).json({ success: false, message: "Error updating product" });
+//     res.status(STATUS_CODES.  INTERNAL_SERVER_ERROR).json({ success: false, message: "Error updating product" });
 //   }
 // };
 
@@ -516,7 +518,7 @@ const updateProduct = async (req, res) => {
   try {
     const productId = req.params.id;
     if (!mongoose.isValidObjectId(productId)) {
-      return res.status(400).json({ success: false, message: "Invalid product ID" });
+      return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: "Invalid product ID" });
     }
 
     const {
@@ -532,19 +534,19 @@ const updateProduct = async (req, res) => {
     } = req.body;
 
     if (!productName || !description || !category || !brand || !regularPrice || !quantity || !skinType || !skinConcern) {
-      return res.status(400).json({ success: false, message: "All required fields must be provided" });
+      return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: "All required fields must be provided" });
     }
 
     if (!mongoose.isValidObjectId(category) || !mongoose.isValidObjectId(brand)) {
-      return res.status(400).json({ success: false, message: "Invalid category or brand ID" });
+      return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: "Invalid category or brand ID" });
     }
 
     if (parseFloat(regularPrice) <= 0) {
-      return res.status(400).json({ success: false, message: "Regular price must be greater than 0" });
+      return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: "Regular price must be greater than 0" });
     }
 
     if (parseInt(quantity) < 0) {
-      return res.status(400).json({ success: false, message: "Quantity cannot be negative" });
+      return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: "Quantity cannot be negative" });
     }
 
     let deletedImagesArray = [];
@@ -552,18 +554,18 @@ const updateProduct = async (req, res) => {
       deletedImagesArray = deletedImages ? JSON.parse(deletedImages) : [];
     } catch (error) {
       console.error("Error parsing deletedImages:", error.message);
-      return res.status(400).json({ success: false, message: "Invalid deletedImages format" });
+      return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: "Invalid deletedImages format" });
     }
 
     const product = await Product.findById(productId);
     if (!product) {
-      return res.status(404).json({ success: false, message: "Product not found" });
+      return res.status(STATUS_CODES. NOT_FOUND).json({ success: false, message: "Product not found" });
     }
 
     const foundCategory = await Category.findById(category);
     const foundBrand = await Brand.findById(brand);
     if (!foundCategory || !foundBrand) {
-      return res.status(400).json({ success: false, message: "Category or brand not found" });
+      return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: "Category or brand not found" });
     }
 
     // Remove deleted images with retry mechanism
@@ -582,7 +584,7 @@ const updateProduct = async (req, res) => {
           } catch (err) {
             if (err.code === 'EBUSY') {
               console.warn(`Image ${imagePath} is busy, retrying...`);
-              await new Promise((resolve) => setTimeout(resolve, 500)); // wait before retry
+              await new Promise((resolve) => setTimeout(resolve, STATUS_CODES.  INTERNAL_SERVER_ERROR)); // wait before retry
               attempts++;
             } else {
               console.error(`Failed to delete image ${imagePath}:`, err.message);
@@ -631,10 +633,10 @@ const updateProduct = async (req, res) => {
     const updatedImages = [...product.productImage, ...newImages];
 
     if (updatedImages.length < 4) {
-      return res.status(400).json({ success: false, message: "At least 4 images are required" });
+      return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: "At least 4 images are required" });
     }
     if (updatedImages.length > 8) {
-      return res.status(400).json({ success: false, message: "Cannot upload more than 8 images" });
+      return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: "Cannot upload more than 8 images" });
     }
 
     // Update product fields
@@ -653,7 +655,7 @@ const updateProduct = async (req, res) => {
     res.json({ success: true, message: "Product updated successfully", product: updatedProduct });
   } catch (error) {
     console.error("Error updating product:", error.message);
-    res.status(500).json({ success: false, message: "Error updating product" });
+    res.status(STATUS_CODES.  INTERNAL_SERVER_ERROR).json({ success: false, message: "Error updating product" });
   }
 };
 
@@ -662,16 +664,16 @@ const deleteSingleImage = async (req, res) => {
     const { imageNameToServer, productIdToServer, imageIndex } = req.body;
 
     if (!mongoose.isValidObjectId(productIdToServer)) {
-      return res.status(400).json({ message: 'Invalid product ID', status: false });
+      return res.status(STATUS_CODES.BAD_REQUEST).json({ message: 'Invalid product ID', status: false });
     }
 
     const product = await Product.findById(productIdToServer);
     if (!product) {
-      return res.status(404).json({ message: 'Product not found', status: false });
+      return res.status(STATUS_CODES. NOT_FOUND).json({ message: 'Product not found', status: false });
     }
 
     if (product.productImage[imageIndex] !== imageNameToServer) {
-      return res.status(400).json({ message: 'Image not found', status: false });
+      return res.status(STATUS_CODES.BAD_REQUEST).json({ message: 'Image not found', status: false });
     }
 
     product.productImage.splice(imageIndex, 1);
@@ -685,7 +687,7 @@ const deleteSingleImage = async (req, res) => {
     res.json({ status: true });
   } catch (error) {
     console.error('Error deleting image:', error.message);
-    res.status(500).json({ message: 'Error deleting image', status: false });
+    res.status(STATUS_CODES.  INTERNAL_SERVER_ERROR).json({ message: 'Error deleting image', status: false });
   }
 };
 

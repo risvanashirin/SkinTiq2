@@ -17,6 +17,8 @@
       --success-hover: #13843b;
       --text-primary: #1f2937;
       --border-color: #e5e7eb;
+      --clear-button: linear-gradient(45deg, #6b7280, #4b5563);
+      --clear-button-hover: linear-gradient(45deg, #4b5563, #374151);
     }
 
     body {
@@ -180,7 +182,7 @@
       background: white;
       padding: clamp(0.75rem, 2vw, 1rem);
       color: #000000;
-       font-weight: 400;
+      font-weight: 400;
       border-top-left-radius: 12px;
       border-top-right-radius: 12px;
     }
@@ -277,7 +279,7 @@
     .search-button {
       background: var(--accent-gradient);
       border: none;
-      border-radius: 0 12px 12px 0;
+      border-radius: 4px;
       padding: clamp(0.4rem, 1.5vw, 0.5rem) clamp(0.8rem, 2vw, 1rem);
       color: #fff;
       transition: all 0.3s ease;
@@ -286,6 +288,25 @@
     .search-button:hover {
       background: var(--accent-hover);
       box-shadow: 0 4px 10px rgba(68, 53, 28, 0.3);
+    }
+
+    .clear-button {
+      background: var(--clear-button);
+      border: none;
+      border-radius: 0 12px 12px 0;
+      padding: clamp(0.4rem, 1.5vw, 0.5rem) clamp(0.8rem, 2vw, 1rem);
+      color: #fff;
+      transition: all 0.3s ease;
+      display: none;
+    }
+
+    .clear-button.visible {
+      display: block;
+    }
+
+    .clear-button:hover {
+      background: var(--clear-button-hover);
+      box-shadow: 0 4px 10px rgba(75, 85, 99, 0.3);
     }
 
     .pagination-container {
@@ -432,7 +453,8 @@
       }
 
       .search-input,
-      .search-button {
+      .search-button,
+      .clear-button {
         padding: clamp(0.3rem, 1vw, 0.4rem) clamp(0.6rem, 1.5vw, 0.8rem);
         font-size: clamp(0.75rem, 2vw, 0.85rem);
       }
@@ -470,14 +492,17 @@
     </svg>
   </button>
 
-  <div class="main-content p-4">
+  <div class="main-content p-4 mx-auto">
     <h2 class="mb-4" style="font-size: clamp(1.5rem, 4vw, 2rem); font-weight: 700; color: black; text-align: center;">Your Orders</h2>
 
     <% if (groupedOrders.length>0 ) { %>
     <form class="search-form d-flex" action="/orders" method="GET">
-      <input type="text" class="search-input flex-grow-1" name="search" placeholder="Search orders by ID or product name" aria-label="Search orders">
+      <input type="text" class="search-input flex-grow-1" name="search" placeholder="Search orders by ID or product name" aria-label="Search orders" value="<%= search %>">
       <button type="submit" class="search-button">
         <i class="fas fa-search"></i>
+      </button>
+      <button type="button" class="clear-button <%= search ? 'visible' : '' %>" onclick="this.form.search.value='';this.form.submit();">
+        <i class="fas fa-times"></i>
       </button>
     </form>
           
@@ -592,6 +617,8 @@
       const toggleButton = document.querySelector('.sidebar-toggle');
       const sidebar = document.querySelector('.sidebar-partial');
       const mainContent = document.querySelector('.main-content');
+      const searchInput = document.querySelector('.search-input');
+      const clearButton = document.querySelector('.clear-button');
 
       // Ensure sidebar is hidden and toggle is visible on load for mobile
       if (window.innerWidth <= 768) {
@@ -621,6 +648,13 @@
           }
         }
       });
+
+      // Show/hide clear button based on search input
+      if (searchInput && clearButton) {
+        searchInput.addEventListener('input', () => {
+          clearButton.classList.toggle('visible', searchInput.value.trim() !== '');
+        });
+      }
 
       // Order-specific functions
       function cancelOrder(id) {

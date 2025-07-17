@@ -1,1061 +1,1169 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Edit Profile - Advanced E-commerce</title>
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <script src="https://cdn.jsdelivr.net/npm/cropperjs@1.6.1/dist/cropper.min.js"></script>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs@1.6.1/dist/cropper.min.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Poppins', sans-serif;
-    }
-    body {
-      background: linear-gradient(180deg, #ffffff 0%, #f8f8f8 100%);
-      color: #2a2a2a;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 2rem;
-    }
-    h1 {
-      font-size: 2.5rem;
-      font-weight: 700;
-      color: #7e6b00;
-      text-align: center;
-      margin: 2.5rem 0;
-      letter-spacing: 0.05em;
-      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-    .profile-container {
-      max-width: 800px;
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      gap: 2rem;
-      align-items: center;
-    }
-    .edit-profile-card, .form-card, .sidebar-card {
-      background: #fff;
-      border: 1px solid #ccc;
-      border-radius: 12px;
-      padding: 2rem;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-      transition: all 0.3s ease;
-      background: linear-gradient(145deg, #ffffff, #f5f5f5);
-    }
-    .edit-profile-card {
-      padding: 1rem;
-      width: 200px;
-      margin: 0 auto;
-    }
-    .edit-profile-card:hover, .form-card:hover, .sidebar-card:hover {
-      border-color: #7e6b00;
-      box-shadow: 0 6px 16px rgba(126, 107, 0, 0.15);
-      transform: translateY(-2px);
-    }
-    .profile-image-container {
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      width: 100%;
-    }
-    .profile-image {
-      width: 100px;
-      height: 100px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 4px solid #7e6b00;
-      margin: 0 auto 1.5rem;
-      display: block;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-    .camera-button {
-      background: linear-gradient(90deg, #7e6b00, #a68c00);
-      color: #fff;
-      border: none;
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      position: absolute;
-      bottom: 10px;
-      right: 10px;
-      box-shadow: 0 2px 6px rgba(126, 107, 0, 0.2);
-      transition: all 0.3s ease;
-    }
-    .camera-button:hover,
-    .camera-button:focus {
-      background: linear-gradient(90deg, #655700, #8c7500);
-      box-shadow: 0 4px 10px rgba(126, 107, 0, 0.3);
-      outline: none;
-    }
-    .camera-button svg {
-      width: 24px;
-      height: 24px;
-      fill: #fff;
-    }
-    .camera-button:disabled {
-      background: linear-gradient(90deg, #6c757d, #8a9399);
-      cursor: not-allowed;
-      box-shadow: 0 2px 6px rgba(108, 117, 125, 0.2);
-    }
-    .edit-profile-form {
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-    }
-    .edit-profile-form label {
-      font-size: 1rem;
-      color: #2a2a2a;
-      font-weight: 600;
-      text-align: center;
-    }
-    .edit-profile-form input[type="text"],
-    .edit-profile-form input[type="email"],
-    .edit-profile-form input[type="password"] {
-      width: 100%;
-      padding: 0.6rem;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      font-size: 1rem;
-      outline: none;
-      transition: all 0.3s ease;
-      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
-    }
-    .edit-profile-form input:focus {
-      border-color: #7e6b00;
-      box-shadow: 0 0 6px rgba(126, 107, 0, 0.2);
-    }
-    .action-buttons {
-      display: flex;
-      gap: 10px;
-      justify-content: center;
-    }
-    .btn-save,
-    .btn-edit-email,
-    .btn-edit-password {
-      background: linear-gradient(90deg, #7e6b00, #a68c00);
-      color: #fff;
-      border: none;
-      border-radius: 6px;
-      padding: 0.6rem 1.5rem;
-      font-size: 0.95rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 2px 6px rgba(126, 107, 0, 0.2);
-    }
-    .btn-save:hover,
-    .btn-edit-email:hover,
-    .btn-edit-password:hover {
-      background: linear-gradient(90deg, #655700, #8c7500);
-      transform: translateY(-1px);
-      box-shadow: 0 4px 10px rgba(126, 107, 0, 0.3);
-    }
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.6);
-      z-index: 1000;
-      justify-content: center;
-      align-items: center;
-    }
-    .modal.show {
-      display: flex;
-    }
-    .modal-content {
-      background: #fff;
-      border-radius: 12px;
-      padding: 2rem;
-      width: 90%;
-      max-width: 450px;
-      border: 1px solid #ccc;
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
-      background: linear-gradient(145deg, #ffffff, #f5f5f5);
-    }
-    .modal-content h3 {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: #7e6b00;
-      margin-bottom: 1.25rem;
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-    }
-    .img-container {
-      max-height: 400px;
-      overflow: hidden;
-    }
-    .img-container img {
-      max-width: 100%;
-      display: block;
-    }
-    .modal-content button {
-      background: linear-gradient(90deg, #7e6b00, #a68c00);
-      color: #fff;
-      border: none;
-      border-radius: 6px;
-      padding: 0.6rem 1.25rem;
-      font-size: 0.95rem;
-      font-weight: 600;
-      cursor: pointer;
-      margin-right: 0.5rem;
-      transition: all 0.3s ease;
-      box-shadow: 0 2px 6px rgba(126, 107, 0, 0.2);
-    }
-    .modal-content button:hover {
-      background: linear-gradient(90deg, #655700, #8c7500);
-      box-shadow: 0 4px 10px rgba(126, 107, 0, 0.3);
-    }
-    .modal-content .btn-close {
-      background: linear-gradient(90deg, #6c757d, #8a9399);
-      box-shadow: 0 2px 6px rgba(108, 117, 125, 0.2);
-    }
-    .modal-content .btn-close:hover {
-      background: linear-gradient(90deg, #5a6268, #767e84);
-      box-shadow: 0 4px 10px rgba(108, 117, 125, 0.3);
-    }
-    .modal-content input {
-      width: 100%;
-      padding: 0.6rem;
-      margin-bottom: 1.25rem;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      font-size: 1rem;
-      outline: none;
-      transition: all 0.3s ease;
-      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
-      position: relative;
-    }
-    .modal-content input:focus {
-      border-color: #7e6b00;
-      box-shadow: 0 0 6px rgba(126, 107, 0, 0.2);
-    }
-    .modal-content p {
-      color: #4a4a4a;
-      font-size: 0.95rem;
-      margin-bottom: 1.25rem;
-    }
-    footer {
-      margin-top: 3rem;
-      font-size: 0.95rem;
-      color: #4a4a4a;
-      text-align: center;
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-    }
-    @media (max-width: 768px) {
-      body {
-        padding: 1.5rem;
-      }
-      h1 {
-        font-size: 2rem;
-        margin-bottom: 1.5rem;
-      }
-      .edit-profile-card, .form-card, .sidebar-card {
-        padding: 1.5rem;
-      }
-      .edit-profile-card {
-        padding: 0.75rem;
-      }
-      .profile-image {
-        width: 80px;
-        height: 80px;
-      }
-      .edit-profile-form label {
-        font-size: 0.9rem;
-      }
-      .edit-profile-form input {
-        font-size: 0.9rem;
-      }
-      .btn-save, .btn-edit-email, .btn-edit-password {
-        padding: 0.5rem 1rem;
-        font-size: 0.9rem;
-      }
-      .modal-content {
-        padding: 1.5rem;
-        width: 95%;
-      }
-    }
-    @media (max-width: 576px) {
-      body {
-        padding: 1rem;
-      }
-      h1 {
-        font-size: 1.75rem;
-        margin-bottom: 1rem;
-      }
-      .edit-profile-card, .form-card, .sidebar-card {
-        padding: 1rem;
-      }
-      .edit-profile-card {
-        padding: 0.5rem;
-        width: 200px;
-        margin: 0 auto;
-      }
-      .profile-image {
-        width: 70px;
-        height: 70px;
-      }
-      .edit-profile-form label {
-        font-size: 0.85rem;
-      }
-      .edit-profile-form input {
-        font-size: 0.85rem;
-      }
-      .btn-save, .btn-edit-email, .btn-edit-password {
-        padding: 0.4rem 0.8rem;
-        font-size: 0.85rem;
-      }
-      .modal-content {
-        padding: 1rem;
-      }
-      .sidebar-card nav a {
-        font-size: 0.85rem;
-        padding: 0.5rem 0.8rem;
-      }
-      .sidebar-card nav a svg {
-        width: 14px;
-        height: 14px;
-      }
-    }
-  </style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Edit Profile - Advanced E-commerce</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/cropperjs@1.6.1/dist/cropper.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs@1.6.1/dist/cropper.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(180deg, #ffffff 0%, #f8f8f8 100%);
+            color: #2a2a2a;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #7e6b00;
+            text-align: center;
+            margin: 2.5rem 0;
+            letter-spacing: 0.05em;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .profile-container {
+            max-width: 800px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .edit-profile-card,
+        .form-card,
+        .sidebar-card {
+            background: #fff;
+            border: 1px solid #ccc;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            background: linear-gradient(145deg, #ffffff, #f5f5f5);
+        }
+
+        .edit-profile-card {
+            padding: 1rem;
+            width: 200px;
+            margin: 0 auto;
+        }
+
+        .edit-profile-card:hover,
+        .form-card:hover,
+        .sidebar-card:hover {
+            border-color: #7e6b00;
+            box-shadow: 0 6px 16px rgba(126, 107, 0, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .profile-image-container {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+
+        .profile-image {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid #7e6b00;
+            margin: 0 auto 1.5rem;
+            display: block;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .camera-button {
+            background: linear-gradient(90deg, #7e6b00, #a68c00);
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            box-shadow: 0 2px 6px rgba(126, 107, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .camera-button:hover,
+        .camera-button:focus {
+            background: linear-gradient(90deg, #655700, #8c7500);
+            box-shadow: 0 4px 10px rgba(126, 107, 0, 0.3);
+            outline: none;
+        }
+
+        .camera-button svg {
+            width: 24px;
+            height: 24px;
+            fill: #fff;
+        }
+
+        .camera-button:disabled {
+            background: linear-gradient(90deg, #6c757d, #8a9399);
+            cursor: not-allowed;
+            box-shadow: 0 2px 6px rgba(108, 117, 125, 0.2);
+        }
+
+        .edit-profile-form {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .edit-profile-form label {
+            font-size: 1rem;
+            color: #2a2a2a;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .edit-profile-form input[type="text"],
+        .edit-profile-form input[type="email"],
+        .edit-profile-form input[type="password"] {
+            width: 100%;
+            padding: 0.6rem;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .edit-profile-form input:focus {
+            border-color: #7e6b00;
+            box-shadow: 0 0 6px rgba(126, 107, 0, 0.2);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .btn-save,
+        .btn-edit-email,
+        .btn-edit-password {
+            background: linear-gradient(90deg, #7e6b00, #a68c00);
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 0.6rem 1.5rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 6px rgba(126, 107, 0, 0.2);
+        }
+
+        .btn-save:hover,
+        .btn-edit-email:hover,
+        .btn-edit-password:hover {
+            background: linear-gradient(90deg, #655700, #8c7500);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(126, 107, 0, 0.3);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #fff;
+            border-radius: 12px;
+            padding: 2rem;
+            width: 90%;
+            max-width: 450px;
+            border: 1px solid #ccc;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+            background: linear-gradient(145deg, #ffffff, #f5f5f5);
+        }
+
+        .modal-content h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #7e6b00;
+            margin-bottom: 1.25rem;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .img-container {
+            max-height: 400px;
+            overflow: hidden;
+        }
+
+        .img-container img {
+            max-width: 100%;
+            display: block;
+        }
+
+        .modal-content button {
+            background: linear-gradient(90deg, #7e6b00, #a68c00);
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 0.6rem 1.25rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-right: 0.5rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 6px rgba(126, 107, 0, 0.2);
+        }
+
+        .modal-content button:hover {
+            background: linear-gradient(90deg, #655700, #8c7500);
+            box-shadow: 0 4px 10px rgba(126, 107, 0, 0.3);
+        }
+
+        .modal-content .btn-close {
+            background: linear-gradient(90deg, #6c757d, #8a9399);
+            box-shadow: 0 2px 6px rgba(108, 117, 125, 0.2);
+        }
+
+        .modal-content .btn-close:hover {
+            background: linear-gradient(90deg, #5a6268, #767e84);
+            box-shadow: 0 4px 10px rgba(108, 117, 125, 0.3);
+        }
+
+        .modal-content input {
+            width: 100%;
+            padding: 0.6rem;
+            margin-bottom: 1.25rem;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+            position: relative;
+        }
+
+        .modal-content input:focus {
+            border-color: #7e6b00;
+            box-shadow: 0 0 6px rgba(126, 107, 0, 0.2);
+        }
+
+        .modal-content p {
+            color: #4a4a4a;
+            font-size: 0.95rem;
+            margin-bottom: 1.25rem;
+        }
+
+        footer {
+            margin-top: 3rem;
+            font-size: 0.95rem;
+            color: #4a4a4a;
+            text-align: center;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1.5rem;
+            }
+
+            h1 {
+                font-size: 2rem;
+                margin-bottom: 1.5rem;
+            }
+
+            .edit-profile-card,
+            .form-card,
+            .sidebar-card {
+                padding: 1.5rem;
+            }
+
+            .edit-profile-card {
+                padding: 0.75rem;
+            }
+
+            .profile-image {
+                width: 80px;
+                height: 80px;
+            }
+
+            .edit-profile-form label {
+                font-size: 0.9rem;
+            }
+
+            .edit-profile-form input {
+                font-size: 0.9rem;
+            }
+
+            .btn-save,
+            .btn-edit-email,
+            .btn-edit-password {
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
+            }
+
+            .modal-content {
+                padding: 1.5rem;
+                width: 95%;
+            }
+        }
+
+        @media (max-width: 576px) {
+            body {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 1.75rem;
+                margin-bottom: 1rem;
+            }
+
+            .edit-profile-card,
+            .form-card,
+            .sidebar-card {
+                padding: 1rem;
+            }
+
+            .edit-profile-card {
+                padding: 0.5rem;
+                width: 200px;
+                margin: 0 auto;
+            }
+
+            .profile-image {
+                width: 70px;
+                height: 70px;
+            }
+
+            .edit-profile-form label {
+                font-size: 0.85rem;
+            }
+
+            .edit-profile-form input {
+                font-size: 0.85rem;
+            }
+
+            .btn-save,
+            .btn-edit-email,
+            .btn-edit-password {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.85rem;
+            }
+
+            .modal-content {
+                padding: 1rem;
+            }
+
+            .sidebar-card nav a {
+                font-size: 0.85rem;
+                padding: 0.5rem 0.8rem;
+            }
+
+            .sidebar-card nav a svg {
+                width: 14px;
+                height: 14px;
+            }
+        }
+    </style>
 </head>
+
 <body>
-  <h1>Edit Profile</h1>
-  <div class="profile-container">
-    <div class="edit-profile-card" aria-label="Profile image section">
-      <div class="profile-image-container">
-        <input type="file" id="profilePhotoInput" accept="image/*" style="display: none;" />
-        <img src="<%= user?.profilePhoto || '/Uploads/profile/default.jpg' %>" class="profile-image" id="profileImage" />
-        <button type="button" class="camera-button" id="cameraButton" onclick="document.getElementById('profilePhotoInput').click()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
-            <circle cx="12" cy="13" r="4" />
-          </svg>
-        </button>
-      </div>
+    <h1>Edit Profile</h1>
+    <div class="profile-container">
+        <div class="edit-profile-card" aria-label="Profile image section">
+            <div class="profile-image-container">
+                <input type="file" id="profilePhotoInput" accept="image/*" style="display: none;" />
+                <img src="<%= user?.profilePhoto%>" class="profile-image" id="profileImage" />
+
+                <button type="button" class="camera-button" id="cameraButton"
+                    onclick="document.getElementById('profilePhotoInput').click()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                        <circle cx="12" cy="13" r="4" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <div class="form-card" aria-label="Edit profile form">
+            <form class="edit-profile-form" id="editProfileForm">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" value="<%= user?.name || '' %>" required />
+                <% if (!user.googleId) { %>
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" value="<%= user?.email || '' %>" readonly />
+                    <div class="action-buttons">
+                        <button type="button" class="btn-edit-email" onclick="openCurrentEmailModal()">Edit
+                            Email</button>
+                        <button type="button" class="btn-edit-password" onclick="openPasswordModal()">Edit
+                            Password</button>
+                        <% } %>
+                            <button type="submit" class="btn-save">Save Changes</button>
+                    </div>
+
+
+            </form>
+        </div>
+        <%- include("../../views/partials/user/sidebar.ejs") %>
     </div>
-     <div class="form-card" aria-label="Edit profile form">
-      <form class="edit-profile-form" id="editProfileForm">
-        <label for="username">Username</label>
-        <input type="text" id="username" name="username" value="<%= user?.name || '' %>" required />
-        <% if (!user.googleId) { %>
-          <label for="email">Email</label>
-          <input type="email" id="email" name="email" value="<%= user?.email || '' %>" readonly />
-          <div class="action-buttons">
-            <button type="button" class="btn-edit-email" onclick="openCurrentEmailModal()">Edit Email</button>
-            <button type="button" class="btn-edit-password" onclick="openPasswordModal()">Edit Password</button>
-              <% } %>
-            <button type="submit" class="btn-save">Save Changes</button>
-          </div>
-       
-      
-      </form>
+
+    <!-- Crop Modal -->
+    <div class="modal" id="cropModal">
+        <div class="modal-content">
+            <h3>Crop Image</h3>
+            <div class="img-container">
+                <img id="imageToCrop" src="" alt="Image to crop" />
+            </div>
+            <button type="button" id="cropButton">Crop & Save</button>
+            <button type="button" class="btn-close" onclick="closeCropModal()">Cancel</button>
+        </div>
     </div>
-    <%- include("../../views/partials/user/sidebar.ejs") %>
-  </div>
 
-  <!-- Crop Modal -->
-  <div class="modal" id="cropModal">
-    <div class="modal-content">
-      <h3>Crop Image</h3>
-      <div class="img-container">
-        <img id="imageToCrop" src="" alt="Image to crop" />
-      </div>
-      <button type="button" id="cropButton">Crop & Save</button>
-      <button type="button" class="btn-close" onclick="closeCropModal()">Cancel</button>
+    <!-- Current Email Modal -->
+    <div class="modal" id="currentEmailModal">
+        <div class="modal-content">
+            <h3>Verify Current Email</h3>
+            <input type="email" id="currentEmail" placeholder="Enter current email" required />
+            <button onclick="sendOtpForCurrentEmail()">Send OTP</button>
+            <button class="btn-close" onclick="closeCurrentEmailModal()">Close</button>
+        </div>
     </div>
-  </div>
 
-  <!-- Current Email Modal -->
-  <div class="modal" id="currentEmailModal">
-    <div class="modal-content">
-      <h3>Verify Current Email</h3>
-      <input type="email" id="currentEmail" placeholder="Enter current email" required />
-      <button onclick="sendOtpForCurrentEmail()">Send OTP</button>
-      <button class="btn-close" onclick="closeCurrentEmailModal()">Close</button>
+    <!-- Current Email OTP Modal -->
+    <div class="modal" id="currentEmailOtpModal">
+        <div class="modal-content">
+            <h3>Verify OTP for Current Email</h3>
+            <p>Enter the OTP sent to your current email</p>
+            <input type="text" id="otpInputCurrent" placeholder="Enter OTP" maxlength="6" />
+            <button onclick="verifyOtpForCurrentEmail()">Verify OTP</button>
+            <button id="resendOtpCurrentButton" onclick="resendOtpForCurrentEmail()">Resend OTP</button>
+            <button class="btn-close" onclick="closeCurrentEmailOtpModal()">Close</button>
+        </div>
     </div>
-  </div>
 
-  <!-- Current Email OTP Modal -->
-  <div class="modal" id="currentEmailOtpModal">
-    <div class="modal-content">
-      <h3>Verify OTP for Current Email</h3>
-      <p>Enter the OTP sent to your current email</p>
-      <input type="text" id="otpInputCurrent" placeholder="Enter OTP" maxlength="6" />
-      <button onclick="verifyOtpForCurrentEmail()">Verify OTP</button>
-      <button id="resendOtpCurrentButton" onclick="resendOtpForCurrentEmail()">Resend OTP</button>
-      <button class="btn-close" onclick="closeCurrentEmailOtpModal()">Close</button>
+    <!-- New Email Modal -->
+    <div class="modal" id="newEmailModal">
+        <div class="modal-content">
+            <h3>Enter New Email</h3>
+            <input type="email" id="newEmail" placeholder="Enter new email" required />
+            <button onclick="sendOtpForNewEmail()">Send OTP</button>
+            <button class="btn-close" onclick="closeNewEmailModal()">Close</button>
+        </div>
     </div>
-  </div>
 
-  <!-- New Email Modal -->
-  <div class="modal" id="newEmailModal">
-    <div class="modal-content">
-      <h3>Enter New Email</h3>
-      <input type="email" id="newEmail" placeholder="Enter new email" required />
-      <button onclick="sendOtpForNewEmail()">Send OTP</button>
-      <button class="btn-close" onclick="closeNewEmailModal()">Close</button>
+    <!-- New Email OTP Modal -->
+    <div class="modal" id="newEmailOtpModal">
+        <div class="modal-content">
+            <h3>Verify OTP for New Email</h3>
+            <p>Enter the OTP sent to your new email</p>
+            <input type="text" id="otpInputNew" placeholder="Enter OTP" maxlength="6" />
+            <button onclick="verifyOtpForNewEmail()">Verify OTP</button>
+            <button id="resendOtpNewButton" onclick="resendOtpForNewEmail()">Resend OTP</button>
+            <button class="btn-close" onclick="closeNewEmailOtpModal()">Close</button>
+        </div>
     </div>
-  </div>
 
-  <!-- New Email OTP Modal -->
-  <div class="modal" id="newEmailOtpModal">
-    <div class="modal-content">
-      <h3>Verify OTP for New Email</h3>
-      <p>Enter the OTP sent to your new email</p>
-      <input type="text" id="otpInputNew" placeholder="Enter OTP" maxlength="6" />
-      <button onclick="verifyOtpForNewEmail()">Verify OTP</button>
-      <button id="resendOtpNewButton" onclick="resendOtpForNewEmail()">Resend OTP</button>
-      <button class="btn-close" onclick="closeNewEmailOtpModal()">Close</button>
+    <!-- Password Change Modal -->
+    <div class="modal" id="passwordModal">
+        <div class="modal-content">
+            <h3>Change Password</h3>
+            <div style="position: relative;">
+                <input type="password" id="currentPassword" placeholder="Enter current password" required />
+                <span id="toggleCurrentPassword" class="absolute right-3 top-2.5 cursor-pointer text-gray-500"
+                    style="position: absolute; right: 10px; top: 31%; transform: translateY(-50%);">
+                    <i class="fas fa-eye"></i>
+                </span>
+            </div>
+            <div style="position: relative;">
+                <input type="password" id="newPassword" placeholder="Enter new password" required />
+                <span id="toggleNewPassword" class="absolute right-3 top-2.5 cursor-pointer text-gray-500"
+                    style="position: absolute; right: 10px; top: 31%; transform: translateY(-50%);;">
+                    <i class="fas fa-eye"></i>
+                </span>
+            </div>
+            <div style="position: relative;">
+                <input type="password" id="confirmPassword" placeholder="Confirm new password" required />
+                <span id="toggleConfirmPassword" class="absolute right-3 top-2.5 cursor-pointer text-gray-500"
+                    style="position: absolute; right: 10px; top: 31%; transform: translateY(-50%);">
+                    <i class="fas fa-eye"></i>
+                </span>
+            </div>
+            <button onclick="changePassword()">Change Password</button>
+            <button class="btn-close" onclick="closePasswordModal()">Close</button>
+        </div>
     </div>
-  </div>
 
-  <!-- Password Change Modal -->
-  <div class="modal" id="passwordModal">
-    <div class="modal-content">
-      <h3>Change Password</h3>
-      <div style="position: relative;">
-        <input type="password" id="currentPassword" placeholder="Enter current password" required />
-        <span id="toggleCurrentPassword" class="absolute right-3 top-2.5 cursor-pointer text-gray-500" style="position: absolute; right: 10px; top: 31%; transform: translateY(-50%);">
-          <i class="fas fa-eye"></i>
-        </span>
-      </div>
-      <div style="position: relative;">
-        <input type="password" id="newPassword" placeholder="Enter new password" required />
-        <span id="toggleNewPassword" class="absolute right-3 top-2.5 cursor-pointer text-gray-500" style="position: absolute; right: 10px; top: 31%; transform: translateY(-50%);;">
-          <i class="fas fa-eye"></i>
-        </span>
-      </div>
-      <div style="position: relative;">
-        <input type="password" id="confirmPassword" placeholder="Confirm new password" required />
-        <span id="toggleConfirmPassword" class="absolute right-3 top-2.5 cursor-pointer text-gray-500" style="position: absolute; right: 10px; top: 31%; transform: translateY(-50%);">
-          <i class="fas fa-eye"></i>
-        </span>
-      </div>
-      <button onclick="changePassword()">Change Password</button>
-      <button class="btn-close" onclick="closePasswordModal()">Close</button>
+    <!-- OTP Modal -->
+    <div class="modal" id="otpModal">
+        <div class="modal-content">
+            <h3>Verify OTP</h3>
+            <p>Enter the OTP sent to your email</p>
+            <input type="text" id="otpInput" placeholder="Enter OTP" maxlength="6" />
+            <button onclick="verifyOtp()">Verify OTP</button>
+            <button onclick="resendOtp()">Resend OTP</button>
+            <button class="btn-close" onclick="closeOtpModal()">Close</button>
+        </div>
     </div>
-  </div>
 
-  <!-- OTP Modal -->
-  <div class="modal" id="otpModal">
-    <div class="modal-content">
-      <h3>Verify OTP</h3>
-      <p>Enter the OTP sent to your email</p>
-      <input type="text" id="otpInput" placeholder="Enter OTP" maxlength="6" />
-      <button onclick="verifyOtp()">Verify OTP</button>
-      <button onclick="resendOtp()">Resend OTP</button>
-      <button class="btn-close" onclick="closeOtpModal()">Close</button>
-    </div>
-  </div>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        let cropper;
+        const fileInput = document.getElementById('profilePhotoInput');
+        const profileImage = document.getElementById('profileImage');
+        const imageToCrop = document.getElementById('imageToCrop');
+        const cropButton = document.getElementById('cropButton');
+        const cameraButton = document.getElementById('cameraButton');
+        const toggleCurrentPassword = document.querySelector("#toggleCurrentPassword");
+        const toggleNewPassword = document.querySelector("#toggleNewPassword");
+        const toggleConfirmPassword = document.querySelector("#toggleConfirmPassword");
+        let croppedBlob = null;
+        let tempUrl = null;
+        let currentEmailValue = '';
+        let resendTimerCurrent = null;
+        let resendTimerNew = null;
+        const COOLDOWN_SECONDS = 30;
 
-  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-  <script>
-    let cropper;
-    const fileInput = document.getElementById('profilePhotoInput');
-    const profileImage = document.getElementById('profileImage');
-    const imageToCrop = document.getElementById('imageToCrop');
-    const cropButton = document.getElementById('cropButton');
-    const cameraButton = document.getElementById('cameraButton');
-    const toggleCurrentPassword = document.querySelector("#toggleCurrentPassword");
-    const toggleNewPassword = document.querySelector("#toggleNewPassword");
-    const toggleConfirmPassword = document.querySelector("#toggleConfirmPassword");
-    let croppedBlob = null;
-    let tempUrl = null;
-    let currentEmailValue = '';
-    let resendTimerCurrent = null;
-    let resendTimerNew = null;
-    const COOLDOWN_SECONDS = 30;
-
-    function openCropModal() {
-      document.getElementById('cropModal').classList.add('show');
-    }
-
-    function closeCropModal() {
-      document.getElementById('cropModal').classList.remove('show');
-      if (cropper) {
-        cropper.destroy();
-        cropper = null;
-      }
-      if (tempUrl) {
-        URL.revokeObjectURL(tempUrl);
-        tempUrl = null;
-      }
-      fileInput.value = '';
-    }
-
-    fileInput.addEventListener('change', function(e) {
-      const file = e.target.files[0];
-      if (!file) {
-        Swal.fire({
-          icon: 'warning',
-          title: 'No File Selected',
-          text: 'Please select an image to upload.',
-        });
-        return;
-      }
-
-      const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-      if (!validTypes.includes(file.type)) {
-        Swal.fire({
-          icon: 'error',
-          title: 'Invalid File Type',
-          text: 'Please upload a JPEG, PNG, or WEBP image.',
-        });
-        fileInput.value = '';
-        return;
-      }
-
-      if (file.size > 1 * 1024 * 1024) {
-        Swal.fire({
-          icon: 'error',
-          title: 'File Too Large',
-          text: 'Image size should not exceed 1MB.',
-        });
-        fileInput.value = '';
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        imageToCrop.src = e.target.result;
-        if (cropper) {
-          cropper.destroy();
+        // NEW: Username validation (letters only)
+        function validateUsername(username) {
+            return /^[a-zA-Z]+(?:\s[a-zA-Z]+)*$/.test(username);
         }
-        cropper = new Cropper(imageToCrop, {
-          aspectRatio: 1,
-          viewMode: 1,
-          autoCropArea: 0.8,
-          responsive: true,
-          cropBoxResizable: true,
-          cropBoxMovable: true,
+
+        // Existing email validation
+        function validateEmail(email) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        }
+
+        function openCropModal() {
+            document.getElementById('cropModal').classList.add('show');
+        }
+
+        function closeCropModal() {
+            document.getElementById('cropModal').classList.remove('show');
+            if (cropper) {
+                cropper.destroy();
+                cropper = null;
+            }
+            if (tempUrl) {
+                URL.revokeObjectURL(tempUrl);
+                tempUrl = null;
+            }
+            fileInput.value = '';
+        }
+
+        fileInput.addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (!file) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'No File Selected',
+                    text: 'Please select an image to upload.',
+                });
+                return;
+            }
+
+            const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+            if (!validTypes.includes(file.type)) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Invalid File Type',
+                    text: 'Please upload a JPEG, PNG, or WEBP image.',
+                });
+                fileInput.value = '';
+                return;
+            }
+
+            if (file.size > 1 * 1024 * 1024) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'File Too Large',
+                    text: 'Image size should not exceed 1MB.',
+                });
+                fileInput.value = '';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                imageToCrop.src = e.target.result;
+                if (cropper) {
+                    cropper.destroy();
+                }
+                cropper = new Cropper(imageToCrop, {
+                    aspectRatio: 1,
+                    viewMode: 1,
+                    autoCropArea: 0.8,
+                    responsive: true,
+                    cropBoxResizable: true,
+                    cropBoxMovable: true,
+                });
+                openCropModal();
+            };
+            reader.readAsDataURL(file);
         });
-        openCropModal();
-      };
-      reader.readAsDataURL(file);
-    });
 
-    cropButton.addEventListener('click', async function() {
-      if (!cropper) return;
+        cropButton.addEventListener('click', async function () {
+            if (!cropper) return;
 
-      cameraButton.disabled = true;
-      cropButton.disabled = true;
+            cameraButton.disabled = true;
+            cropButton.disabled = true;
 
-      cropper.getCroppedCanvas({
-        width: 150,
-        height: 150,
-      }).toBlob(async function(blob) {
-        croppedBlob = blob;
-        tempUrl = URL.createObjectURL(blob);
-        profileImage.src = tempUrl;
-
-        const file = new File([blob], `profile-${Date.now()}.jpg`, { type: 'image/jpeg' });
-        const formData = new FormData();
-        formData.append('profilePhoto', file);
-
-        try {
-          const response = await fetch('/upload-profile-photo', {
-            method: 'POST',
-            body: formData,
-            headers: {
-              'Accept': 'application/json'
-            },
-            credentials: 'include'
-          });
-
-          const data = await response.json();
-          if (response.ok && data.success) {
             Swal.fire({
-              icon: 'success',
-              title: 'Success',
-              text: 'Profile photo updated successfully!',
+                title: 'Uploading...',
+                text: 'Please wait while your photo is being uploaded',
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                },
             });
-            profileImage.src = data.profilePhotoUrl;
-          } else {
-            throw new Error(data.message || 'Failed to upload photo.');
-          }
-        } catch (error) {
-          console.error('Upload error:', error);
-          Swal.fire({
-            icon: 'error',
-            title: 'Upload Failed',
-            text: error.message || 'Unable to connect to server. Please try again.',
-          });
-          profileImage.src = '<%= user?.profilePhoto || "/Uploads/profile/default.jpg" %>';
-        } finally {
-          closeCropModal();
-          cameraButton.disabled = false;
-          cropButton.disabled = false;
-        }
-      }, 'image/jpeg', 0.8);
-    });
 
-    function openCurrentEmailModal() {
-      document.getElementById('currentEmailModal').classList.add('show');
-      document.getElementById('currentEmail').value = '';
-    }
+            cropper.getCroppedCanvas({
+                width: 150,
+                height: 150,
+            }).toBlob(async function (blob) {
+                croppedBlob = blob;
+                tempUrl = URL.createObjectURL(blob);
+                profileImage.src = tempUrl;
 
-    function closeCurrentEmailModal() {
-      document.getElementById('currentEmailModal').classList.remove('show');
-    }
+                const file = new File([blob], `profile-${Date.now()}.jpg`, { type: 'image/jpeg' });
+                const formData = new FormData();
+                formData.append('profilePhoto', file);
 
-    function openCurrentEmailOtpModal() {
-      document.getElementById('currentEmailOtpModal').classList.add('show');
-      document.getElementById('otpInputCurrent').value = '';
-    }
+                try {
+                    const response = await fetch('/upload-profile-photo', {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'Accept': 'application/json'
+                        },
+                        credentials: 'include'
+                    });
 
-    function closeCurrentEmailOtpModal() {
-      document.getElementById('currentEmailOtpModal').classList.remove('show');
-      clearResendTimerCurrent();
-    }
-
-    function openNewEmailModal() {
-      document.getElementById('newEmailModal').classList.add('show');
-      document.getElementById('newEmail').value = '';
-    }
-
-    function closeNewEmailModal() {
-      document.getElementById('newEmailModal').classList.remove('show');
-    }
-
-    function openNewEmailOtpModal() {
-      document.getElementById('newEmailOtpModal').classList.add('show');
-      document.getElementById('otpInputNew').value = '';
-    }
-
-    function closeNewEmailOtpModal() {
-      document.getElementById('newEmailOtpModal').classList.remove('show');
-      clearResendTimerNew();
-    }
-
-    function openPasswordModal() {
-      document.getElementById('passwordModal').classList.add('show');
-      resetPasswordModal();
-    }
-
-    function closePasswordModal() {
-      document.getElementById('passwordModal').classList.remove('show');
-      resetPasswordModal();
-    }
-
-    function resetPasswordModal() {
-      document.getElementById('currentPassword').value = '';
-      document.getElementById('newPassword').value = '';
-      document.getElementById('confirmPassword').value = '';
-    }
-
-    function openOtpModal() {
-      document.getElementById('otpModal').classList.add('show');
-      document.getElementById('otpInput').value = '';
-    }
-
-    function closeOtpModal() {
-      document.getElementById('otpModal').classList.remove('show');
-    }
-
-    function validateEmail(email) {
-      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-    }
-
-    function validateOtp(otp) {
-      return otp && otp.length === 6 && /^\d+$/.test(otp);
-    }
-
-    function validatePassword(password) {
-      return password.length >= 8;
-    }
-
-    function startResendTimerCurrent() {
-      const resendButton = document.getElementById('resendOtpCurrentButton');
-      let seconds = COOLDOWN_SECONDS;
-      resendButton.disabled = true;
-      resendButton.textContent = `Resend OTP (${seconds}s)`;
-
-      resendTimerCurrent = setInterval(() => {
-        seconds--;
-        resendButton.textContent = `Resend OTP (${seconds}s)`;
-        if (seconds <= 0) {
-          clearResendTimerCurrent();
-          resendButton.textContent = 'Resend OTP';
-          resendButton.disabled = false;
-        }
-      }, 1000);
-    }
-
-    function clearResendTimerCurrent() {
-      if (resendTimerCurrent) {
-        clearInterval(resendTimerCurrent);
-        resendTimerCurrent = null;
-      }
-      const resendButton = document.getElementById('resendOtpCurrentButton');
-      resendButton.textContent = 'Resend OTP';
-      resendButton.disabled = false;
-    }
-
-    function startResendTimerNew() {
-      const resendButton = document.getElementById('resendOtpNewButton');
-      let seconds = COOLDOWN_SECONDS;
-      resendButton.disabled = true;
-      resendButton.textContent = `Resend OTP (${seconds}s)`;
-
-      resendTimerNew = setInterval(() => {
-        seconds--;
-        resendButton.textContent = `Resend OTP (${seconds}s)`;
-        if (seconds <= 0) {
-          clearResendTimerNew();
-          resendButton.textContent = 'Resend OTP';
-          resendButton.disabled = false;
-        }
-      }, 1000);
-    }
-
-    function clearResendTimerNew() {
-      if (resendTimerNew) {
-        clearInterval(resendTimerNew);
-        resendTimerNew = null;
-      }
-      const resendButton = document.getElementById('resendOtpNewButton');
-      resendButton.textContent = 'Resend OTP';
-      resendButton.disabled = false;
-    }
-
-    async function sendOtpForCurrentEmail() {
-      const email = document.getElementById('currentEmail').value;
-      if (!validateEmail(email)) {
-        Swal.fire('Error', 'Please enter a valid email', 'error');
-        return;
-      }
-      currentEmailValue = email;
-
-      try {
-        const response = await fetch('/send-otp', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, type: 'verify-current' }),
-          credentials: 'include'
+                    const data = await response.json();
+                    if (response.ok && data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: 'Profile photo updated successfully!',
+                        });
+                        profileImage.src = data.profilePhotoUrl;
+                    } else {
+                        throw new Error(data.message || 'Failed to upload photo.');
+                    }
+                } catch (error) {
+                    console.error('Upload error:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Upload Failed',
+                        text: error.message || 'Unable to connect to server. Please try again.',
+                    });
+                    profileImage.src = '<%= user?.profilePhoto || "/Uploads/profile/default.jpg" %>';
+                } finally {
+                    closeCropModal();
+                    cameraButton.disabled = false;
+                    cropButton.disabled = false;
+                }
+            }, 'image/jpeg', 0.8);
         });
-        const data = await response.json();
-        if (data.success) {
-          Swal.fire('Success', 'OTP sent to your email', 'success');
-          closeCurrentEmailModal();
-          openCurrentEmailOtpModal();
-          startResendTimerCurrent();
-        } else {
-          Swal.fire('Error', data.message || 'Failed to send OTP', 'error');
+
+        function openCurrentEmailModal() {
+            document.getElementById('currentEmailModal').classList.add('show');
+            document.getElementById('currentEmail').value = '';
         }
-      } catch (error) {
-        console.error('Error in sendOtpForCurrentEmail:', error);
-        Swal.fire('Error', 'Unable to connect to server. Please try again.', 'error');
-      }
-    }
 
-    async function verifyOtpForCurrentEmail() {
-      const otp = document.getElementById('otpInputCurrent').value;
-      if (!validateOtp(otp)) {
-        Swal.fire('Error', 'Please enter a valid 6-digit OTP', 'error');
-        return;
-      }
+        function closeCurrentEmailModal() {
+            document.getElementById('currentEmailModal').classList.remove('show');
+        }
 
-      try {
-        const response = await fetch('/edit/verify-otp', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: currentEmailValue, otp, type: 'verify-current' }),
-          credentials: 'include'
+        function openCurrentEmailOtpModal() {
+            document.getElementById('currentEmailOtpModal').classList.add('show');
+            document.getElementById('otpInputCurrent').value = '';
+        }
+
+        function closeCurrentEmailOtpModal() {
+            document.getElementById('currentEmailOtpModal').classList.remove('show');
+            clearResendTimerCurrent();
+        }
+
+        function openNewEmailModal() {
+            document.getElementById('newEmailModal').classList.add('show');
+            document.getElementById('newEmail').value = '';
+        }
+
+        function closeNewEmailModal() {
+            document.getElementById('newEmailModal').classList.remove('show');
+        }
+
+        function openNewEmailOtpModal() {
+            document.getElementById('newEmailOtpModal').classList.add('show');
+            document.getElementById('otpInputNew').value = '';
+        }
+
+        function closeNewEmailOtpModal() {
+            document.getElementById('newEmailOtpModal').classList.remove('show');
+            clearResendTimerNew();
+        }
+
+        function openPasswordModal() {
+            document.getElementById('passwordModal').classList.add('show');
+            resetPasswordModal();
+        }
+
+        function closePasswordModal() {
+            document.getElementById('passwordModal').classList.remove('show');
+            resetPasswordModal();
+        }
+
+        function resetPasswordModal() {
+            document.getElementById('currentPassword').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
+        }
+
+        function openOtpModal() {
+            document.getElementById('otpModal').classList.add('show');
+            document.getElementById('otpInput').value = '';
+        }
+
+        function closeOtpModal() {
+            document.getElementById('otpModal').classList.remove('show');
+        }
+
+        function validateEmail(email) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        }
+
+        function validateOtp(otp) {
+            return otp && otp.length === 6 && /^\d+$/.test(otp);
+        }
+
+        function validatePassword(password) {
+            return password.length >= 8;
+        }
+
+        function startResendTimerCurrent() {
+            const resendButton = document.getElementById('resendOtpCurrentButton');
+            let seconds = COOLDOWN_SECONDS;
+            resendButton.disabled = true;
+            resendButton.textContent = `Resend OTP (${seconds}s)`;
+
+            resendTimerCurrent = setInterval(() => {
+                seconds--;
+                resendButton.textContent = `Resend OTP (${seconds}s)`;
+                if (seconds <= 0) {
+                    clearResendTimerCurrent();
+                    resendButton.textContent = 'Resend OTP';
+                    resendButton.disabled = false;
+                }
+            }, 1000);
+        }
+
+        function clearResendTimerCurrent() {
+            if (resendTimerCurrent) {
+                clearInterval(resendTimerCurrent);
+                resendTimerCurrent = null;
+            }
+            const resendButton = document.getElementById('resendOtpCurrentButton');
+            resendButton.textContent = 'Resend OTP';
+            resendButton.disabled = false;
+        }
+
+        function startResendTimerNew() {
+            const resendButton = document.getElementById('resendOtpNewButton');
+            let seconds = COOLDOWN_SECONDS;
+            resendButton.disabled = true;
+            resendButton.textContent = `Resend OTP (${seconds}s)`;
+
+            resendTimerNew = setInterval(() => {
+                seconds--;
+                resendButton.textContent = `Resend OTP (${seconds}s)`;
+                if (seconds <= 0) {
+                    clearResendTimerNew();
+                    resendButton.textContent = 'Resend OTP';
+                    resendButton.disabled = false;
+                }
+            }, 1000);
+        }
+
+        function clearResendTimerNew() {
+            if (resendTimerNew) {
+                clearInterval(resendTimerNew);
+                resendTimerNew = null;
+            }
+            const resendButton = document.getElementById('resendOtpNewButton');
+            resendButton.textContent = 'Resend OTP';
+            resendButton.disabled = false;
+        }
+
+        async function sendOtpForCurrentEmail() {
+            const email = document.getElementById('currentEmail').value;
+            if (!validateEmail(email)) {
+                Swal.fire('Error', 'Please enter a valid email', 'error');
+                return;
+            }
+            currentEmailValue = email;
+
+            try {
+                const response = await fetch('/send-otp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, type: 'verify-current' }),
+                    credentials: 'include'
+                });
+                const data = await response.json();
+                if (data.success) {
+                    Swal.fire('Success', 'OTP sent to your email', 'success');
+                    closeCurrentEmailModal();
+                    openCurrentEmailOtpModal();
+                    startResendTimerCurrent();
+                } else {
+                    Swal.fire('Error', data.message || 'Failed to send OTP', 'error');
+                }
+            } catch (error) {
+                console.error('Error in sendOtpForCurrentEmail:', error);
+                Swal.fire('Error', 'Unable to connect to server. Please try again.', 'error');
+            }
+        }
+
+        async function verifyOtpForCurrentEmail() {
+            const otp = document.getElementById('otpInputCurrent').value;
+            if (!validateOtp(otp)) {
+                Swal.fire('Error', 'Please enter a valid 6-digit OTP', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/edit/verify-otp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: currentEmailValue, otp, type: 'verify-current' }),
+                    credentials: 'include'
+                });
+                const data = await response.json();
+                if (data.success) {
+                    Swal.fire('Success', 'Current email verified. Enter new email.', 'success');
+                    closeCurrentEmailOtpModal();
+                    openNewEmailModal();
+                } else {
+                    Swal.fire('Error', data.message || 'Failed to verify OTP', 'error');
+                }
+            } catch (error) {
+                console.error('Error in verifyOtpForCurrentEmail:', error);
+                Swal.fire('Error', 'Unable to connect to server. Please try again.', 'error');
+            }
+        }
+
+        async function resendOtpForCurrentEmail() {
+            const email = currentEmailValue;
+            if (!validateEmail(email)) {
+                Swal.fire('Error', 'Invalid email stored. Please try again.', 'error');
+                closeCurrentEmailOtpModal();
+                openCurrentEmailModal();
+                return;
+            }
+
+            try {
+                const response = await fetch('/editprofile/resendotp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, type: 'verify-current' }),
+                    credentials: 'include'
+                });
+                const data = await response.json();
+                if (data.success) {
+                    Swal.fire('Success', 'OTP resent to your email', 'success');
+                    startResendTimerCurrent();
+                } else {
+                    Swal.fire('Error', data.message || 'Failed to resend OTP', 'error');
+                    if (data.message === 'Unauthorized: Please log in') {
+                        window.location.href = '/login';
+                    }
+                }
+            } catch (error) {
+                console.error('Error in resendOtpForCurrentEmail:', error);
+                Swal.fire('Error', 'Unable to connect to server. Please try again.', 'error');
+            }
+        }
+
+        async function sendOtpForNewEmail() {
+            const email = document.getElementById('newEmail').value;
+            const currentEmail = document.getElementById('email').value;
+            if (!validateEmail(email)) {
+                Swal.fire('Error', 'Please enter a valid email', 'error');
+                return;
+            }
+            if (email === currentEmail) {
+                Swal.fire('Info', 'The new email is the same as your current email.', 'info');
+                closeNewEmailModal();
+                return;
+            }
+            currentEmailValue = email;
+
+            try {
+                const response = await fetch('/send-otp-new-email', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, type: 'new-email' }),
+                    credentials: 'include'
+                });
+                const data = await response.json();
+                if (data.success) {
+                    Swal.fire('Success', 'OTP sent to new email', 'success');
+                    closeNewEmailModal();
+                    openNewEmailOtpModal();
+                    startResendTimerNew();
+                } else {
+                    Swal.fire('Error', data.message || 'Failed to send OTP', 'error');
+                }
+            } catch (error) {
+                console.error('Error in sendOtpForNewEmail:', error);
+                Swal.fire('Error', 'Unable to connect to server . Please try again.', 'error');
+            }
+        }
+
+        async function verifyOtpForNewEmail() {
+            const email = currentEmailValue;
+            const otp = document.getElementById('otpInputNew').value;
+
+            if (!validateOtp(otp)) {
+                Swal.fire('Error', 'Please enter a valid 6-digit OTP', 'error');
+                return;
+            }
+
+            try {
+                const res = await axios.post("/confirm-new/email", { otp, email }, { withCredentials: true });
+
+                Swal.fire('Success', res.data.msg, 'success').then(() => {
+                    document.getElementById('email').value = email;
+                    closeNewEmailOtpModal();
+                    window.location.reload();
+                });
+
+            } catch (error) {
+                console.error('Error in verifyOtpForNewEmail:', error);
+                const message = error.response?.data?.message || 'Unable to connect to server. Please try again.';
+                Swal.fire('Error', message, 'error');
+            }
+        }
+
+        async function resendOtpForNewEmail() {
+            const email = currentEmailValue;
+            if (!validateEmail(email)) {
+                Swal.fire('Error', 'Invalid email stored. Please try again.', 'error');
+                closeNewEmailOtpModal();
+                openNewEmailModal();
+                return;
+            }
+
+            try {
+                const response = await fetch('/editprofile/editresendOtp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, type: 'new-email' }),
+                    credentials: 'include'
+                });
+                const data = await response.json();
+                if (data.success) {
+                    Swal.fire('Success', 'OTP resent to new email', 'success');
+                    startResendTimerNew();
+                } else {
+                    Swal.fire('Error', data.message || 'Failed to resend OTP', 'error');
+                    if (data.message === 'Unauthorized: Please log in') {
+                        window.location.href = '/login';
+                    }
+                }
+            } catch (error) {
+                console.error('Error in resendOtpForNewEmail:', error);
+                Swal.fire('Error', 'Unable to connect to server. Please try again.', 'error');
+            }
+        }
+
+        async function changePassword() {
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (!validatePassword(newPassword)) {
+                Swal.fire('Error', 'New password must be at least 8 characters long', 'error');
+                return;
+            }
+
+            if (newPassword !== confirmPassword) {
+                Swal.fire('Error', 'New password and confirm password do not match', 'error');
+                return;
+            }
+
+            if (currentPassword === newPassword) {
+                Swal.fire('Error', 'New password cannot be the same as the current password', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/change-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ currentPassword, newPassword }),
+                    credentials: 'include'
+                });
+                const data = await response.json();
+                if (data.success) {
+                    Swal.fire('Success', 'Password changed successfully', 'success');
+                    closePasswordModal();
+                } else {
+                    Swal.fire('Error', data.message || 'Failed to change password', 'error');
+                }
+            } catch (error) {
+                console.error('Error in changePassword:', error);
+                Swal.fire('Error', 'Unable to connect to server. Please try again.', 'error');
+            }
+        }
+
+        async function verifyOtp() {
+            const otp = document.getElementById('otpInput').value;
+            if (!validateOtp(otp)) {
+                Swal.fire('Error', 'Please enter a valid 6-digit OTP', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/verify-password-otp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ otp }),
+                    credentials: 'include'
+                });
+                const data = await response.json();
+                if (data.success) {
+                    Swal.fire('Success', 'Password changed successfully', 'success').then(() => {
+                        closeOtpModal();
+                    });
+                } else {
+                    Swal.fire('Error', data.message || 'Failed to verify OTP', 'error');
+                }
+            } catch (error) {
+                console.error('Error in verifyOtp:', error);
+                Swal.fire('Error', 'Unable to connect to server. Please try again.', 'error');
+            }
+        }
+
+        async function resendOtp() {
+            try {
+                const response = await fetch('/resend-password-otp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include'
+                });
+                const data = await response.json();
+                if (data.success) {
+                    Swal.fire('Success', 'OTP resent to your email', 'success');
+                } else {
+                    Swal.fire('Error', data.message || 'Failed to resend OTP', 'error');
+                    if (data.message === 'Unauthorized: Please log in') {
+                        window.location.href = '/login';
+                    }
+                }
+            } catch (error) {
+                console.error('Error in resendOtp:', error);
+                Swal.fire('Error', 'Unable to connect to server. Please try again.', 'error');
+            }
+        }
+
+        toggleCurrentPassword.addEventListener("click", function () {
+            const type = document.getElementById('currentPassword').getAttribute("type") === "password" ? "text" : "password";
+            document.getElementById('currentPassword').setAttribute("type", type);
+            this.innerHTML = type === "password"
+                ? '<i class="fas fa-eye"></i>'
+                : '<i class="fas fa-eye-slash"></i>';
         });
-        const data = await response.json();
-        if (data.success) {
-          Swal.fire('Success', 'Current email verified. Enter new email.', 'success');
-          closeCurrentEmailOtpModal();
-          openNewEmailModal();
-        } else {
-          Swal.fire('Error', data.message || 'Failed to verify OTP', 'error');
-        }
-      } catch (error) {
-        console.error('Error in verifyOtpForCurrentEmail:', error);
-        Swal.fire('Error', 'Unable to connect to server. Please try again.', 'error');
-      }
-    }
 
-    async function resendOtpForCurrentEmail() {
-      const email = currentEmailValue;
-      if (!validateEmail(email)) {
-        Swal.fire('Error', 'Invalid email stored. Please try again.', 'error');
-        closeCurrentEmailOtpModal();
-        openCurrentEmailModal();
-        return;
-      }
-
-      try {
-        const response = await fetch('/editprofile/resendotp', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, type: 'verify-current' }),
-          credentials: 'include'
+        toggleNewPassword.addEventListener("click", function () {
+            const type = document.getElementById('newPassword').getAttribute("type") === "password" ? "text" : "password";
+            document.getElementById('newPassword').setAttribute("type", type);
+            this.innerHTML = type === "password"
+                ? '<i class="fas fa-eye"></i>'
+                : '<i class="fas fa-eye-slash"></i>';
         });
-        const data = await response.json();
-        if (data.success) {
-          Swal.fire('Success', 'OTP resent to your email', 'success');
-          startResendTimerCurrent();
-        } else {
-          Swal.fire('Error', data.message || 'Failed to resend OTP', 'error');
-          if (data.message === 'Unauthorized: Please log in') {
-            window.location.href = '/login';
-          }
-        }
-      } catch (error) {
-        console.error('Error in resendOtpForCurrentEmail:', error);
-        Swal.fire('Error', 'Unable to connect to server. Please try again.', 'error');
-      }
-    }
 
-    async function sendOtpForNewEmail() {
-      const email = document.getElementById('newEmail').value;
-      const currentEmail = document.getElementById('email').value;
-      if (!validateEmail(email)) {
-        Swal.fire('Error', 'Please enter a valid email', 'error');
-        return;
-      }
-      if (email === currentEmail) {
-        Swal.fire('Info', 'The new email is the same as your current email.', 'info');
-        closeNewEmailModal();
-        return;
-      }
-      currentEmailValue = email;
-
-      try {
-        const response = await fetch('/send-otp', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, type: 'new-email' }),
-          credentials: 'include'
+        toggleConfirmPassword.addEventListener("click", function () {
+            const type = document.getElementById('confirmPassword').getAttribute("type") === "password" ? "text" : "password";
+            document.getElementById('confirmPassword').setAttribute("type", type);
+            this.innerHTML = type === "password"
+                ? '<i class="fas fa-eye"></i>'
+                : '<i class="fas fa-eye-slash"></i>';
         });
-        const data = await response.json();
-        if (data.success) {
-          Swal.fire('Success', 'OTP sent to new email', 'success');
-          closeNewEmailModal();
-          openNewEmailOtpModal();
-          startResendTimerNew();
-        } else {
-          Swal.fire('Error', data.message || 'Failed to send OTP', 'error');
-        }
-      } catch (error) {
-        console.error('Error in sendOtpForNewEmail:', error);
-        Swal.fire('Error', 'Unable to connect to server. Please try again.', 'error');
-      }
-    }
 
-    async function verifyOtpForNewEmail() {
-      const email = currentEmailValue;
-      const otp = document.getElementById('otpInputNew').value;
+        // MODIFIED FORM SUBMISSION WITH NEW VALIDATIONS
+        document.getElementById('editProfileForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
 
-      if (!validateOtp(otp)) {
-        Swal.fire('Error', 'Please enter a valid 6-digit OTP', 'error');
-        return;
-      }
+            // NEW VALIDATION: Check for letters only
+            if (!validateUsername(username)) {
+                Swal.fire('Error', 'Username must contain only letters (a-z, A-Z)', 'error');
+                return;
+            }
 
-      try {
-        const res = await axios.post("/confirm-new/email", { otp, email }, { withCredentials: true });
-        if (res.data.ok) {
-          Swal.fire('Success', res.data.msg, 'success').then(() => {
-            document.getElementById('email').value = email;
-            closeNewEmailOtpModal();
-            window.location.reload();
-          });
-        } else {
-          Swal.fire('Error', res.data.message || 'Failed to verify OTP', 'error');
-        }
-      } catch (error) {
-        console.error('Error in verifyOtpForNewEmail:', error);
-        Swal.fire('Error', 'Unable to connect to server. Please try again.', 'error');
-      }
-    }
+            // Existing length validation
+            if (!username || username.length < 3) {
+                Swal.fire('Error', 'Username must be at least 3 characters long', 'error');
+                return;
+            }
 
-    async function resendOtpForNewEmail() {
-      const email = currentEmailValue;
-      if (!validateEmail(email)) {
-        Swal.fire('Error', 'Invalid email stored. Please try again.', 'error');
-        closeNewEmailOtpModal();
-        openNewEmailModal();
-        return;
-      }
-
-      try {
-        const response = await fetch('/resend-otp', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, type: 'new-email' }),
-          credentials: 'include'
+            try {
+                const response = await fetch('/update-profile', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: username }),
+                    credentials: 'include'
+                });
+                const data = await response.json();
+                if (data.success) {
+                    Swal.fire('Success', 'Profile updated successfully', 'success').then(() => {
+                        window.location.href = '/userProfile';
+                    });
+                } else {
+                    Swal.fire('Error', data.message || 'Failed to update profile', 'error');
+                }
+            } catch (error) {
+                console.error('Error in updateProfile:', error);
+                Swal.fire('Error', 'Unable to connect to server. Please try again.', 'error');
+            }
         });
-        const data = await response.json();
-        if (data.success) {
-          Swal.fire('Success', 'OTP resent to new email', 'success');
-          startResendTimerNew();
-        } else {
-          Swal.fire('Error', data.message || 'Failed to resend OTP', 'error');
-          if (data.message === 'Unauthorized: Please log in') {
-            window.location.href = '/login';
-          }
-        }
-      } catch (error) {
-        console.error('Error in resendOtpForNewEmail:', error);
-        Swal.fire('Error', 'Unable to connect to server. Please try again.', 'error');
-      }
-    }
 
-    async function changePassword() {
-      const currentPassword = document.getElementById('currentPassword').value;
-      const newPassword = document.getElementById('newPassword').value;
-      const confirmPassword = document.getElementById('confirmPassword').value;
-
-      if (!validatePassword(newPassword)) {
-        Swal.fire('Error', 'New password must be at least 8 characters long', 'error');
-        return;
-      }
-
-      if (newPassword !== confirmPassword) {
-        Swal.fire('Error', 'Passwords do not match', 'error');
-        return;
-      }
-
-      try {
-        const response = await fetch('/change-password', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ currentPassword, newPassword }),
-          credentials: 'include'
-        });
-        const data = await response.json();
-        if (data.success) {
-          Swal.fire('Success', 'Password changed successfully', 'success');
-          closePasswordModal();
-        } else {
-          Swal.fire('Error', data.message || 'Failed to change password', 'error');
-        }
-      } catch (error) {
-        console.error('Error in changePassword:', error);
-        Swal.fire('Error', 'Unable to connect to server. Please try again.', 'error');
-      }
-    }
-
-    async function verifyOtp() {
-      const otp = document.getElementById('otpInput').value;
-      if (!validateOtp(otp)) {
-        Swal.fire('Error', 'Please enter a valid 6-digit OTP', 'error');
-        return;
-      }
-
-      try {
-        const response = await fetch('/verify-password-otp', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ otp }),
-          credentials: 'include'
-        });
-        const data = await response.json();
-        if (data.success) {
-          Swal.fire('Success', 'Password changed successfully', 'success').then(() => {
-            closeOtpModal();
-          });
-        } else {
-          Swal.fire('Error', data.message || 'Failed to verify OTP', 'error');
-        }
-      } catch (error) {
-        console.error('Error in verifyOtp:', error);
-        Swal.fire('Error', 'Unable to connect to server. Please try again.', 'error');
-      }
-    }
-
-    async function resendOtp() {
-      try {
-        const response = await fetch('/resend-password-otp', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include'
-        });
-        const data = await response.json();
-        if (data.success) {
-          Swal.fire('Success', 'OTP resent to your email', 'success');
-        } else {
-          Swal.fire('Error', data.message || 'Failed to resend OTP', 'error');
-          if (data.message === 'Unauthorized: Please log in') {
-            window.location.href = '/login';
-          }
-        }
-      } catch (error) {
-        console.error('Error in resendOtp:', error);
-        Swal.fire('Error', 'Unable to connect to server. Please try again.', 'error');
-      }
-    }
-
-    toggleCurrentPassword.addEventListener("click", function () {
-      const type = document.getElementById('currentPassword').getAttribute("type") === "password" ? "text" : "password";
-      document.getElementById('currentPassword').setAttribute("type", type);
-      this.innerHTML = type === "password"
-        ? '<i class="fas fa-eye"></i>'
-        : '<i class="fas fa-eye-slash"></i>';
-    });
-
-    toggleNewPassword.addEventListener("click", function () {
-      const type = document.getElementById('newPassword').getAttribute("type") === "password" ? "text" : "password";
-      document.getElementById('newPassword').setAttribute("type", type);
-      this.innerHTML = type === "password"
-        ? '<i class="fas fa-eye"></i>'
-        : '<i class="fas fa-eye-slash"></i>';
-    });
-
-    toggleConfirmPassword.addEventListener("click", function () {
-      const type = document.getElementById('confirmPassword').getAttribute("type") === "password" ? "text" : "password";
-      document.getElementById('confirmPassword').setAttribute("type", type);
-      this.innerHTML = type === "password"
-        ? '<i class="fas fa-eye"></i>'
-        : '<i class="fas fa-eye-slash"></i>';
-    });
-
-    document.getElementById('editProfileForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const username = document.getElementById('username').value;
-
-      if (!username || username.length < 3) {
-        Swal.fire('Error', 'Username must be at least 3 characters long', 'error');
-        return;
-      }
-
-      try {
-        const response = await fetch('/update-profile', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name: username }),
-          credentials: 'include'
-        });
-        const data = await response.json();
-        if (data.success) {
-          Swal.fire('Success', 'Profile updated successfully', 'success').then(() => {
-            window.location.href = '/userProfile';
-          });
-        } else {
-          Swal.fire('Error', data.message || 'Failed to update profile', 'error');
-        }
-      } catch (error) {
-        console.error('Error in updateProfile:', error);
-        Swal.fire('Error', 'Unable to connect to server. Please try again.', 'error');
-      }
-    });
-  </script>
+    </script>
 </body>
+
 </html>

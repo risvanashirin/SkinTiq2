@@ -1,127 +1,178 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <%- include("../../views/partials/admin/header") %>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Admin Dashboard - Skintiq</title>
+  <%- include("../../views/partials/admin/header") %>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Admin Dashboard - Skintiq</title>
 
-  <!-- FontAwesome for icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- SweetAlert2 -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.css" />
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- SweetAlert2 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.css" />
 
-  <style>
-    * {
-      box-sizing: border-box;
-    }
+    <style>
+      * {
+        box-sizing: border-box;
+      }
 
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #ecf0f1;
-      margin-left: 250px; /* Offset to match the fixed sidebar width */
-    }
-
-    .main-content {
-      flex: 1;
-      padding: 2rem;
-      background: #ecf0f1;
-      overflow-y: auto;
-    }
-
-    .card {
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-      padding: 20px;
-      margin-bottom: 20px;
-    }
-
-    .card-header {
-      border-bottom: 1px solid #e0e0e0;
-      margin-bottom: 15px;
-    }
-
-    .card-title {
-      font-size: 20px;
-      font-weight: 600;
-      margin: 0;
-    }
-
-    .form-control {
-      width: 100%;
-      padding: 10px 14px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      margin-bottom: 15px;
-      font-size: 14px;
-      transition: border-color 0.3s;
-    }
-
-    .form-control:focus {
-      border-color: rgb(29, 78, 216);
-      outline: none;
-    }
-
-    .btn {
-      padding: 10px 18px;
-      font-weight: 600;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-
-    .btn-primary { background: rgb(29, 78, 216); color: #fff; }
-    .btn-primary:hover { background: #5a54d1; }
-
-    .btn-info { background: #17a2b8; color: #fff; }
-    .btn-info:hover { background: #138496; }
-
-    .btn-warning { background: #ffc107; color: #fff; }
-    .btn-warning:hover { background: #e0a800; }
-
-    .btn-danger { background: #dc3545; color: #fff; }
-    .btn-danger:hover { background: #c82333; }
-
-    .btn-success { background: #28a745; color: #fff; }
-    .btn-success:hover { background: #218838; }
-
-    .table {
-      width: 100%;
-      border-collapse: collapse;
-      background: white;
-    }
-
-    .table th, .table td {
-      padding: 12px;
-      border-bottom: 1px solid #dee2e6;
-      text-align: left;
-    }
-
-    .table thead th {
-      background: #f8f9fa;
-      font-weight: bold;
-    }
-
-    .badge {
-      padding: 5px 10px;
-      font-size: 12px;
-      border-radius: 12px;
-    }
-
-    .bg-success { background-color: #28a745; color: white; }
-    .bg-danger { background-color: #dc3545; color: white; }
-
-    @media screen and (max-width: 768px) {
       body {
-        margin-left: 0; /* Remove offset for mobile as sidebar becomes horizontal */
+        margin: 0;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #ecf0f1;
+        margin-left: 250px;
+        /* Offset to match the fixed sidebar width */
       }
+
       .main-content {
-        padding: 1rem; /* Adjust padding for mobile */
+        flex: 1;
+        padding: 2rem;
+        background: #ecf0f1;
+        overflow-y: auto;
       }
-    }
-  </style>
+
+      .card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        padding: 20px;
+        margin-bottom: 20px;
+      }
+
+      .card-header {
+        border-bottom: 1px solid #e0e0e0;
+        margin-bottom: 15px;
+      }
+
+      .card-title {
+        font-size: 20px;
+        font-weight: 600;
+        margin: 0;
+      }
+
+      .form-control {
+        width: 100%;
+        padding: 10px 14px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        margin-bottom: 15px;
+        font-size: 14px;
+        transition: border-color 0.3s;
+      }
+
+      .form-control:focus {
+        border-color: rgb(29, 78, 216);
+        outline: none;
+      }
+
+      .btn {
+        padding: 10px 18px;
+        font-weight: 600;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+      }
+
+      .btn-primary {
+        background: rgb(29, 78, 216);
+        color: #fff;
+      }
+
+      .btn-primary:hover {
+        background: #5a54d1;
+      }
+
+      .btn-info {
+        background: #17a2b8;
+        color: #fff;
+      }
+
+      .btn-info:hover {
+        background: #138496;
+      }
+
+      .btn-warning {
+        background: #ffc107;
+        color: #fff;
+      }
+
+      .btn-warning:hover {
+        background: #e0a800;
+      }
+
+      .btn-danger {
+        background: #dc3545;
+        color: #fff;
+      }
+
+      .btn-danger:hover {
+        background: #c82333;
+      }
+
+      .btn-success {
+        background: #28a745;
+        color: #fff;
+      }
+
+      .btn-success:hover {
+        background: #218838;
+      }
+
+      .table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+      }
+
+      .table th,
+      .table td {
+        padding: 12px;
+        border-bottom: 1px solid #dee2e6;
+        text-align: left;
+      }
+
+      .table thead th {
+        background: #f8f9fa;
+        font-weight: bold;
+      }
+
+      .badge {
+        padding: 5px 10px;
+        font-size: 12px;
+        border-radius: 12px;
+      }
+
+      .bg-success {
+        background-color: #28a745;
+        color: white;
+      }
+
+      .bg-danger {
+        background-color: #dc3545;
+        color: white;
+      }
+
+      .error-message {
+        color: #dc3545;
+        font-size: 12px;
+        margin-top: -10px;
+        margin-bottom: 10px;
+        display: none;
+      }
+
+      @media screen and (max-width: 768px) {
+        body {
+          margin-left: 0;
+          /* Remove offset for mobile as sidebar becomes horizontal */
+        }
+
+        .main-content {
+          padding: 1rem;
+          /* Adjust padding for mobile */
+        }
+      }
+    </style>
 </head>
 
 <body>
@@ -135,7 +186,8 @@
       <div class="card">
         <div class="card-body">
           <form action="/admin/category" method="get" class="input-group">
-            <input type="text" class="form-control" name="search" placeholder="Search categories" value="<%= search || '' %>">
+            <input type="text" class="form-control" name="search" placeholder="Search categories"
+              value="<%= search || '' %>">
             <button class="btn btn-primary" type="submit">Search</button>
             <a href="/admin/category" class="btn btn-primary" type="submit">Clear</a>
           </form>
@@ -148,8 +200,12 @@
         </div>
         <div class="card-body">
           <form id="addCategoryForm">
-            <input type="text" name="name" placeholder="Category name" class="form-control" id="category_name" required />
-            <textarea name="description" placeholder="Category description" class="form-control" id="category_description" required></textarea>
+            <input type="text" name="name" placeholder="Category name" class="form-control" id="category_name"
+              required />
+            <div id="name-error" class="error-message"></div>
+            <textarea name="description" placeholder="Category description" class="form-control"
+              id="category_description" required></textarea>
+            <div id="description-error" class="error-message"></div>
             <button type="submit" class="btn btn-primary w-100">Create Category</button>
           </form>
         </div>
@@ -171,54 +227,61 @@
               </tr>
             </thead>
             <tbody>
-              <% categories.forEach((category) => { %>
-              <tr>
-                <td><%= category.name %></td>
-                <td><%= category.description %></td>
-                <td>
-                  <% if (category.categoryOffer > 0) { %>
-                    <%= category.categoryOffer %>%
-                  <% } else { %>
-                    0%
-                  <% } %>
-                  <% if (category.categoryOffer === 0) { %>
-                    <button class="btn btn-sm btn-info" onclick="addOffer('<%= category._id %>')">Add Offer</button>
-                  <% } else { %> 
-                    <button class="btn btn-sm btn-warning" onclick="editOffer('<%= category._id %>', '<%= category.categoryOffer %>')">Edit Offer</button>
-                    <button class="btn btn-sm btn-danger" onclick="deleteOffer('<%= category._id %>')">Remove Offer</button>
-                  <% } %> 
-                </td>
-                <td>
-                  <% if (category.isListed) { %>
-                    <span class="badge bg-success">Listed</span>
-                  <% } else { %>
-                    <span class="badge bg-danger">Unlisted</span>
-                  <% } %>
-                </td>
-                <td>
-                  <button class="btn btn-sm btn-info" onclick="editCategory('<%= category._id %>', '<%= category.name %>', '<%= category.description %>')">
-                    <i class="fas fa-pen"></i>
-                  </button>
-                  <% if (category.isListed) { %>
-                    <button class="btn btn-sm btn-danger" onclick="unlistCategory('<%= category._id %>')">Unlist</button>
-                  <% } else { %>
-                    <button class="btn btn-sm btn-success" onclick="listCategory('<%= category._id %>')">List</button>
-                  <% } %>
-                </td>
-              </tr>
-              <% }) %>
+              <% categories.forEach((category)=> { %>
+                <tr>
+                  <td>
+                    <%= category.name %>
+                  </td>
+                  <td>
+                    <%= category.description %>
+                  </td>
+                  <td>
+                    <% if (category.categoryOffer> 0) { %>
+                      <%= category.categoryOffer %>%
+                        <% } else { %>
+                          0%
+                          <% } %>
+                            <% if (category.categoryOffer===0) { %>
+                              <button class="btn btn-sm btn-info" onclick="addOffer('<%= category._id %>')">Add
+                                Offer</button>
+                              <% } else { %>
+                                <button class="btn btn-sm btn-warning"
+                                  onclick="editOffer('<%= category._id %>', '<%= category.categoryOffer %>')">Edit
+                                  Offer</button>
+                                <button class="btn btn-sm btn-danger"
+                                  onclick="deleteOffer('<%= category._id %>')">Remove Offer</button>
+                                <% } %>
+                  </td>
+                  <td>
+                    <% if (category.isListed) { %>
+                      <span class="badge bg-success">Listed</span>
+                      <% } else { %>
+                        <span class="badge bg-danger">Unlisted</span>
+                        <% } %>
+                  </td>
+                  <td>
+                    <button class="btn btn-sm btn-info"
+                      onclick="editCategory('<%= category._id %>', '<%= category.name %>', '<%= category.description %>')">
+                      <i class="fas fa-pen"></i>
+                    </button>
+                    <% if (category.isListed) { %>
+                      <button class="btn btn-sm btn-danger"
+                        onclick="unlistCategory('<%= category._id %>')">Unlist</button>
+                      <% } else { %>
+                        <button class="btn btn-sm btn-success"
+                          onclick="listCategory('<%= category._id %>')">List</button>
+                        <% } %>
+                  </td>
+                </tr>
+                <% }) %>
             </tbody>
           </table>
         </div>
       </div>
 
       <!-- Pagination -->
-      <%- include('../../views/partials/admin/pagination', { 
-        baseUrl: '/admin/category', 
-        currentPage: currentPage, 
-        totalPages: totalPages, 
-        queryParams: search ? `&search=${search}` : '' 
-      }) %>
+      <%- include('../../views/partials/admin/pagination', { baseUrl: '/admin/category' , currentPage: currentPage,
+        totalPages: totalPages, queryParams: search ? `&search=${search}` : '' }) %>
 
     </section>
   </div>
@@ -233,46 +296,101 @@
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax personally/libs/jquery/3.7.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 
   <script>
-    document.getElementById('addCategoryForm').addEventListener('submit', function(e) {
+    document.getElementById('addCategoryForm').addEventListener('submit', function (e) {
       e.preventDefault();
-      const formData = new FormData(this);
 
-      fetch('/admin/addCategory', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(Object.fromEntries(formData)),
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          Swal.fire({
-            title: 'Success!',
-            text: data.message,
-            icon: 'success',
-          }).then(() => {
-            location.reload();
+      const nameInput = document.getElementById('category_name');
+      const descriptionInput = document.getElementById('category_description');
+      const nameError = document.getElementById('name-error');
+      const descriptionError = document.getElementById('description-error');
+
+      // Reset error messages
+      nameError.style.display = 'none';
+      descriptionError.style.display = 'none';
+
+      // Validation flags
+      let isValid = true;
+
+      // Name validation
+      const name = nameInput.value.trim();
+      const nameRegex = /^[a-zA-Z0-9\s]+$/;
+
+      if (!name) {
+        nameError.textContent = 'Category name is required';
+        nameError.style.display = 'block';
+        isValid = false;
+      } else if (name.length < 3) {
+        nameError.textContent = 'Category name must be at least 3 characters long';
+        nameError.style.display = 'block';
+        isValid = false;
+      } else if (name.length > 50) {
+        nameError.textContent = 'Category name cannot exceed 50 characters';
+        nameError.style.display = 'block';
+        isValid = false;
+      } else if (!nameRegex.test(name)) {
+        nameError.textContent = 'Category name can only contain letters, numbers, and spaces';
+        nameError.style.display = 'block';
+        isValid = false;
+      }
+
+      // Description validation
+      const description = descriptionInput.value.trim();
+
+      if (!description) {
+        descriptionError.textContent = 'Category description is required';
+        descriptionError.style.display = 'block';
+        isValid = false;
+      } else if (description.length < 10) {
+        descriptionError.textContent = 'Category description must be at least 10 characters long';
+        descriptionError.style.display = 'block';
+        isValid = false;
+      } else if (description.length > 500) {
+        descriptionError.textContent = 'Category description cannot exceed 500 characters';
+        descriptionError.style.display = 'block';
+        isValid = false;
+      }
+
+      // Proceed with form submission if valid
+      if (isValid) {
+        const formData = new FormData(this);
+
+        fetch('/admin/addCategory', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(Object.fromEntries(formData)),
+        })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              Swal.fire({
+                title: 'Success!',
+                text: data.message,
+                icon: 'success',
+              }).then(() => {
+                location.reload();
+              });
+            } else {
+              Swal.fire({
+                title: 'Error!',
+                text: data.message || 'Unable to add category',
+                icon: 'error',
+              });
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error);
+            Swal.fire({
+              title: 'Error!',
+              text: 'An error occurred while adding the category',
+              icon: 'error',
+            });
           });
-        } else {
-          Swal.fire({
-            title: 'Error!',
-            text: data.message || 'Unable to add category',
-            icon: 'error',
-          });
-        }
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        Swal.fire({
-          title: 'Error!',
-          text: 'An error occurred while adding the category',
-          icon: 'error',
-        });
-      });
+      }
     });
 
     function editCategory(id, name, description) {
@@ -280,14 +398,71 @@
         title: 'Edit Category',
         html: `
           <input id="swal-input1" class="swal2-input" value="${name}" placeholder="Category Name">
+          <div id="swal-name-error" class="error-message" style="color: #dc3545; font-size: 12px; display: none;"></div>
           <textarea id="swal-input2" class="swal2-textarea" placeholder="Category Description">${description}</textarea>
+          <div id="swal-description-error" class="error-message" style="color: #dc3545; font-size: 12px; display: none;"></div>
         `,
         focusConfirm: false,
+        showCancelButton: true,
+        confirmButtonText: 'Update',
         preConfirm: () => {
-          return {
-            name: document.getElementById('swal-input1').value,
-            description: document.getElementById('swal-input2').value,
-          };
+          const name = document.getElementById('swal-input1').value.trim();
+          const description = document.getElementById('swal-input2').value.trim();
+          const nameError = document.getElementById('swal-name-error');
+          const descriptionError = document.getElementById('swal-description-error');
+          const lettersOnlyRegex = /^[A-Za-z\s]+$/;
+
+          // Reset error messages
+          nameError.style.display = 'none';
+          descriptionError.style.display = 'none';
+
+          let isValid = true;
+
+          // Name validation
+          if (!name) {
+            nameError.textContent = 'Category name is required';
+            nameError.style.display = 'block';
+            isValid = false;
+          } else if (name.length < 3) {
+            nameError.textContent = 'Category name must be at least 3 characters long';
+            nameError.style.display = 'block';
+            isValid = false;
+          } else if (name.length > 50) {
+            nameError.textContent = 'Category name cannot exceed 50 characters';
+            nameError.style.display = 'block';
+            isValid = false;
+          } else if (!lettersOnlyRegex.test(name)) {
+            nameError.textContent = 'Category name can only contain letters and spaces (no numbers or symbols)';
+            nameError.style.display = 'block';
+            isValid = false;
+          }
+
+          // Description validation
+          if (!description) {
+            descriptionError.textContent = 'Category description is required';
+            descriptionError.style.display = 'block';
+            isValid = false;
+          } else if (description.length < 10) {
+            descriptionError.textContent = 'Description must be at least 10 characters';
+            descriptionError.style.display = 'block';
+            isValid = false;
+          } else if (description.length > 500) {
+            descriptionError.textContent = 'Description cannot exceed 500 characters';
+            descriptionError.style.display = 'block';
+            isValid = false;
+          } else if (!lettersOnlyRegex.test(description)) {
+            descriptionError.textContent = 'Description can only contain letters and spaces (no numbers or special characters)';
+            descriptionError.style.display = 'block';
+            isValid = false;
+          }
+
+          if (!isValid) {
+            Swal.showValidationMessage('Please correct the errors');
+            return false;
+          }
+
+          return { name, description };
+
         },
       }).then((result) => {
         if (result.isConfirmed) {
@@ -298,20 +473,20 @@
             },
             body: JSON.stringify(result.value),
           })
-          .then(response => response.json())
-          .then(data => {
-            if (data.success) {
-              Swal.fire('Updated!', 'Category has been updated.', 'success').then(() => {
-                location.reload();
-              });
-            } else {
-              Swal.fire('Error', data.message || 'Failed to update category', 'error');
-            }
-          })
-          .catch(error => {
-            console.error('Error:', error);
-            Swal.fire('Error', 'An error occurred while updating the category', 'error');
-          });
+            .then(response => response.json())
+            .then(data => {
+              if (data.success) {
+                Swal.fire('Updated!', 'Category has been updated.', 'success').then(() => {
+                  location.reload();
+                });
+              } else {
+                Swal.fire('Error', data.message || 'Failed to update category', 'error');
+              }
+            })
+            .catch(error => {
+              console.error('Error:', error);
+              Swal.fire('Error', 'An error occurred while updating the category', 'error');
+            });
         }
       });
     }
@@ -330,20 +505,20 @@
           fetch(`/admin/listCategory?id=${id}`, {
             method: 'POST',
           })
-          .then(response => response.json())
-          .then(data => {
-            if (data.success) {
-              Swal.fire('Unlisted!', 'Category has been unlisted.', 'success').then(() => {
-                location.reload();
-              });
-            } else {
-              Swal.fire('Error', data.message || 'Failed to unlist category', 'error');
-            }
-          })
-          .catch(error => {
-            console.error('Error:', error);
-            Swal.fire('Error', 'An error occurred while unlisting the category', 'error');
-          });
+            .then(response => response.json())
+            .then(data => {
+              if (data.success) {
+                Swal.fire('Unlisted!', 'Category has been unlisted.', 'success').then(() => {
+                  location.reload();
+                });
+              } else {
+                Swal.fire('Error', data.message || 'Failed to unlist category', 'error');
+              }
+            })
+            .catch(error => {
+              console.error('Error:', error);
+              Swal.fire('Error', 'An error occurred while unlisting the category', 'error');
+            });
         }
       });
     }
@@ -362,20 +537,20 @@
           fetch(`/admin/unListCategory?id=${id}`, {
             method: 'POST',
           })
-          .then(response => response.json())
-          .then(data => {
-            if (data.success) {
-              Swal.fire('Listed!', 'Category has been listed.', 'success').then(() => {
-                location.reload();
-              });
-            } else {
-              Swal.fire('Error', data.message || 'Failed to list category', 'error');
-            }
-          })
-          .catch(error => {
-            console.error('Error:', error);
-            Swal.fire('Error', 'An error occurred while listing the category', 'error');
-          });
+            .then(response => response.json())
+            .then(data => {
+              if (data.success) {
+                Swal.fire('Listed!', 'Category has been listed.', 'success').then(() => {
+                  location.reload();
+                });
+              } else {
+                Swal.fire('Error', data.message || 'Failed to list category', 'error');
+              }
+            })
+            .catch(error => {
+              console.error('Error:', error);
+              Swal.fire('Error', 'An error occurred while listing the category', 'error');
+            });
         }
       });
     }
@@ -400,16 +575,16 @@
             },
             body: JSON.stringify({ categoryId, percentage: parseInt(percentage) }),
           })
-          .then(response => response.json())
-          .then(data => {
-            if (!data.status) {
-              throw new Error(data.message || "Unable to add offer");
-            }
-            return data;
-          })
-          .catch(error => {
-            Swal.showValidationMessage(`Request failed: ${error.message}`);
-          });
+            .then(response => response.json())
+            .then(data => {
+              if (!data.status) {
+                throw new Error(data.message || "Unable to add offer");
+              }
+              return data;
+            })
+            .catch(error => {
+              Swal.showValidationMessage(`Request failed: ${error.message}`);
+            });
         },
         allowOutsideClick: () => !Swal.isLoading(),
       }).then((result) => {
@@ -446,16 +621,16 @@
             },
             body: JSON.stringify({ categoryId, percentage: parseInt(percentage) }),
           })
-          .then(response => response.json())
-          .then(data => {
-            if (!data.status) {
-              throw new Error(data.message || "Unable to update offer");
-            }
-            return data;
-          })
-          .catch(error => {
-            Swal.showValidationMessage(`Request failed: ${error.message}`);
-          });
+            .then(response => response.json())
+            .then(data => {
+              if (!data.status) {
+                throw new Error(data.message || "Unable to update offer");
+              }
+              return data;
+            })
+            .catch(error => {
+              Swal.showValidationMessage(`Request failed: ${error.message}`);
+            });
         },
         allowOutsideClick: () => !Swal.isLoading(),
       }).then((result) => {
@@ -489,35 +664,39 @@
             },
             body: JSON.stringify({ categoryId }),
           })
-          .then(response => response.json())
-          .then(data => {
-            if (data.status) {
-              Swal.fire(
-                'Deleted!',
-                'The offer has been deleted.',
-                'success'
-              ).then(() => {
-                location.reload();
-              });
-            } else {
+            .then(response => response.json())
+            .then(data => {
+              if (data.status) {
+                Swal.fire(
+                  'Deleted!',
+                  'The offer has been deleted.',
+                  'success'
+                ).then(() => {
+                  location.reload();
+                });
+              } else {
+                Swal.fire(
+                  'Error!',
+                  data.message || 'Unable to delete offer',
+                  'error'
+                );
+              }
+            })
+            .catch(error => {
+              console.error('Error:', error);
               Swal.fire(
                 'Error!',
-                data.message || 'Unable to delete offer',
+                'An error occurred while deleting the offer.',
                 'error'
               );
-            }
-          })
-          .catch(error => {
-            console.error('Error:', error);
-            Swal.fire(
-              'Error!',
-              'An error occurred while deleting the offer.',
-              'error'
-            );
-          });
+            });
         }
       });
     }
   </script>
+
+
+
 </body>
+
 </html>

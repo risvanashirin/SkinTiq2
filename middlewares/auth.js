@@ -1,4 +1,5 @@
 const User = require('../models/userSchema');
+const STATUS_CODES = require('../helpers/statusCodes');
 
 
 const userAuth = (req, res, next) => {
@@ -14,7 +15,7 @@ const userAuth = (req, res, next) => {
       })
       .catch(error => {
         console.error('Error in user auth middleware:', error);
-        res.status(500).json({ success: false, message: 'Internal Server Error' });
+        res.status(STATUS_CODES .INTERNAL_SERVER_ERROR).json({ success: false, message: 'Internal Server Error' });
       });
   } else {
     res.redirect('/login');
@@ -53,7 +54,7 @@ const isAuthenticated = (req, res, next) => {
     if (req.isAuthenticated()) {
       return next();
     }
-    res.status(401).json({ success: false, message: 'Unauthorized' });
+    res.status(STATUS_CODES. UNAUTHORIZED).json({ success: false, message: 'Unauthorized' });
   };
 module.exports = {
   userAuth,
