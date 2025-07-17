@@ -22,33 +22,6 @@ const {ProfileUpload} = require('../middlewares/multer')
 
 
 
-// const { storage } = require('../utils/cloudinary');
-// const upload = multer({ storage });
-
-
-
-
-
-
-//  Multer Config 
-// const storage = multer.diskStorage({
-//   destination: (req, file, cb) => {
-//     cb(null, 'public/uploads/profile/');
-//   },
-//   filename: (req, file, cb) => {
-//     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-//     cb(null, `profile-${uniqueSuffix}${path.extname(file.originalname)}`);
-//   }
-// });
-// const fileFilter = (req, file, cb) => {
-//   const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-//   cb(null, allowedTypes.includes(file.mimetype));
-// };
-// const upload = multer({
-//   storage,
-//   limits: { fileSize: 1 * 1024 * 1024 }, 
-//   fileFilter
-// });
 
 //  Public routes
 router.get('/pageNotFound', userController.pageNotFound);
@@ -145,11 +118,6 @@ router.get('/contact',userController.getContactPage)
 
   router.post('/apply-coupon', userAuth, orderController.applyCoupon); 
   router.post('/remove-coupon', userAuth, orderController.removeCoupon); 
-
-  //   router.post('/apply-coupon', userAuth, couponController.applyCoupon); 
-  // router.post('/remove-coupon', userAuth, couponController.clearCoupon); 
-
-
 
 
 router.post('/place-order', userAuth, formParser.none(), orderController.placeorder);

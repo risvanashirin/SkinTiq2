@@ -18,10 +18,9 @@ const categoryInfo = async (req, res) => {
       .skip(skip)
       .limit(limit);
 
-    const totalCategories = await Category.countDocuments(query); // Use query for accurate count
+    const totalCategories = await Category.countDocuments(query); 
     const totalPages = Math.ceil(totalCategories / limit);
 
-    // Redirect to last page if user lands on an empty page
     if (page > totalPages && totalPages !== 0) {
       return res.redirect(`/admin/category?page=${totalPages}${search ? `&search=${search}` : ''}`);
     }
@@ -42,24 +41,22 @@ const categoryInfo = async (req, res) => {
 const addCategory = async (req, res) => {
   try {
     const lettersOnlyRegex = /^[A-Za-z\s]+$/;
+    const descriptionRegex = /^[A-Za-z0-9\s.,!?'"()%-]*$/;
     const name = req.body.name.trim();
     const description = req.body.description.trim();
 
-    // Empty check
     if (!name || !description) {
       return res.status(STATUS_CODES.BAD_REQUEST).json({ message: "Name and description are required" });
     }
 
-    // Letters-only check
     if (!lettersOnlyRegex.test(name)) {
       return res.status(STATUS_CODES.BAD_REQUEST).json({ message: "Category name must contain characters" });
     }
 
-    if (!lettersOnlyRegex.test(description)) {
+    if (!descriptionRegex.test(description)) {
       return res.status(STATUS_CODES.BAD_REQUEST).json({ message: "Description must contain only letters and spaces" });
     }
 
-    // Check for duplicates
     const existingCategory = await Category.findOne({
       name: { $regex: `^${name}$`, $options: 'i' }
     });
@@ -67,7 +64,6 @@ const addCategory = async (req, res) => {
       return res.status(STATUS_CODES.BAD_REQUEST).json({ message: "Category already exists" });
     }
 
-    // Save category
     const newCategory = new Category({ name, description });
     await newCategory.save();
 
@@ -101,10 +97,9 @@ const addCategoryOffer = async (req, res) => {
     category.categoryOffer = offerPercentage;
     await category.save();
 
-    // Update products in this category to recalculate salePrice
     const products = await Product.find({ category: category._id });
     for (const product of products) {
-      await product.save(); // Triggers pre-save middleware
+      await product.save(); 
     }
 
     res.json({ status: true, message: "Offer added successfully" });
@@ -135,10 +130,9 @@ const editCategoryOffer = async (req, res) => {
     category.categoryOffer = offerPercentage;
     await category.save();
 
-    // Update products in this category to recalculate salePrice
     const products = await Product.find({ category: category._id });
     for (const product of products) {
-      await product.save(); // Triggers pre-save middleware
+      await product.save(); 
     }
 
     res.json({ status: true, message: "Offer updated successfully" });
@@ -164,10 +158,9 @@ const removeCategoryOffer = async (req, res) => {
     category.categoryOffer = 0;
     await category.save();
 
-    // Update products in this category to recalculate salePrice
     const products = await Product.find({ category: category._id });
     for (const product of products) {
-      await product.save(); // Triggers pre-save middleware
+      await product.save();
     }
 
     res.json({ status: true, message: "Offer removed successfully" });
@@ -272,12 +265,10 @@ const updateCategory = async (req, res) => {
     const categoryname = req.body.categoryname.trim();
     const description = req.body.description.trim();
 
-    // Empty check
     if (!categoryname || !description) {
       return res.status(STATUS_CODES.BAD_REQUEST).json({ error: "Name and description are required" });
     }
 
-    // Letters-only check
     if (!lettersOnlyRegex.test(categoryname)) {
       return res.status(STATUS_CODES.BAD_REQUEST).json({ error: "Category name must contain characters" });
     }

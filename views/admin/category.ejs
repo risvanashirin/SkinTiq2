@@ -311,15 +311,21 @@
       nameError.style.display = 'none';
       descriptionError.style.display = 'none';
 
-      // Validation flags
       let isValid = true;
 
-      // Name validation
-      const name = nameInput.value.trim();
+      let name = nameInput.value.trim().replace(/\s+/g, ' ');
+      let description = descriptionInput.value.trim().replace(/\s+/g, ' ');
+
       const nameRegex = /^[a-zA-Z0-9\s]+$/;
+
+      const descriptionRegex = /^[A-Za-z0-9\s.,!?'"()%-]*$/;
 
       if (!name) {
         nameError.textContent = 'Category name is required';
+        nameError.style.display = 'block';
+        isValid = false;
+      } else if (name.startsWith(' ')) {
+        nameError.textContent = 'Category name cannot start with a space';
         nameError.style.display = 'block';
         isValid = false;
       } else if (name.length < 3) {
@@ -336,9 +342,6 @@
         isValid = false;
       }
 
-      // Description validation
-      const description = descriptionInput.value.trim();
-
       if (!description) {
         descriptionError.textContent = 'Category description is required';
         descriptionError.style.display = 'block';
@@ -351,7 +354,13 @@
         descriptionError.textContent = 'Category description cannot exceed 500 characters';
         descriptionError.style.display = 'block';
         isValid = false;
+      } else if (!descriptionRegex.test(description)) {
+        descriptionError.textContent = 'Description can only contain letters, numbers, and basic punctuation';
+        descriptionError.style.display = 'block';
+        isValid = false;
       }
+
+
 
       // Proceed with form submission if valid
       if (isValid) {
@@ -410,7 +419,10 @@
           const description = document.getElementById('swal-input2').value.trim();
           const nameError = document.getElementById('swal-name-error');
           const descriptionError = document.getElementById('swal-description-error');
-          const lettersOnlyRegex = /^[A-Za-z\s]+$/;
+
+          // Regex rules
+          const nameRegex = /^[A-Za-z][A-Za-z\s]*$/; // Should start with a letter and only have letters/spaces
+          const descriptionRegex = /^[A-Za-z0-9\s.,!?'"()%-]*$/; // Allows letters, numbers, and some punctuation
 
           // Reset error messages
           nameError.style.display = 'none';
@@ -418,9 +430,13 @@
 
           let isValid = true;
 
-          // Name validation
+          // ==== NAME VALIDATION ====
           if (!name) {
             nameError.textContent = 'Category name is required';
+            nameError.style.display = 'block';
+            isValid = false;
+          } else if (name.startsWith(' ')) {
+            nameError.textContent = 'Category name cannot start with a space';
             nameError.style.display = 'block';
             isValid = false;
           } else if (name.length < 3) {
@@ -431,13 +447,13 @@
             nameError.textContent = 'Category name cannot exceed 50 characters';
             nameError.style.display = 'block';
             isValid = false;
-          } else if (!lettersOnlyRegex.test(name)) {
-            nameError.textContent = 'Category name can only contain letters and spaces (no numbers or symbols)';
+          } else if (!nameRegex.test(name)) {
+            nameError.textContent = 'Category name can only contain letters and spaces';
             nameError.style.display = 'block';
             isValid = false;
           }
 
-          // Description validation
+          // ==== DESCRIPTION VALIDATION ====
           if (!description) {
             descriptionError.textContent = 'Category description is required';
             descriptionError.style.display = 'block';
@@ -450,20 +466,20 @@
             descriptionError.textContent = 'Description cannot exceed 500 characters';
             descriptionError.style.display = 'block';
             isValid = false;
-          } else if (!lettersOnlyRegex.test(description)) {
-            descriptionError.textContent = 'Description can only contain letters and spaces (no numbers or special characters)';
+          } else if (!descriptionRegex.test(description)) {
+            descriptionError.textContent = 'Description can only contain letters, numbers, and basic punctuation';
             descriptionError.style.display = 'block';
             isValid = false;
           }
 
           if (!isValid) {
-            Swal.showValidationMessage('Please correct the errors');
+            Swal.showValidationMessage('Please correct the highlighted errors');
             return false;
           }
 
           return { name, description };
+        }
 
-        },
       }).then((result) => {
         if (result.isConfirmed) {
           fetch(`/admin/editCategory/${id}`, {

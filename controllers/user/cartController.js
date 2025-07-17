@@ -433,7 +433,7 @@ const getCart = async (req, res) => {
           oldQuantity: item.quantity,
           newQuantity: product.quantity,
         });
-        item.quantity = product.quantity; // Adjust to available stock
+        item.quantity = product.quantity; 
       }
 
       // Add to total price using current salePrice

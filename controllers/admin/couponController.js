@@ -19,7 +19,6 @@ const getCoupons = async (req, res) => {
         const totalCoupons = await Coupon.countDocuments(query);
         const totalPages = Math.ceil(totalCoupons / limit);
 
-        // Redirect to last page if user lands on an empty page
         if (page > totalPages && totalPages !== 0) {
             return res.redirect(`/admin/coupon?page=${totalPages}${search ? `&search=${search}` : ''}`);
         }
@@ -99,7 +98,6 @@ const addCoupon = async (req, res) => {
             return res.status(STATUS_CODES .BAD_REQUEST).json({ success: false, message: 'Coupon code must be 3-20 characters' });
         }
 
-        // New validation for coupon name format
         const nameRegex = /^[A-Za-z0-9_-]+$/;
         if (!nameRegex.test(name)) {
             return res.status(STATUS_CODES .BAD_REQUEST).json({ success: false, message: 'Coupon code can only contain letters, numbers, hyphens, or underscores' });
@@ -127,7 +125,6 @@ const addCoupon = async (req, res) => {
     }
 };
 
-// In editCoupon function, after existing validations
 const editCoupon = async (req, res) => {
     try {
         if (!req.body || Object.keys(req.body).length === 0) {
@@ -156,7 +153,6 @@ const editCoupon = async (req, res) => {
             return res.status(STATUS_CODES .BAD_REQUEST).json({ success: false, message: 'Coupon code must be 3-20 characters' });
         }
 
-        // New validation for coupon name format
         const nameRegex = /^[A-Za-z0-9_-]+$/;
         if (!nameRegex.test(name)) {
             return res.status(STATUS_CODES .BAD_REQUEST).json({ success: false, message: 'Coupon code can only contain letters, numbers, hyphens, or underscores' });

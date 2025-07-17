@@ -20,13 +20,12 @@ const loadBrandPage = async (req, res) => {
     const totalBrands = await Brand.countDocuments(query);
     const totalPages = Math.ceil(totalBrands / limit);
 
-    // Redirect to last page if user lands on an empty page
     if (page > totalPages && totalPages !== 0) {
       return res.redirect(`/admin/brand?page=${totalPages}${search ? `&search=${search}` : ''}`);
     }
 
     const brands = await Brand.find(query)
-      .sort({ createdAt: -1 }) // Sort by createdAt in descending order (newest first)
+      .sort({ createdAt: -1 }) 
       .skip((page - 1) * limit)
       .limit(limit)
       .lean();
@@ -75,7 +74,7 @@ const editBrand = async (req, res) => {
         const brandId = req.params.id;
         const { brandName } = req.body;
 
-        const brandImage = req.file ? req.file.path : null; // Cloudinary gives `path` as full URL
+        const brandImage = req.file ? req.file.path : null; 
 
         const updateData = { brandName };
         if (brandImage) {

@@ -53,7 +53,7 @@ const addAddress = async (req, res) => {
             pincode,
             phone,
             altPhone: altPhone || '',
-            isPrimary: !!isPrimary // Convert to boolean
+            isPrimary: !!isPrimary 
         };
 
         console.log("newAddress:", newAddressData);
@@ -62,7 +62,7 @@ const addAddress = async (req, res) => {
 
         if (useraddress) {
             console.log("Found existing address document");
-            // If setting new address as primary, unset others
+            
             if (isPrimary) {
                 useraddress.address.forEach(addr => (addr.isPrimary = false));
             }
@@ -77,7 +77,7 @@ const addAddress = async (req, res) => {
             await newAddress.save();
         }
 
-        // Redirect to address list page or send success response
+       
         res.redirect('/addresses');
     } catch (error) {
         console.error('Error adding address:', error);
@@ -151,7 +151,6 @@ const addAddress = async (req, res) => {
   
   
 
-// Get all addresses
 const getAddresses = async (req, res) => {
   try {
     const userId = req.session.userId;

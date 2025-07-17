@@ -175,43 +175,6 @@ const updateProfile = async (req, res) => {
     }
 };
 
-// const uploadProfilePhoto = async (req, res) => {
-//   try {
-//     if (!req.file) {
-//       return res.status(STATUS_CODES .BAD_REQUEST).json({ success: false, message: 'No file uploaded' });
-//     }
-
-//     const userId = req.session.user; // Assuming req.user is set by authMiddleware
-//     const user = await User.findById(userId);
-//     if (!user) {
-//       return res.status(STATUS_CODES .NOT_FOUND).json({ success: false, message: 'User not found' });
-//     }
-
-//     // Delete old profile photo if it's not the default
-//     if (user.profilePhoto && user.profilePhoto !== '/uploads/profile/default.jpg') {
-//       try {
-//         await fs.unlink(path.join(__dirname, '../public', user.profilePhoto));
-//       } catch (err) {
-//         console.error('Error deleting old profile photo:', err);
-//       }
-//     }
-
-//     // Update user with new profile photo path
-//     user.profilePhoto = `/uploads/profile/${req.file.filename}`;
-//     await user.save();
-
-//     res.json({
-//       success: true,
-//       message: 'Profile photo updated successfully',
-//       profilePhotoUrl: user.profilePhoto
-//     });
-//   } catch (error) {
-//     console.error('Error in uploadProfilePhoto:', error);
-//     res.status(STATUS_CODES . INTERNAL_SERVER_ERROR).json({ success: false, message: 'Server error' });
-//   }
-// };
-
-
 
 
 const uploadProfilePhoto = async (req, res) => {
@@ -232,12 +195,10 @@ const uploadProfilePhoto = async (req, res) => {
       });
     }
 
-    // Delete old image from cloudinary if available
     if (user.profilePhotoPublicId) {
       await cloudinary.uploader.destroy(user.profilePhotoPublicId);
     }
 
-    // Save new Cloudinary URL and public_id
     user.profilePhoto = req.file.path; 
     user.profilePhotoPublicId = req.file.filename; 
     await user.save();
@@ -318,7 +279,7 @@ const transporter = nodemailer.createTransport({
   // Generate a 6-digit OTP and expiration time
   const generateOtp = () => {
     const otp = crypto.randomInt(100000, 999999).toString();
-    const otpExpires = Date.now() + 10 * 60 * 1000; // OTP valid for 10 minutes
+    const otpExpires = Date.now() + 10 * 60 * 1000; 
     return { otp, otpExpires };
   };
   
@@ -346,7 +307,7 @@ const transporter = nodemailer.createTransport({
   
     try {
       await transporter.sendMail(mailOptions);
-      console.log(`OTP sent to ${email}: ${otp}`); // Log OTP to terminal
+      console.log(`OTP sent to ${email}: ${otp}`); 
     } catch (error) {
       console.error('Error sending email:', error);
       throw new Error('Failed to send OTP email');
@@ -368,19 +329,18 @@ const transporter = nodemailer.createTransport({
   const verifyOtp = async (userId, email, otp) => {
     const user = await User.findById(userId);
     if (!user || user.tempNewEmail !== email) {
-      await clearTempFields(userId); // Clear temp fields on invalid request
+      await clearTempFields(userId);
       throw new Error('Invalid request');
     }
   
     if (user.tempOtp !== otp || Date.now() > user.tempOtpExpires) {
-      await clearTempFields(userId); // Clear temp fields on invalid/expired OTP
+      await clearTempFields(userId); 
       throw new Error('Invalid or expired OTP');
     }
   
     return user;
   };
   
-  // Update user's email and clear temporary fields
   const updateUserEmail = async (user, email) => {
     user.email = email;
     user.tempOtp = null;
@@ -389,7 +349,6 @@ const transporter = nodemailer.createTransport({
     await user.save();
   };
   
-  // Controller: Send OTP to new email
   const sendOtp = async (req, res) => {
    
     try {
@@ -432,7 +391,6 @@ const transporter = nodemailer.createTransport({
     }
   };
   
-  // Controller: Resend OTP (optional)
   const resendOtp = async (req, res) => {
     try {
       const user = await User.findById(req.sessio.user);
@@ -443,7 +401,6 @@ const transporter = nodemailer.createTransport({
       // Generate new OTP
       const { otp, otpExpires } = generateOtp();
   
-      // Store new OTP
       await storeOtp(req.user._id, otp, otpExpires, user.tempNewEmail);
   
       // Send new OTP email
@@ -570,13 +527,12 @@ const addAddress1 = async (req, res) => {
         state,
         pincode,
         phone,
-        altPhone: altPhone || '', // Optional field, default to empty string if not provided
+        altPhone: altPhone || '',
       };
   
       // Add the new address to the user's addresses array
       await User.findByIdAndUpdate(userId, { $push: { addresses: newAddress } });
   
-      // Render the success page
       res.render('address-success');
     } catch (error) {
       console.error('Error adding address:', error);
@@ -598,8 +554,7 @@ module.exports = {
     loadProfilePage,
     loadEditProfile,
     updateProfile,
-    // loadAddressPage,
-    // addAddress,
+    
     getProfile,
     loadOrders,
     cancelOrder,
@@ -607,7 +562,6 @@ module.exports = {
     verifyOtpAndUpdateEmail,
     resendOtp,   
     userProfile,
-    // addAddress1
 uploadProfilePhoto
 
 };

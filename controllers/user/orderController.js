@@ -28,8 +28,7 @@ const rzp = new Razorpay({
 const loadCheckout = async (req, res) => {
   try {
     const userId = req.session.user;
-    // Clear the applied coupon from session on page load/refresh
-    req.session.appliedCoupon = null; // Add this line to reset the coupon
+    req.session.appliedCoupon = null; 
 
     if (!userId) {
       return res.status(STATUS_CODES .UNAUTHORIZED).render("checkout", { error: "User not authenticated", cart: null, addresses: [], discount: 0, couponDiscount: 0, gst: 0, shippingCharge: 0, finalPrice: 0, totalPrice: 0, appliedCoupon: null, coupons: [], user: null, defaultAddress: null, defaultAddressId: '', adjustedQuantities: null });
@@ -188,7 +187,7 @@ const loadCheckout = async (req, res) => {
       shippingCharge,
       finalPrice,
       totalPrice: newPrice,
-      appliedCoupon: null, // Ensure appliedCoupon is null
+      appliedCoupon: null, 
       coupons,
       user: req.user,
       adjustedQuantities: adjustedQuantityProductNames.length > 0 ? adjustedQuantityProductNames : null,
@@ -331,7 +330,6 @@ const createRazorpay = async (req, res) => {
     } catch (error) {
         console.error('createRazorpay: Error creating order:', {
             message: error.message,
-            // statusCode: error.statusCode,
             errorDetails: error.error || error,
         });
         return res.status(500).json({
@@ -359,7 +357,6 @@ const placeorder = async (req, res) => {
   paymentMethod = Array.isArray(paymentMethod) ? paymentMethod[0] : paymentMethod;
   totalAmount = Array.isArray(totalAmount) ? parseFloat(totalAmount[0]) : parseFloat(totalAmount);
 
-  // Define sharedOrderId early to avoid ReferenceError
   let sharedOrderId = req.session.retryOrderId || razorpayOrderId || uuidv4();
 
   try {
@@ -393,7 +390,6 @@ const placeorder = async (req, res) => {
     }
     const selectedAddressData = addressDoc.address.find((addr) => addr._id.toString() === selectedAddress);
 
-    // Structure address to match schema
     const address = {
       name: selectedAddressData.name,
       phone: selectedAddressData.phone,
@@ -425,7 +421,6 @@ const placeorder = async (req, res) => {
         req.session.retryOrderId = null;
         return res.status(STATUS_CODES .BAD_REQUEST).json({
           success: false,
-          // message: `Product ${item.productId.productName} is out of stock.`,
           message: 'Product  is out of stock.',
           redirect: `/order-failed/${sharedOrderId}`,
         });
@@ -564,41 +559,6 @@ const placeorder = async (req, res) => {
       }
     }
 
-    // Handle Razorpay Payment
-    // if (paymentMethod === 'RazorPay' && !razorpayPaymentId && !razorpay_signature) {
-    //   if (existingFailedOrders.length > 0) {
-    //     for (const order of existingFailedOrders) {
-    //       const cartItem = cart.cart.find((item) => item.productId._id.toString() === order.product.toString());
-    //       if (!cartItem || cartItem.quantity !== order.quantity) {
-    //         req.session.retryOrderId = null;
-    //         return res.status(STATUS_CODES .BAD_REQUEST).json({
-    //           success: false,
-    //           message: `Cart mismatch for product ${order.productName}. Please retry from the original order.`,
-    //           redirect: `/order-failed/${sharedOrderId}`,
-    //         });
-    //       }
-    //     }
-    //   }
-
-    //   // Create new Razorpay order
-    //   const uuid = uuidv4().replace(/-/g, '');
-    //   const receipt = `rcpt_${uuid.substring(0, 36)}`;
-    //   const razorpayOrder = await rzp.orders.create({
-    //     amount: Math.round(totalAmount * 100),
-    //     currency: 'INR',
-    //     receipt,
-    //   });
-
-    //   return res.status(STATUS_CODES .OK).json({
-    //     success: true,
-    //     order: {
-    //       id: razorpayOrder.id,
-    //       amount: razorpayOrder.amount,
-    //       currency: razorpayOrder.currency,
-    //     },
-    //     orderId: razorpayOrder.id,
-    //   });
-    // }
 
 if (paymentMethod === 'RazorPay' && !razorpayPaymentId && !razorpay_signature) {
   if (existingFailedOrders.length > 0) {
@@ -730,10 +690,8 @@ if (paymentMethod === 'RazorPay' && !razorpayPaymentId && !razorpay_signature) {
       req.session.appliedCoupon = null;
     }
 
-    // Clear cart
     await Cart.findOneAndUpdate({ userId }, { $set: { cart: [] } });
 
-    // Clear retry session
     req.session.retryOrderId = null;
 
     return res.status(STATUS_CODES .OK).json({
@@ -1540,7 +1498,6 @@ const retryOrderCheckout = async (req, res) => {
       });
     }
 
-    // Update failed orders to set couponApplied: false and clear couponCode
     await Order.updateMany(
       { orderId, userId, status: 'failed' },
       { $set: { couponApplied: false, couponCode: null } }
@@ -1550,7 +1507,6 @@ const retryOrderCheckout = async (req, res) => {
     let defaultAddress = null;
     let defaultAddressId = '';
     if (addresses && addresses.length > 0) {
-      // Flatten the address array and prioritize primary address
       const flatAddresses = addresses.reduce((acc, doc) => acc.concat(doc.address), []);
       defaultAddress = flatAddresses.find(address => address.isPrimary) || flatAddresses[0];
       defaultAddressId = defaultAddress ? defaultAddress._id.toString() : '';
@@ -1568,7 +1524,6 @@ const retryOrderCheckout = async (req, res) => {
       usedBy: { $ne: new mongoose.Types.ObjectId(userId) }
     });
 
-    // Reconstruct cart from failed orders
     const cartItems = orders.map(order => ({
       productId: order.product,
       quantity: order.quantity,
@@ -1602,18 +1557,15 @@ const retryOrderCheckout = async (req, res) => {
       });
     }
 
-    // Recalculate pricing from order data
     const totalPrice = orders.reduce((sum, order) => sum + (order.price * order.quantity), 0);
     const discount = totalPrice > 1500 ? totalPrice * 0.1 : 0;
     const gst = totalPrice > 2000 ? 10 : 0;
     const shippingCharge = 20;
-    const couponDiscount = 0; // Coupon is cancelled
+    const couponDiscount = 0; 
     const finalPrice = totalPrice - discount + gst + shippingCharge;
 
-    // Clear any previously applied coupon in the session
     req.session.appliedCoupon = null;
 
-    // Update the cart with the failed orders' products
     await Cart.findOneAndUpdate(
       { userId },
       { $set: { cart: cartItems } },
@@ -1622,7 +1574,6 @@ const retryOrderCheckout = async (req, res) => {
 
     const adjustedQuantityProductNames = [];
 
-    // Store the original orderId in the session for use in placeOrder
     req.session.retryOrderId = orderId;
 
     res.render('checkout', {

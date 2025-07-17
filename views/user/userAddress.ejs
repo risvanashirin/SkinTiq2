@@ -1,13 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Address Management</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"/>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
     <style>
@@ -15,6 +16,7 @@
             font-family: 'Poppins', sans-serif;
             overflow-x: hidden;
         }
+
         :root {
             --accent-gradient: linear-gradient(45deg, #44351c, #efe10a);
             --accent-hover: linear-gradient(45deg, #3a2e17, #d6cc09);
@@ -23,55 +25,66 @@
             --success-color: #16a34a;
             --success-hover: #13843b;
         }
+
         .btn-gradient {
             background: var(--accent-gradient);
             border: none;
             color: #ffffff;
             transition: all 0.3s ease;
         }
+
         .btn-gradient:hover {
             background: var(--accent-hover);
             box-shadow: 0 4px 10px rgba(68, 53, 28, 0.3);
         }
+
         .btn-outline-gradient {
             border: 1px solid #44351c;
             color: #44351c;
             transition: all 0.3s ease;
         }
+
         .btn-outline-gradient:hover {
             background: var(--accent-gradient);
             color: #ffffff;
             box-shadow: 0 4px 10px rgba(68, 53, 28, 0.3);
         }
+
         .btn-outline-danger {
             border: 1px solid var(--danger-color);
             color: var(--danger-color);
             transition: all 0.3s ease;
         }
+
         .btn-outline-danger:hover {
             background: var(--danger-color);
             color: #ffffff;
             box-shadow: 0 4px 10px rgba(220, 38, 38, 0.3);
         }
+
         .btn-outline-success {
             border: 1px solid var(--success-color);
             color: var(--success-color);
             transition: all 0.3s ease;
         }
+
         .btn-outline-success:hover {
             background: var(--success-color);
             color: #ffffff;
             box-shadow: 0 4px 10px rgba(22, 163, 74, 0.3);
         }
+
         .error-message {
             color: var(--danger-color);
             font-size: 0.875rem;
             margin-top: 0.25rem;
             display: none;
         }
+
         .input-error {
             border-color: var(--danger-color);
         }
+
         .form-input {
             width: 100%;
             max-width: 100%;
@@ -84,11 +97,13 @@
             border-radius: 6px;
             transition: border-color 0.2s ease, box-shadow 0.2s ease;
         }
+
         .form-input:focus {
             border-color: #eab308;
             box-shadow: 0 0 0 3px rgba(234, 179, 8, 0.2);
             outline: none;
         }
+
         .sidebar-toggle {
             display: none;
             position: fixed;
@@ -104,15 +119,18 @@
             transition: all 0.3s ease;
             cursor: pointer;
         }
+
         .sidebar-toggle:hover {
             background: linear-gradient(90deg, #655700, #8c7500);
             box-shadow: 0 4px 10px rgba(126, 107, 0, 0.3);
         }
+
         .sidebar-toggle svg {
             width: 20px;
             height: 20px;
             fill: #fff;
         }
+
         .main-content {
             background: linear-gradient(145deg, #ffffff, #f5f5f5);
             border: none;
@@ -128,17 +146,21 @@
             min-height: calc(92vh - 2rem);
             box-sizing: border-box;
         }
+
         .main-content:hover {
             box-shadow: 0 6px 16px rgba(126, 107, 0, 0.15);
         }
+
         .address-details p {
             display: block;
             margin: 0;
             line-height: 1.5;
         }
+
         #addressModal {
             overflow-y: auto;
         }
+
         .modal-content {
             max-height: 80vh;
             overflow-y: auto;
@@ -150,6 +172,7 @@
             max-width: 500px;
             margin: 1rem;
         }
+
         .modal-header {
             background: var(--accent-gradient);
             color: #ffffff;
@@ -158,6 +181,7 @@
             border-top-right-radius: 12px;
             position: relative;
         }
+
         .modal-close {
             position: absolute;
             top: 1rem;
@@ -169,12 +193,15 @@
             cursor: pointer;
             transition: color 0.2s ease;
         }
+
         .modal-close:hover {
             color: #e5e7eb;
         }
+
         .modal-body {
             padding: 1.5rem;
         }
+
         .modal-footer {
             padding: 1rem 1.5rem;
             border-top: 1px solid #e5e7eb;
@@ -182,19 +209,23 @@
             justify-content: flex-end;
             gap: 0.5rem;
         }
+
         @media (min-width: 769px) {
             .main-content {
                 max-width: min(100%, 800px);
                 margin: 0 auto;
             }
         }
+
         @media (max-width: 768px) {
             .sidebar-toggle {
                 display: block;
             }
-            .sidebar-partial.open ~ .sidebar-toggle {
+
+            .sidebar-partial.open~.sidebar-toggle {
                 display: none;
             }
+
             .main-content {
                 margin: 0 auto;
                 padding: 1.5rem;
@@ -203,14 +234,17 @@
                 min-height: calc(90vh - 2rem);
                 max-width: min(100%, 800px);
             }
+
             .main-content.sidebar-open {
                 margin-left: min(220px, 70vw);
                 max-width: min(100%, 800px);
             }
+
             .modal-content {
                 max-height: 75vh;
             }
         }
+
         @media (max-width: 480px) {
             .main-content {
                 padding: 1rem;
@@ -219,403 +253,448 @@
                 min-height: calc(88vh - 2rem);
                 max-width: min(100%, 800px);
             }
+
             .main-content.sidebar-open {
                 margin-left: min(180px, 65vw);
                 max-width: min(100%, 800px);
             }
+
             .sidebar-toggle {
                 padding: 0.5rem;
             }
+
             .sidebar-toggle svg {
                 width: 18px;
                 height: 18px;
             }
+
             .modal-content {
                 max-height: 70vh;
                 margin: 0.5rem;
             }
+
             .modal-body {
                 padding: 1rem;
             }
         }
+
         @media (max-width: 320px) {
             .main-content {
                 padding: 0.8rem;
                 border-radius: 6px;
                 max-width: min(100%, 800px);
             }
+
             .main-content.sidebar-open {
                 margin-left: min(160px, 60vw);
                 max-width: min(100%, 800px);
             }
+
             .modal-content {
                 max-height: 65vh;
                 margin: 0.5rem;
             }
+
             .modal-body {
                 padding: 0.8rem;
             }
         }
     </style>
 </head>
+
 <body class="bg-gray-100">
     <%- include("../../views/partials/user/sidebar.ejs") %>
 
-    <button class="sidebar-toggle" aria-label="Toggle sidebar">
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M3 6h18v2H3V6zm0 5h18v2H3v-2zm0 5h18v2H3v-2z"/>
-        </svg>
-    </button>
+        <button class="sidebar-toggle" aria-label="Toggle sidebar">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M3 6h18v2H3V6zm0 5h18v2H3v-2zm0 5h18v2H3v-2z" />
+            </svg>
+        </button>
 
-    <div class="main-content mx-auto p-6 mt-5">
-        <div class="flex flex-col items-center mb-6">
-            <h1 class="text-2xl font-bold text-gray-800 text-center">Manage Addresses</h1>
-            <button onclick="openModal(null)" class="btn-gradient px-4 py-2 rounded text-white mt-4">Add New Address</button>
-        </div>
-
-        <% if (typeof error !== 'undefined' && error) { %>
-            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6" role="alert">
-                <%= error %>
+        <div class="main-content mx-auto p-6 mt-5">
+            <div class="flex flex-col items-center mb-6">
+                <h1 class="text-2xl font-bold text-gray-800 text-center">Manage Addresses</h1>
+                <button onclick="openModal(null)" class="btn-gradient px-4 py-2 rounded text-white mt-4">Add New
+                    Address</button>
             </div>
-        <% } %>
 
-        <div class="grid gap-6 max-w mx-auto">
-            <% addresses.forEach(address => { %>
-                <div class="border border-gray-200 p-4 rounded-lg shadow-md bg-white hover:shadow-lg transition">
-                    <div class="flex justify-between items-start">
-                        <div class="address-details space-y-1">
-                            <p class="font-semibold text-gray-800 text-lg"><%= address.name %></p>
-                            <p class="text-gray-600 text-sm"><%= address.addressType || 'N/A' %></p>
-                            <p class="text-gray-600 text-sm"><%= address.city %>, <%= address.state %> <%= address.pincode %></p>
-                            <p class="text-gray-600 text-sm"><%= address.landMark %></p>
-                            <p class="text-gray-600 text-sm">Phone: <%= address.phone %></p>
-                            <% if (address.altPhone) { %>
-                                <p class="text-gray-600 text-sm">Alt Phone: <%= address.altPhone %></p>
-                            <% } %>
-                            <% if (address.isPrimary) { %>
-                                <p class="text-green-600 font-semibold text-sm">Primary Address</p>
-                            <% } %>
-                        </div>
-                        <div class="flex gap-2 items-center flex-wrap">
-                            <button onclick='openModal(<%- JSON.stringify(address) %>)' class="btn-outline-gradient px-3 py-1 rounded text-sm">
-                                <i class="fas fa-pen"></i>
-                            </button>
-                            <form action="/delete-address/<%= address._id %>" method="POST" class="flex delete-address-form">
-  <button type="submit" class="btn-outline-danger px-3 py-1 rounded text-sm">
-    <i class="fas fa-trash"></i>
-  </button>
-</form>
+            <% if (typeof error !=='undefined' && error) { %>
+                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6" role="alert">
+                    <%= error %>
+                </div>
+                <% } %>
 
-                            <% if (!address.isPrimary) { %>
-                                <form action="/set-primary-address/<%= address._id %>" method="POST" class="flex">
-                                    <button type="submit" class="btn-outline-success px-3 py-1 rounded text-sm">
-                                        <i class="fas fa-check-circle"></i>
-                                    </button>
+                    <div class="grid gap-6 max-w mx-auto">
+                        <% addresses.forEach(address=> { %>
+                            <div
+                                class="border border-gray-200 p-4 rounded-lg shadow-md bg-white hover:shadow-lg transition">
+                                <div class="flex justify-between items-start">
+                                    <div class="address-details space-y-1">
+                                        <p class="font-semibold text-gray-800 text-lg">
+                                            <%= address.name %>
+                                        </p>
+                                        <p class="text-gray-600 text-sm">
+                                            <%= address.addressType || 'N/A' %>
+                                        </p>
+                                        <p class="text-gray-600 text-sm">
+                                            <%= address.city %>, <%= address.state %>
+                                                    <%= address.pincode %>
+                                        </p>
+                                        <p class="text-gray-600 text-sm">
+                                            <%= address.landMark %>
+                                        </p>
+                                        <p class="text-gray-600 text-sm">Phone: <%= address.phone %>
+                                        </p>
+                                        <% if (address.altPhone) { %>
+                                            <p class="text-gray-600 text-sm">Alt Phone: <%= address.altPhone %>
+                                            </p>
+                                            <% } %>
+                                                <% if (address.isPrimary) { %>
+                                                    <p class="text-green-600 font-semibold text-sm">Primary Address</p>
+                                                    <% } %>
+                                    </div>
+                                    <div class="flex gap-2 items-center flex-wrap">
+                                        <button onclick='openModal(<%- JSON.stringify(address) %>)'
+                                            class="btn-outline-gradient px-3 py-1 rounded text-sm">
+                                            <i class="fas fa-pen"></i>
+                                        </button>
+                                        <form action="/delete-address/<%= address._id %>" method="POST"
+                                            class="flex delete-address-form">
+                                            <button type="submit" class="btn-outline-danger px-3 py-1 rounded text-sm">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+
+                                        <% if (!address.isPrimary) { %>
+                                            <form action="/set-primary-address/<%= address._id %>" method="POST"
+                                                class="flex">
+                                                <button type="submit"
+                                                    class="btn-outline-success px-3 py-1 rounded text-sm">
+                                                    <i class="fas fa-check-circle"></i>
+                                                </button>
+                                            </form>
+                                            <% } %>
+                                    </div>
+                                </div>
+                            </div>
+                            <% }) %>
+                    </div>
+
+                    <div id="addressModal"
+                        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h2 id="modalTitle" class="text-xl font-bold">Add New Address</h2>
+                                <button class="modal-close" onclick="closeModal()" aria-label="Close modal">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <form id="addressForm" action="/add-address" method="POST" class="space-y-4" novalidate>
+                                    <input type="hidden" name="_id" id="_id">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Address Type *</label>
+                                        <select name="addressType" id="addressType" required class="form-input">
+                                            <option value=""> Select Address Type </option>
+                                            <option value="Home">Home</option>
+                                            <option value="Work">Work</option>
+                                        </select>
+                                        <p id="addressTypeError" class="error-message hidden"
+                                            data-default="Please select an address type.">
+                                            Please select an address type.
+                                        </p>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Name *</label>
+                                        <input type="text" name="name" id="name" required class="form-input">
+                                        <p id="nameError" class="error-message">Name must be 2-50 characters and contain
+                                            only letters and spaces.</p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">City *</label>
+                                        <input type="text" name="city" id="city" required class="form-input">
+                                        <p id="cityError" class="error-message">City must be 2-50 characters and contain
+                                            only letters and spaces.</p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Landmark *</label>
+                                        <input type="text" name="landMark" id="landMark" required class="form-input">
+                                        <p id="landMarkError" class="error-message">Landmark must be 3-100 characters.
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">State *</label>
+                                        <input type="text" name="state" id="state" required class="form-input">
+                                        <p id="stateError" class="error-message">State must be 2-50 characters and
+                                            contain only letters and spaces.</p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Pincode *</label>
+                                        <input type="text" name="pincode" id="pincode" required class="form-input"
+                                            maxlength="6" oninput="restrictPincode(this)">
+                                        <p id="pincodeError" class="error-message">Pincode must be exactly 6 digits.</p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Phone *</label>
+                                        <input type="text" name="phone" id="phone" required class="form-input"
+                                            maxlength="10" oninput="restrictPhone(this)">
+                                        <p id="phoneError" class="error-message">Phone must be a valid 10-digit number.
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Alternate Phone</label>
+                                        <input type="text" name="altPhone" id="altPhone" class="form-input"
+                                            maxlength="10" oninput="restrictPhone(this)">
+                                        <p id="altPhoneError" class="error-message">Alternate phone must be a valid
+                                            10-digit number and different from the primary phone.</p>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <input type="checkbox" name="isPrimary" id="isPrimary"
+                                            class="mr-2 focus:ring-yellow-500 rounded">
+                                        <label class="text-sm font-medium text-gray-700">Set as Primary</label>
+                                    </div>
                                 </form>
-                            <% } %>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" onclick="closeModal()"
+                                    class="btn btn-outline-secondary px-4 py-2 rounded">Cancel</button>
+                                <button type="submit" id="submitButton"
+                                    class="btn-gradient px-4 py-2 rounded text-white" form="addressForm">Add</button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            <% }) %>
         </div>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-        <div id="addressModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h2 id="modalTitle" class="text-xl font-bold">Add New Address</h2>
-                    <button class="modal-close" onclick="closeModal()" aria-label="Close modal">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <form id="addressForm" action="/add-address" method="POST" class="space-y-4" novalidate>
-                        <input type="hidden" name="_id" id="_id">
-                      <div>
-  <label class="block text-sm font-medium text-gray-700">Address Type *</label>
-  <select name="addressType" id="addressType" required class="form-input">
-    <option value=""> Select Address Type </option>
-    <option value="Home">Home</option>
-    <option value="Work">Work</option>
-  </select>
-  <p id="addressTypeError" class="error-message hidden" data-default="Please select an address type.">
-    Please select an address type.
-  </p>
-</div>
+        <script>
+            document.querySelectorAll('.delete-address-form').forEach(form => {
+                form.addEventListener('submit', function (e) {
+                    e.preventDefault(); // Stop form from submitting
 
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">Name *</label>
-                            <input type="text" name="name" id="name" required class="form-input">
-                            <p id="nameError" class="error-message">Name must be 2-50 characters and contain only letters and spaces.</p>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">City *</label>
-                            <input type="text" name="city" id="city" required class="form-input">
-                            <p id="cityError" class="error-message">City must be 2-50 characters and contain only letters and spaces.</p>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">Landmark *</label>
-                            <input type="text" name="landMark" id="landMark" required class="form-input">
-                            <p id="landMarkError" class="error-message">Landmark must be 3-100 characters.</p>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">State *</label>
-                            <input type="text" name="state" id="state" required class="form-input">
-                            <p id="stateError" class="error-message">State must be 2-50 characters and contain only letters and spaces.</p>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">Pincode *</label>
-                            <input type="text" name="pincode" id="pincode" required class="form-input" maxlength="6" oninput="restrictPincode(this)">
-                            <p id="pincodeError" class="error-message">Pincode must be exactly 6 digits.</p>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">Phone *</label>
-                            <input type="text" name="phone" id="phone" required class="form-input" maxlength="10" oninput="restrictPhone(this)">
-                            <p id="phoneError" class="error-message">Phone must be a valid 10-digit number.</p>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">Alternate Phone</label>
-                            <input type="text" name="altPhone" id="altPhone" class="form-input" maxlength="10" oninput="restrictPhone(this)">
-                            <p id="altPhoneError" class="error-message">Alternate phone must be a valid 10-digit number and different from the primary phone.</p>
-                        </div>
-                        <div class="flex items-center">
-                            <input type="checkbox" name="isPrimary" id="isPrimary" class="mr-2 focus:ring-yellow-500 rounded">
-                            <label class="text-sm font-medium text-gray-700">Set as Primary</label>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" onclick="closeModal()" class="btn btn-outline-secondary px-4 py-2 rounded">Cancel</button>
-                    <button type="submit" id="submitButton" class="btn-gradient px-4 py-2 rounded text-white" form="addressForm">Add</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-    <script>
-         document.querySelectorAll('.delete-address-form').forEach(form => {
-    form.addEventListener('submit', function(e) {
-      e.preventDefault(); // Stop form from submitting
-
-      Swal.fire({
-        title: 'Are you sure?',
-        text: 'This address will be permanently deleted.',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Yes, delete it!',
-        cancelButtonText: 'Cancel'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          form.submit(); // Submit the form if confirmed
-        }
-      });
-    });
-  });
-        function restrictPincode(input) {
-            input.value = input.value.replace(/[^0-9]/g, '').slice(0, 6);
-        }
-
-        function restrictPhone(input) {
-            input.value = input.value.replace(/[^0-9]/g, '').slice(0, 10);
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const navLinks = document.querySelectorAll('.sidebar-partial nav a');
-            const currentPath = window.location.pathname;
-            const toggleButton = document.querySelector('.sidebar-toggle');
-            const closeButton = document.querySelector('.sidebar-close');
-            const sidebar = document.querySelector('.sidebar-partial');
-            const mainContent = document.querySelector('.main-content');
-
-            // Ensure sidebar is hidden and toggle is visible on load for mobile
-            if (window.innerWidth <= 768) {
-                sidebar.classList.remove('open');
-                mainContent.classList.remove('sidebar-open');
-                toggleButton.style.display = 'block';
-            }
-
-            // Set active link based on current path
-            navLinks.forEach(link => {
-                link.classList.remove('active');
-                if (link.getAttribute('href') === currentPath) {
-                    link.classList.add('active');
-                }
-            });
-
-            // Toggle sidebar open
-            if (toggleButton && sidebar && mainContent) {
-                toggleButton.addEventListener('click', () => {
-                    sidebar.classList.add('open');
-                    mainContent.classList.add('sidebar-open');
-                    toggleButton.style.display = 'none';
+                    Swal.fire({
+                        title: 'Are you sure?',
+                        text: 'This address will be permanently deleted.',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#3085d6',
+                        confirmButtonText: 'Yes, delete it!',
+                        cancelButtonText: 'Cancel'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            form.submit();
+                        }
+                    });
                 });
+            });
+            function restrictPincode(input) {
+                input.value = input.value.replace(/[^0-9]/g, '').slice(0, 6);
             }
 
-            // Close sidebar
-            if (closeButton && sidebar && mainContent) {
-                closeButton.addEventListener('click', () => {
+            function restrictPhone(input) {
+                input.value = input.value.replace(/[^0-9]/g, '').slice(0, 10);
+            }
+
+            document.addEventListener('DOMContentLoaded', () => {
+                const navLinks = document.querySelectorAll('.sidebar-partial nav a');
+                const currentPath = window.location.pathname;
+                const toggleButton = document.querySelector('.sidebar-toggle');
+                const closeButton = document.querySelector('.sidebar-close');
+                const sidebar = document.querySelector('.sidebar-partial');
+                const mainContent = document.querySelector('.main-content');
+
+                // Ensure sidebar is hidden and toggle is visible on load for mobile
+                if (window.innerWidth <= 768) {
                     sidebar.classList.remove('open');
                     mainContent.classList.remove('sidebar-open');
                     toggleButton.style.display = 'block';
-                    sidebar.offsetHeight; // Trigger reflow
+                }
+
+                // Set active link based on current path
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href') === currentPath) {
+                        link.classList.add('active');
+                    }
                 });
+
+                // Toggle sidebar open
+                if (toggleButton && sidebar && mainContent) {
+                    toggleButton.addEventListener('click', () => {
+                        sidebar.classList.add('open');
+                        mainContent.classList.add('sidebar-open');
+                        toggleButton.style.display = 'none';
+                    });
+                }
+
+                // Close sidebar
+                if (closeButton && sidebar && mainContent) {
+                    closeButton.addEventListener('click', () => {
+                        sidebar.classList.remove('open');
+                        mainContent.classList.remove('sidebar-open');
+                        toggleButton.style.display = 'block';
+                        sidebar.offsetHeight; // Trigger reflow
+                    });
+                }
+
+                // Handle window resize to maintain consistent state
+                window.addEventListener('resize', () => {
+                    if (window.innerWidth > 768) {
+                        sidebar.classList.remove('open');
+                        mainContent.classList.remove('sidebar-open');
+                        toggleButton.style.display = 'none';
+                    } else {
+                        if (!sidebar.classList.contains('open')) {
+                            toggleButton.style.display = 'block';
+                        }
+                    }
+                });
+            });
+
+            function openModal(address) {
+                const modal = document.getElementById('addressModal');
+                const form = document.getElementById('addressForm');
+                const modalTitle = document.getElementById('modalTitle');
+                const submitButton = document.getElementById('submitButton');
+
+                resetFormValidation();
+
+                if (address) {
+                    modalTitle.textContent = 'Edit Address';
+                    form.action = `/edit-address/${address._id}`;
+                    submitButton.textContent = 'Update';
+                    document.getElementById('_id').value = address._id || '';
+                    document.getElementById('addressType').value = address.addressType || '';
+                    document.getElementById('name').value = address.name || '';
+                    document.getElementById('city').value = address.city || '';
+                    document.getElementById('landMark').value = address.landMark || '';
+                    document.getElementById('state').value = address.state || '';
+                    document.getElementById('pincode').value = address.pincode || '';
+                    document.getElementById('phone').value = address.phone || '';
+                    document.getElementById('altPhone').value = address.altPhone || '';
+                    document.getElementById('isPrimary').checked = address.isPrimary || false;
+                } else {
+                    modalTitle.textContent = 'Add New Address';
+                    form.action = '/add-address';
+                    submitButton.textContent = 'Add';
+                    form.reset();
+                    document.getElementById('_id').value = '';
+                    document.getElementById('pincode').value = '';
+                    document.getElementById('phone').value = '';
+                    document.getElementById('altPhone').value = '';
+                    document.getElementById('isPrimary').checked = false;
+                }
+
+                modal.classList.remove('hidden');
             }
 
-            // Handle window resize to maintain consistent state
-            window.addEventListener('resize', () => {
-                if (window.innerWidth > 768) {
-                    sidebar.classList.remove('open');
-                    mainContent.classList.remove('sidebar-open');
-                    toggleButton.style.display = 'none';
-                } else {
-                    if (!sidebar.classList.contains('open')) {
-                        toggleButton.style.display = 'block';
-                    }
-                }
-            });
-        });
-
-        function openModal(address) {
-            const modal = document.getElementById('addressModal');
-            const form = document.getElementById('addressForm');
-            const modalTitle = document.getElementById('modalTitle');
-            const submitButton = document.getElementById('submitButton');
-
-            resetFormValidation();
-
-            if (address) {
-                modalTitle.textContent = 'Edit Address';
-                form.action = `/edit-address/${address._id}`;
-                submitButton.textContent = 'Update';
-                document.getElementById('_id').value = address._id || '';
-                document.getElementById('addressType').value = address.addressType || '';
-                document.getElementById('name').value = address.name || '';
-                document.getElementById('city').value = address.city || '';
-                document.getElementById('landMark').value = address.landMark || '';
-                document.getElementById('state').value = address.state || '';
-                document.getElementById('pincode').value = address.pincode || '';
-                document.getElementById('phone').value = address.phone || '';
-                document.getElementById('altPhone').value = address.altPhone || '';
-                document.getElementById('isPrimary').checked = address.isPrimary || false;
-            } else {
-                modalTitle.textContent = 'Add New Address';
-                form.action = '/add-address';
-                submitButton.textContent = 'Add';
-                form.reset();
-                document.getElementById('_id').value = '';
+            function closeModal() {
+                const modal = document.getElementById('addressModal');
+                modal.classList.add('hidden');
+                resetFormValidation();
+                document.getElementById('addressForm').reset();
                 document.getElementById('pincode').value = '';
                 document.getElementById('phone').value = '';
                 document.getElementById('altPhone').value = '';
                 document.getElementById('isPrimary').checked = false;
             }
 
-            modal.classList.remove('hidden');
-        }
+            function resetFormValidation() {
+                const inputs = document.querySelectorAll('#addressForm input');
+                const errors = document.querySelectorAll('.error-message');
+                inputs.forEach(input => input.classList.remove('input-error'));
+                errors.forEach(error => {
+                    error.style.display = 'none';
+                    error.textContent = error.getAttribute('data-default') || error.textContent; // Reset error message
+                });
+            }
 
-        function closeModal() {
-            const modal = document.getElementById('addressModal');
-            modal.classList.add('hidden');
-            resetFormValidation();
-            document.getElementById('addressForm').reset();
-            document.getElementById('pincode').value = '';
-            document.getElementById('phone').value = '';
-            document.getElementById('altPhone').value = '';
-            document.getElementById('isPrimary').checked = false;
-        }
+            document.getElementById('addressForm').addEventListener('submit', function (e) {
+                e.preventDefault();
+                let isValid = true;
 
-        function resetFormValidation() {
-            const inputs = document.querySelectorAll('#addressForm input');
-            const errors = document.querySelectorAll('.error-message');
-            inputs.forEach(input => input.classList.remove('input-error'));
-            errors.forEach(error => {
-                error.style.display = 'none';
-                error.textContent = error.getAttribute('data-default') || error.textContent; // Reset error message
+                resetFormValidation();
+
+                const name = document.getElementById('name').value.trim();
+                const city = document.getElementById('city').value.trim();
+                const landMark = document.getElementById('landMark').value.trim();
+                const state = document.getElementById('state').value.trim();
+                const pincode = document.getElementById('pincode').value.trim();
+                const phone = document.getElementById('phone').value.trim();
+                const altPhone = document.getElementById('altPhone').value.trim();
+                const addressType = document.getElementById('addressType').value.trim();
+
+                const nameRegex = /^[a-zA-Z\s]{2,50}$/;
+                if (!name || !nameRegex.test(name)) {
+                    document.getElementById('nameError').style.display = 'block';
+                    document.getElementById('name').classList.add('input-error');
+                    isValid = false;
+                }
+
+                const cityRegex = /^[a-zA-Z\s]{2,50}$/;
+                if (!city || !cityRegex.test(city)) {
+                    document.getElementById('cityError').style.display = 'block';
+                    document.getElementById('city').classList.add('input-error');
+                    isValid = false;
+                }
+
+                if (!landMark || landMark.length < 3 || landMark.length > 100) {
+                    document.getElementById('landMarkError').style.display = 'block';
+                    document.getElementById('landMark').classList.add('input-error');
+                    isValid = false;
+                }
+
+                const stateRegex = /^[a-zA-Z\s]{2,50}$/;
+                if (!state || !stateRegex.test(state)) {
+                    document.getElementById('stateError').style.display = 'block';
+                    document.getElementById('state').classList.add('input-error');
+                    isValid = false;
+                }
+
+                const pincodeRegex = /^[1-9][0-9]{5}$/;
+                if (!pincode || !pincodeRegex.test(pincode)) {
+                    document.getElementById('pincodeError').textContent = 'Pincode must be 6 digits and cannot start with 0.';
+                    document.getElementById('pincodeError').style.display = 'block';
+                    document.getElementById('pincode').classList.add('input-error');
+                    isValid = false;
+                }
+
+                const phoneRegex = /^[1-9][0-9]{9}$/;
+                if (!phone || !phoneRegex.test(phone)) {
+                    document.getElementById('phoneError').textContent = 'Phone number must be 10 digits and cannot start with 0.';
+                    document.getElementById('phoneError').style.display = 'block';
+                    document.getElementById('phone').classList.add('input-error');
+                    isValid = false;
+                }
+
+                if (altPhone) {
+                    if (!phoneRegex.test(altPhone)) {
+                        document.getElementById('altPhoneError').textContent = 'Alternate phone must be 10 digits and cannot start with 0.';
+                        document.getElementById('altPhoneError').style.display = 'block';
+                        document.getElementById('altPhone').classList.add('input-error');
+                        isValid = false;
+                    } else if (altPhone === phone) {
+                        document.getElementById('altPhoneError').textContent = 'Alternate phone must be different from the primary phone.';
+                        document.getElementById('altPhoneError').style.display = 'block';
+                        document.getElementById('altPhone').classList.add('input-error');
+                        isValid = false;
+                    }
+                }
+
+                const addressTypeRegex = /^[a-zA-Z\s]{3,20}$/;
+                if (!addressType || !addressTypeRegex.test(addressType)) {
+                    document.getElementById('addressTypeError').style.display = 'block';
+                    document.getElementById('addressType').classList.add('input-error');
+                    isValid = false;
+                }
+
+                if (isValid) {
+                    this.submit();
+                }
             });
-        }
-
-        document.getElementById('addressForm').addEventListener('submit', function (e) {
-            e.preventDefault();
-            let isValid = true;
-
-            resetFormValidation();
-
-            const name = document.getElementById('name').value.trim();
-            const city = document.getElementById('city').value.trim();
-            const landMark = document.getElementById('landMark').value.trim();
-            const state = document.getElementById('state').value.trim();
-            const pincode = document.getElementById('pincode').value.trim();
-            const phone = document.getElementById('phone').value.trim();
-            const altPhone = document.getElementById('altPhone').value.trim();
-            const addressType = document.getElementById('addressType').value.trim();
-
-            const nameRegex = /^[a-zA-Z\s]{2,50}$/;
-            if (!name || !nameRegex.test(name)) {
-                document.getElementById('nameError').style.display = 'block';
-                document.getElementById('name').classList.add('input-error');
-                isValid = false;
-            }
-
-            const cityRegex = /^[a-zA-Z\s]{2,50}$/;
-            if (!city || !cityRegex.test(city)) {
-                document.getElementById('cityError').style.display = 'block';
-                document.getElementById('city').classList.add('input-error');
-                isValid = false;
-            }
-
-            if (!landMark || landMark.length < 3 || landMark.length > 100) {
-                document.getElementById('landMarkError').style.display = 'block';
-                document.getElementById('landMark').classList.add('input-error');
-                isValid = false;
-            }
-
-            const stateRegex = /^[a-zA-Z\s]{2,50}$/;
-            if (!state || !stateRegex.test(state)) {
-                document.getElementById('stateError').style.display = 'block';
-                document.getElementById('state').classList.add('input-error');
-                isValid = false;
-            }
-
-            const pincodeRegex = /^\d{6}$/;
-            if (!pincode || !pincodeRegex.test(pincode)) {
-                document.getElementById('pincodeError').style.display = 'block';
-                document.getElementById('pincode').classList.add('input-error');
-                isValid = false;
-            }
-
-            const phoneRegex = /^\d{10}$/;
-            if (!phone || !phoneRegex.test(phone)) {
-                document.getElementById('phoneError').style.display = 'block';
-                document.getElementById('phone').classList.add('input-error');
-                isValid = false;
-            }
-
-            if (altPhone && !phoneRegex.test(altPhone)) {
-                document.getElementById('altPhoneError').style.display = 'block';
-                document.getElementById('altPhone').classList.add('input-error');
-                isValid = false;
-            }
-
-            if (altPhone && altPhone === phone) {
-                document.getElementById('altPhoneError').style.display = 'block';
-                document.getElementById('altPhoneError').textContent = 'Alternate phone must be different from the primary phone.';
-                document.getElementById('altPhone').classList.add('input-error');
-                isValid = false;
-            }
-
-            const addressTypeRegex = /^[a-zA-Z\s]{3,20}$/;
-            if (!addressType || !addressTypeRegex.test(addressType)) {
-                document.getElementById('addressTypeError').style.display = 'block';
-                document.getElementById('addressType').classList.add('input-error');
-                isValid = false;
-            }
-
-            if (isValid) {
-                this.submit();
-            }
-        });
-    </script>
+        </script>
 </body>
+
 </html>

@@ -23,7 +23,7 @@ const loadcoupon = async (req, res) => {
 
 const applyCoupon = async (req, res) => {
     try {
-        const { name } = req.body; // Changed from couponCode to name
+        const { name } = req.body; 
         const userId = req.session.user;
 
         // Validate coupon and calculate discount
@@ -77,7 +77,7 @@ const getAvailableCoupons = async (req, res) => {
         const currentDate = new Date();
 
         const coupons = await Coupon.find({
-            isList: false, // Changed from "false" to false
+            isList: false,
             usedBy: { $ne: userId },
             startDate: { $lte: currentDate },
             endDate: { $gte: currentDate }

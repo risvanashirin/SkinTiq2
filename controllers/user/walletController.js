@@ -17,12 +17,11 @@ const loadWallet = async (req, res) => {
             });
         }
 
-        // Fetch wallet for the user
         const wallet = await Wallet.findOne({ userId }).lean();
-        const rowsPerPage = 5; // Match the client-side rowsPerPage
+        const rowsPerPage = 5;
         const currentPage = parseInt(req.query.page) || 1;
         const baseUrl = '/wallet';
-        const queryParams = ''; // Add additional query params if needed, e.g., filters
+        const queryParams = ''; 
 
         if (!wallet) {
             return res.render('wallet', {
@@ -38,11 +37,9 @@ const loadWallet = async (req, res) => {
             });
         }
 
-        // Calculate total pages based on transactions
         const transactions = wallet.transactions || [];
         const totalPages = Math.ceil(transactions.length / rowsPerPage);
 
-        // Render wallet page with data
         res.render('wallet', {
             wallet: {
                 balance: wallet.balance || 0,

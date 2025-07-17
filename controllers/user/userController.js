@@ -11,43 +11,43 @@ const nodemailer = require('nodemailer');
 const bcrypt = require('bcrypt');
 
 const pageNotFound = async (req, res) => {
-    try {
-        res.render('page-404');
-    } catch (error) {
-        res.redirect('/pageNotFound');
-    }
+  try {
+    res.render('page-404');
+  } catch (error) {
+    res.redirect('/pageNotFound');
+  }
 };
 
 const loadHomepage = async (req, res) => {
-    try {
-        const user = req.session.user;
-        const categories = await Category.find({ isListed: true });
-        let productData = await Product.find({
-            isBlocked: false,
-            category: { $in: categories.map(category => category._id) },
-            quantity: { $gt: 0 }
-        });
+  try {
+    const user = req.session.user;
+    const categories = await Category.find({ isListed: true });
+    let productData = await Product.find({
+      isBlocked: false,
+      category: { $in: categories.map(category => category._id) },
+      quantity: { $gt: 0 }
+    });
 
-        if (user) {
-            const userData = await User.findOne({ _id: user });
-            if (userData.isBlocked) {
-                req.session.destroy((err) => {
-                    if (err) {
-                        console.log('Session destruction error:', err.message);
-                        return res.redirect('/pageNotFound');
-                    }
-                    return res.render('login', { message: "Your account has been blocked by the admin" });
-                });
-            } else {
-                return res.render("home", { user: userData, products: productData });
-            }
-        } else {
-            return res.render('home', { user: null, products: productData });
-        }
-    } catch (error) {
-        console.log('Home page not loading', error);
-      res.status(STATUS_CODES . INTERNAL_SERVER_ERROR).send('server error');
+    if (user) {
+      const userData = await User.findOne({ _id: user });
+      if (userData.isBlocked) {
+        req.session.destroy((err) => {
+          if (err) {
+            console.log('Session destruction error:', err.message);
+            return res.redirect('/pageNotFound');
+          }
+          return res.render('login', { message: "Your account has been blocked by the admin" });
+        });
+      } else {
+        return res.render("home", { user: userData, products: productData });
+      }
+    } else {
+      return res.render('home', { user: null, products: productData });
     }
+  } catch (error) {
+    console.log('Home page not loading', error);
+    res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).send('server error');
+  }
 };
 
 const getaboutPage = (req, res) => {
@@ -55,264 +55,268 @@ const getaboutPage = (req, res) => {
     return res.render('about', { user: req.session.user || null });
   } catch (error) {
     console.log('about page not loading:', error);
-  res.status(STATUS_CODES . INTERNAL_SERVER_ERROR).send('Server Error');
+    res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).send('Server Error');
   }
 };
 
 
-const getContactPage = (req,res)=>{
+const getContactPage = (req, res) => {
   try {
     return res.render('contact', { user: req.session.user || null });
   } catch (error) {
-    console.log('contact page not loading:',error);
-  res.status(STATUS_CODES . INTERNAL_SERVER_ERROR).send('server Error')
+    console.log('contact page not loading:', error);
+    res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).send('server Error')
   }
 }
 
 
 
 const loadSignup = async (req, res) => {
-    try {
-        return res.render('signup');
-    } catch (error) {
-        console.log('Home page not loading:', error);
-      res.status(STATUS_CODES . INTERNAL_SERVER_ERROR).send('Server Error');
-    }
+  try {
+    return res.render('signup');
+  } catch (error) {
+    console.log('Home page not loading:', error);
+    res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).send('Server Error');
+  }
 };
 
 function generateOtp() {
-    return Math.floor(100000 + Math.random() * 900000).toString();
+  return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
 function generateReferralCode() {
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    let referralCode = '';
-    for (let i = 0; i < 6; i++) {
-        referralCode += characters.charAt(Math.floor(Math.random() * characters.length));
-    }
-    return referralCode;
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let referralCode = '';
+  for (let i = 0; i < 6; i++) {
+    referralCode += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+  return referralCode;
 }
 
 function generateRandomString(length) {
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    let result = '';
-    for (let i = 0; i < length; i++) {
-        result += characters.charAt(Math.floor(Math.random() * characters.length));
-    }
-    return result;
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let result = '';
+  for (let i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+  return result;
 }
 
 async function sendVerificationEmail(email, otp) {
-    try {
-        console.log('Sending email to:', email, 'with OTP:', otp);
-        const transporter = nodemailer.createTransport({
-            service: 'gmail',
-            port: 587,
-            secure: false,
-            requireTLS: true,
-            auth: {
-                user: process.env.NODEMAILER_EMAIL,
-                pass: process.env.NODEMAILER_PASSWORD
-            }
-        });
-        const info = await transporter.sendMail({
-            from: process.env.NODEMAILER_EMAIL,
-            to: email,
-            subject: "Verify your account",
-            text: `Your OTP is ${otp}`,
-            html: `<b>Your OTP: ${otp}</b>`,
-        });
-        console.log('Email sent successfully:', info.accepted);
-        return info.accepted.length > 0;
-    } catch (error) {
-        console.error('Error sending email:', error);
-        return false;
-    }
+  try {
+    console.log('Sending email to:', email, 'with OTP:', otp);
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      port: 587,
+      secure: false,
+      requireTLS: true,
+      auth: {
+        user: process.env.NODEMAILER_EMAIL,
+        pass: process.env.NODEMAILER_PASSWORD
+      }
+    });
+    const info = await transporter.sendMail({
+      from: process.env.NODEMAILER_EMAIL,
+      to: email,
+      subject: "Verify your account",
+      text: `Your OTP is ${otp}`,
+      html: `<b>Your OTP: ${otp}</b>`,
+    });
+    console.log('Email sent successfully:', info.accepted);
+    return info.accepted.length > 0;
+  } catch (error) {
+    console.error('Error sending email:', error);
+    return false;
+  }
 }
 
+
 const signup = async (req, res) => {
-    try {
-        console.log('Sign up operation started');
-        const { name, phone, email, password, cPassword, referralCode } = req.body;
-        console.log('Request body:', { name, phone, email, password, cPassword, referralCode });
+  try {
+    const { name, phone, email, password, cPassword, referralCode } = req.body;
 
-        const otp = generateOtp();
-        console.log('Generated OTP:', otp);
-
-        const emailSent = await sendVerificationEmail(email, otp);
-        console.log('Email sent status:', emailSent);
-        if (!emailSent) {
-            console.log('Email sending failed');
-            return res.json('email-error');
-        }
-
-        req.session.userOtp = otp;
-        req.session.userData = { name, phone, email, password, referralCode };
-        console.log('Session data saved:', req.session.userData);
-        console.log('OTP Sent:', otp);
-
-        return res.render('verify-otp');
-    } catch (error) {
-        console.error('Signup error:', error);
-        return res.redirect('/pageNotFound');
+    const existuser = await User.findOne({ email });
+    if (existuser) {
+      return res.render('signup', { message: 'A user with this email already exists. Please try another email.' });
     }
+
+    if (password !== cPassword) {
+      return res.render('signup', { message: 'Passwords do not match.' });
+    }
+
+    const otp = generateOtp();
+    const emailSent = await sendVerificationEmail(email, otp);
+    if (!emailSent) {
+      return res.render('signup', { message: 'Failed to send verification email. Please try again later.' });
+    }
+
+    req.session.userOtp = otp;
+    req.session.userData = { name, phone, email, password, referralCode };
+
+    return res.render('verify-otp');
+  } catch (error) {
+    console.error('Signup error:', error);
+    return res.redirect('/pageNotFound');
+  }
 };
 
+
+
 const securePassword = async (password) => {
-    try {
-        const passwordHash = await bcrypt.hash(password, 10);
-        return passwordHash;
-    } catch (error) {
-        console.error('Error hashing password:', error);
-        throw error;
-    }
+  try {
+    const passwordHash = await bcrypt.hash(password, 10);
+    return passwordHash;
+  } catch (error) {
+    console.error('Error hashing password:', error);
+    throw error;
+  }
 };
 
 const verifyOtp = async (req, res) => {
-    try {
-        const { otp } = req.body;
-        console.log('Received OTP:', otp);
+  try {
+    const { otp } = req.body;
+    console.log('Received OTP:', otp);
 
-        if (otp === req.session.userOtp) {
-            const user = req.session.userData;
-            const passwordHash = await securePassword(user.password);
+    if (otp === req.session.userOtp) {
+      const user = req.session.userData;
+      const passwordHash = await securePassword(user.password);
 
-            const saveUserData = new User({
-                name: user.name,
-                email: user.email,
-                phone: user.phone,
-                password: passwordHash,
-                referalCode: generateReferralCode()
-            });
-            await saveUserData.save();
-            console.log('User saved with ID:', saveUserData._id);
-            req.session.user = saveUserData._id;
+      const saveUserData = new User({
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        password: passwordHash,
+        referalCode: generateReferralCode()
+      });
+      await saveUserData.save();
+      console.log('User saved with ID:', saveUserData._id);
+      req.session.user = saveUserData._id;
 
-            //  referral coupon 
-            if (user.referralCode) {
-                console.log('Processing referral code:', user.referralCode);
-                const referrer = await User.findOne({ referalCode: user.referralCode });
-                if (referrer) {
-                    console.log('Referrer found:', referrer._id);
-                    const startDate = new Date();
-                    const endDate = new Date();
-                    endDate.setDate(endDate.getDate() + 30);
+      //  referral coupon 
+      if (user.referralCode) {
+        console.log('Processing referral code:', user.referralCode);
+        const referrer = await User.findOne({ referalCode: user.referralCode });
+        if (referrer) {
+          console.log('Referrer found:', referrer._id);
+          const startDate = new Date();
+          const endDate = new Date();
+          endDate.setDate(endDate.getDate() + 30);
 
-                    // Referrer coupon
-                    const referrerCoupon = new Coupon({
-                        name: `REF-${generateRandomString(6)}`,
-                        startDate,
-                        endDate,
-                        offerPrice: 100,
-                        minimumPrice: 150,
-                        isList: true, 
-                        userId: [referrer._id]
-                    });
-                    await referrerCoupon.save();
-                    console.log('Referrer coupon created:', referrerCoupon.name);
+          // Referrer coupon
+          const referrerCoupon = new Coupon({
+            name: `REF-${generateRandomString(6)}`,
+            startDate,
+            endDate,
+            offerPrice: 100,
+            minimumPrice: 150,
+            isList: true,
+            userId: [referrer._id]
+          });
+          await referrerCoupon.save();
+          console.log('Referrer coupon created:', referrerCoupon.name);
 
-                    // New user coupon
-                    const newUserCoupon = new Coupon({
-                        name: `NEW-${generateRandomString(6)}`,
-                        startDate,
-                        endDate,
-                        offerPrice: 50,
-                        minimumPrice: 150,
-                        isList: true, 
-                        userId: [saveUserData._id]
-                    });
-                    await newUserCoupon.save();
-                    console.log('New user coupon created:', newUserCoupon.name);
-                } else {
-                    console.log('Invalid referral code:', user.referralCode);
-                }
-            }
-
-            res.json({ success: true, redirect: "/" });
+          // New user coupon
+          const newUserCoupon = new Coupon({
+            name: `NEW-${generateRandomString(6)}`,
+            startDate,
+            endDate,
+            offerPrice: 50,
+            minimumPrice: 150,
+            isList: true,
+            userId: [saveUserData._id]
+          });
+          await newUserCoupon.save();
+          console.log('New user coupon created:', newUserCoupon.name);
         } else {
-            res.status(STATUS_CODES.  BAD_REQUEST).json({ success: false, message: "Invalid OTP, Please try again" });
+          console.log('Invalid referral code:', user.referralCode);
         }
-    } catch (error) {
-        console.error('Error Verifying OTP:', error);
-      res.status(STATUS_CODES . INTERNAL_SERVER_ERROR).json({ success: false, message: "An error occurred" });
+      }
+
+      res.json({ success: true, redirect: "/" });
+    } else {
+      res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: "Invalid OTP, Please try again" });
     }
+  } catch (error) {
+    console.error('Error Verifying OTP:', error);
+    res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({ success: false, message: "An error occurred" });
+  }
 };
 
 const resendOtp = async (req, res) => {
-    try {
-        if (!req.session.userData || !req.session.userData.email) {
-            console.log('Session data missing in resendOtp');
-            return res.status(STATUS_CODES.  BAD_REQUEST).json({ success: false, message: "Session data not found. Please start signup again." });
-        }
-        const { email } = req.session.userData;
-        const otp = generateOtp();
-        req.session.userOtp = otp;
-
-        console.log('Resend OTP generated:', otp);
-        const emailSent = await sendVerificationEmail(email, otp);
-        if (emailSent) {
-            console.log('Resend OTP sent:', otp);
-            return res.status(STATUS_CODES.OK).json({ success: true, message: "OTP Resend Successfully" });
-        } else {
-            console.log('Failed to resend OTP');
-            return res.status(500).json({ success: false, message: "Failed to resend OTP. Please try again" });
-        }
-    } catch (error) {
-        console.error('Error resending OTP:', error);
-      res.status(STATUS_CODES . INTERNAL_SERVER_ERROR).json({ success: false, message: "Internal Server Error. Please try again" });
+  try {
+    if (!req.session.userData || !req.session.userData.email) {
+      console.log('Session data missing in resendOtp');
+      return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: "Session data not found. Please start signup again." });
     }
+    const { email } = req.session.userData;
+    const otp = generateOtp();
+    req.session.userOtp = otp;
+
+    console.log('Resend OTP generated:', otp);
+    const emailSent = await sendVerificationEmail(email, otp);
+    if (emailSent) {
+      console.log('Resend OTP sent:', otp);
+      return res.status(STATUS_CODES.OK).json({ success: true, message: "OTP Resend Successfully" });
+    } else {
+      console.log('Failed to resend OTP');
+      return res.status(500).json({ success: false, message: "Failed to resend OTP. Please try again" });
+    }
+  } catch (error) {
+    console.error('Error resending OTP:', error);
+    res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({ success: false, message: "Internal Server Error. Please try again" });
+  }
 };
 
 const loadLogin = async (req, res) => {
-    try {
-        if (!req.session.user) {
-            return res.render('login');
-        } else {
-            return res.redirect('/');
-        }
-    } catch (error) {
-        console.error('Error loading login:', error);
-        return res.redirect('/pageNotFound');
+  try {
+    if (!req.session.user) {
+      return res.render('login');
+    } else {
+      return res.redirect('/');
     }
+  } catch (error) {
+    console.error('Error loading login:', error);
+    return res.redirect('/pageNotFound');
+  }
 };
 
 const login = async (req, res) => {
-    try {
-        const { email, password } = req.body;
-        const findUser = await User.findOne({ isAdmin: 0, email: email });
+  try {
+    const { email, password } = req.body;
+    const findUser = await User.findOne({ isAdmin: 0, email: email });
 
-        if (!findUser) {
-            return res.render("login", { message: "User not found" });
-        }
-        if (findUser.isBlocked) {
-            return res.render('login', { message: "User is blocked by admin" });
-        }
-        const passwordMatch = await bcrypt.compare(password, findUser.password);
-
-        if (!passwordMatch) {
-            return res.render('login', { message: "Incorrect Password" });
-        }
-        req.session.user = findUser._id;
-        res.redirect('/');
-    } catch (error) {
-        console.error('Login error:', error);
-        res.render('login', { message: "Login failed. Please try again later" });
+    if (!findUser) {
+      return res.render("login", { message: "User not found" });
     }
+    if (findUser.isBlocked) {
+      return res.render('login', { message: "User is blocked by admin" });
+    }
+    const passwordMatch = await bcrypt.compare(password, findUser.password);
+
+    if (!passwordMatch) {
+      return res.render('login', { message: "Incorrect Password" });
+    }
+    req.session.user = findUser._id;
+    res.redirect('/');
+  } catch (error) {
+    console.error('Login error:', error);
+    res.render('login', { message: "Login failed. Please try again later" });
+  }
 };
 
 const logout = async (req, res) => {
-    try {
-        req.session.destroy((err) => {
-            if (err) {
-                console.log('Session destruction error:', err.message);
-                return res.redirect('/pageNotFound');
-            }
-            return res.redirect('/login');
-        });
-    } catch (error) {
-        console.error('Logout error:', error);
-        res.redirect('/pageNotFound');
-    }
+  try {
+    req.session.destroy((err) => {
+      if (err) {
+        console.log('Session destruction error:', err.message);
+        return res.redirect('/pageNotFound');
+      }
+      return res.redirect('/login');
+    });
+  } catch (error) {
+    console.error('Logout error:', error);
+    res.redirect('/pageNotFound');
+  }
 };
 
 
@@ -405,7 +409,7 @@ const loadshop = async (req, res) => {
 
     const priceRanges = {
       from: [500, 1000, 1500, STATUS_CODES.OK0, 2500, 3000, 3500],
-      to: [1000, 1500, STATUS_CODES.OK0, 2500, 3000, 3500, STATUS_CODES.  BAD_REQUEST0]
+      to: [1000, 1500, STATUS_CODES.OK0, 2500, 3000, 3500, STATUS_CODES.BAD_REQUEST0]
     };
 
     const listedCategories = await Category.find({ isListed: true });
@@ -436,7 +440,7 @@ const loadshop = async (req, res) => {
       currentBrand: brand || "",
       priceRanges,
       user: userData,
-      cart, 
+      cart,
       filterParams: getFilterParams(req.query)
     });
   } catch (error) {
@@ -465,12 +469,12 @@ const productDetails = async (req, res) => {
     const productId = req.query.id;
     const product = await Product.findById(productId).populate('category').populate('brand'); // Added brand population
     if (!product) {
-      return res.redirect('/page-404'); 
+      return res.redirect('/page-404');
     }
 
-       if (product.isBlocked) {
+    if (product.isBlocked) {
       return res.redirect('/shop');
-       }
+    }
 
     const findCategory = product.category;
     const categoryOffer = findCategory?.categoryOffer || 0;
@@ -489,7 +493,7 @@ const productDetails = async (req, res) => {
       isBlocked: false
     })
       .populate('category')
-      .populate('brand') // Added brand population
+      .populate('brand') 
       .limit(4);
 
     const relatedProductsWithOffers = relatedProducts.map(relatedProduct => {
@@ -511,7 +515,7 @@ const productDetails = async (req, res) => {
       isBlocked: false,
       category: { $in: categoryIds }
     })
-      .populate('brand') // Added brand population
+      .populate('brand') 
       .sort({ createdAt: -1 })
       .skip(0)
       .limit(9);
@@ -534,7 +538,6 @@ const productDetails = async (req, res) => {
   }
 };
 
-// controllers/userController.js
 const getShopData = async (req, res) => {
   try {
     const userId = req.session.user;
@@ -600,7 +603,7 @@ const getShopData = async (req, res) => {
         ...product._doc,
         maxOffer,
         salePrice,
-        inCart: false // Will be updated below
+        inCart: false 
       };
     });
 
@@ -620,10 +623,9 @@ const getShopData = async (req, res) => {
     });
   } catch (error) {
     console.error("Error fetching shop data:", error);
-  res.status(STATUS_CODES . INTERNAL_SERVER_ERROR).json({ success: false, message: "Error fetching shop data" });
+    res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({ success: false, message: "Error fetching shop data" });
   }
 };
-// controllers/userController.js
 const getProductDetailsData = async (req, res) => {
   try {
     const userId = req.session.user;
@@ -636,7 +638,7 @@ const getProductDetailsData = async (req, res) => {
     const productId = req.query.id;
     const product = await Product.findById(productId).populate('category').populate('brand');
     if (!product || product.isBlocked) {
-      return res.status(STATUS_CODES .  NOT_FOUND).json({ success: false, message: "Product not found or blocked" });
+      return res.status(STATUS_CODES.NOT_FOUND).json({ success: false, message: "Product not found or blocked" });
     }
 
     const findCategory = product.category;
@@ -687,10 +689,9 @@ const getProductDetailsData = async (req, res) => {
     });
   } catch (error) {
     console.error("Error fetching product details data:", error);
-  res.status(STATUS_CODES . INTERNAL_SERVER_ERROR).json({ success: false, message: "Error fetching product details" });
+    res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({ success: false, message: "Error fetching product details" });
   }
 };
-// controllers/userController.js
 const checkSession = async (req, res) => {
   try {
     const userId = req.session.user;
@@ -708,21 +709,20 @@ const checkSession = async (req, res) => {
 };
 
 module.exports = {
-    loadHomepage,
-    pageNotFound,
-    loadSignup,
-    signup,
-    verifyOtp,
-    resendOtp,
-    loadLogin,
-    login,
-    logout,
-    loadshop,
-    productDetails,
+  loadHomepage,
+  pageNotFound,
+  loadSignup,
+  signup,
+  verifyOtp,
+  resendOtp,
+  loadLogin,
+  login,
+  logout,
+  loadshop,
+  productDetails,
   getShopData,
   getProductDetailsData,
   checkSession,
-    getaboutPage,
-    getContactPage,
-    // postContactForm
+  getaboutPage,
+  getContactPage,
 };

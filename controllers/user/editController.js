@@ -103,7 +103,6 @@ const changePassword = async (req, res) => {
       return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: "Old password incorrect" });
     }
 
-    // Check if new password is same as current password
     const isSamePassword = await bcrypt.compare(req.body.newPassword, user.password);
     if (isSamePassword) {
       return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: "New password cannot be the same as the current password" });
@@ -263,7 +262,7 @@ const resendOtp = async (req, res) => {
 
     const otp = generateOtp();
     user.otp = otp;
-    user.otpExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
+    user.otpExpires = Date.now() + 10 * 60 * 1000; 
     await user.save();
 
     const emailSent = await sendVerificationEmail(email, otp);
@@ -433,7 +432,7 @@ const sendOtpForNewEmail = async (req, res) => {
     const otp = generateOtp();
     user.tempNewEmail = email;
     user.otp = otp;
-    user.otpExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
+    user.otpExpires = Date.now() + 10 * 60 * 1000; 
     await user.save();
 
     const emailSent = await sendVerificationEmail(email, otp);

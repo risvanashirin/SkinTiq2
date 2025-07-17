@@ -178,12 +178,10 @@ const updateOrderStatus = async (req, res) => {
       return res.status(STATUS_CODES .FORBIDDEN).json({ success: false, message: "You cannot manually set 'return request' status" });
     }
 
-    // Define status progression
     const statusProgression = ['pending', 'confirmed', 'processing', 'shipped', 'delivered'];
     const currentStatusIndex = statusProgression.indexOf(order.status);
     const newStatusIndex = statusProgression.indexOf(status);
 
-    // Prevent moving to a previous status
     if (newStatusIndex <= currentStatusIndex) {
       console.log(`Cannot move from ${order.status} to ${status}`);
       return res.status(STATUS_CODES .BAD_REQUEST).json({
@@ -269,7 +267,6 @@ const cancelOrder = async (req, res) => {
       console.warn("No product associated with order:", orderId);
     }
 
-    // Credit wallet only for prepaid orders or delivered COD orders
     if (order.paymentMethod !== 'COD' || order.status === 'delivered') {
       console.log(`Crediting wallet for order ${orderId}: paymentMethod=${order.paymentMethod}, status=${order.status}, amount=${order.finalAmount}`);
       const wallet = await Wallet.findOneAndUpdate(
