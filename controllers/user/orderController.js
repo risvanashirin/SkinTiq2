@@ -21,8 +21,8 @@ const Razorpay = require('razorpay');
 
 // Initialize Razorpay
 const rzp = new Razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID,
-    key_secret: process.env.RAZORPAY_KEY_SECRET
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_KEY_SECRET
 });
 
 const loadCheckout = async (req, res) => {
@@ -117,29 +117,23 @@ const loadCheckout = async (req, res) => {
 
     let errorMessage = "";
     if (blockedProductNames.length > 0) {
-      errorMessage += `${blockedProductNames.join(", ")} ${
-        blockedProductNames.length > 1 ? "have" : "has"
-      } been removed from your cart as ${
-        blockedProductNames.length > 1 ? "they are" : "it is"
-      } blocked.`;
+      errorMessage += `${blockedProductNames.join(", ")} ${blockedProductNames.length > 1 ? "have" : "has"
+        } been removed from your cart as ${blockedProductNames.length > 1 ? "they are" : "it is"
+        } blocked.`;
     }
     if (unlistedCategoryProductNames.length > 0) {
       errorMessage += `${blockedProductNames.length > 0 ? " " : ""}${unlistedCategoryProductNames.join(
         ", "
-      )} ${
-        unlistedCategoryProductNames.length > 1 ? "have" : "has"
-      } been removed from your cart because ${
-        unlistedCategoryProductNames.length > 1 ? "their categories are" : "its category is"
-      } unlisted.`;
+      )} ${unlistedCategoryProductNames.length > 1 ? "have" : "has"
+        } been removed from your cart because ${unlistedCategoryProductNames.length > 1 ? "their categories are" : "its category is"
+        } unlisted.`;
     }
     if (outOfStockProductNames.length > 0) {
       errorMessage += `${blockedProductNames.length > 0 || unlistedCategoryProductNames.length > 0 ? " " : ""}${outOfStockProductNames.join(
         ", "
-      )} ${
-        outOfStockProductNames.length > 1 ? "have" : "has"
-      } been removed from your cart because ${
-        outOfStockProductNames.length > 1 ? "they are" : "it is"
-      } out of stock.`;
+      )} ${outOfStockProductNames.length > 1 ? "have" : "has"
+        } been removed from your cart because ${outOfStockProductNames.length > 1 ? "they are" : "it is"
+        } out of stock.`;
     }
     if (adjustedQuantityProductNames.length > 0) {
       const quantityMessages = adjustedQuantityProductNames.map(
@@ -292,46 +286,46 @@ const removeCoupon = async (req, res) => {
 };
 
 const createRazorpay = async (req, res) => {
-    const { amount } = req.body;
-    const userId = req.session.user;
+  const { amount } = req.body;
+  const userId = req.session.user;
 
-    try {
-        console.log('createRazorpay: Creating order', { userId, amount });
+  try {
+    console.log('createRazorpay: Creating order', { userId, amount });
 
-        const uuid = uuidv4().replace(/-/g, '');
-        const receipt = `rcpt_${uuid.substring(0, 36)}`;
-        console.log('createRazorpay: Generated receipt', { receipt, length: receipt.length });
+    const uuid = uuidv4().replace(/-/g, '');
+    const receipt = `rcpt_${uuid.substring(0, 36)}`;
+    console.log('createRazorpay: Generated receipt', { receipt, length: receipt.length });
 
-        const order = await rzp.orders.create({
-            amount: Math.round(amount * 100),
-            currency: 'INR',
-            receipt: receipt,
-        });
+    const order = await rzp.orders.create({
+      amount: Math.round(amount * 100),
+      currency: 'INR',
+      receipt: receipt,
+    });
 
-        console.log('createRazorpay: Razorpay order created', {
-            orderId: order.id,
-            razorpayOrderId: order.id,
-        });
+    console.log('createRazorpay: Razorpay order created', {
+      orderId: order.id,
+      razorpayOrderId: order.id,
+    });
 
-        return res.status(STATUS_CODES.OK).json({
-            success: true,
-            order: {
-                id: order.id,
-                amount: order.amount,
-                currency: order.currency,
-            },
-            orderId: order.id,
-        });
-    } catch (error) {
-        console.error('createRazorpay: Error creating order:', {
-            message: error.message,
-            errorDetails: error.error || error,
-        });
-        return res.status(500).json({
-            success: false,
-            message: error.error?.description || 'Failed to create Razorpay order.',
-        });
-    }
+    return res.status(STATUS_CODES.OK).json({
+      success: true,
+      order: {
+        id: order.id,
+        amount: order.amount,
+        currency: order.currency,
+      },
+      orderId: order.id,
+    });
+  } catch (error) {
+    console.error('createRazorpay: Error creating order:', {
+      message: error.message,
+      errorDetails: error.error || error,
+    });
+    return res.status(500).json({
+      success: false,
+      message: error.error?.description || 'Failed to create Razorpay order.',
+    });
+  }
 };
 
 const placeorder = async (req, res) => {
@@ -776,65 +770,65 @@ const returnOrder = async (req, res) => {
 };
 
 const loadOrderFailed = async (req, res) => {
-    const { orderId } = req.params;
-    const userId = req.session.user;
-    try {
-        if (!userId) {
-            return res.status(STATUS_CODES.UNAUTHORIZED).render('order-failed', {
-                orders: [],
-                totalPrice: 0,
-                discount: 0,
-                couponDiscount: 0,
-                gst: 0,
-                shippingCharge: 20,
-                finalPrice: 0,
-                message: 'Please log in to view this page.',
-            });
-        }
-
-        const orders = await Order.find({
-            orderId,
-            userId: new mongoose.Types.ObjectId(userId),
-            status: 'failed',
-        }).populate('product');
-
-        if (!orders || orders.length === 0) {
-            return res.status(STATUS_CODES.NOT_FOUND).render('page-STATUS_CODES.NOT_FOUND', {
-                message: 'No failed orders found for this order ID.',
-            });
-        }
-
-        const totalPrice = orders.reduce((sum, order) => sum + order.totalPrice, 0);
-        const discount = totalPrice > 1500 ? totalPrice * 0.1 : 0;
-        let couponDiscount = 0;
-        const gst = totalPrice > 2000 ? 10 : 0;
-        const shippingCharge = 20;
-
-        if (orders[0].couponApplied && orders[0].couponCode) {
-            const coupon = await Coupon.findOne({ name: orders[0].couponCode });
-            if (coupon && totalPrice >= coupon.minimumPrice) {
-                couponDiscount = coupon.offerPrice;
-            }
-        }
-
-        const finalPrice = totalPrice - discount - couponDiscount + gst + shippingCharge;
-
-        res.render('order-failed', {
-            orders,
-            totalPrice,
-            discount,
-            couponDiscount,
-            gst,
-            shippingCharge,
-            finalPrice,
-            message: 'Payment failed. Please try again or choose a different payment method.',
-        });
-    } catch (err) {
-        console.error('Error loading order failure page:', err);
-        res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).render('user/500', {
-            message: 'Something went wrong while loading the failure page.',
-        });
+  const { orderId } = req.params;
+  const userId = req.session.user;
+  try {
+    if (!userId) {
+      return res.status(STATUS_CODES.UNAUTHORIZED).render('order-failed', {
+        orders: [],
+        totalPrice: 0,
+        discount: 0,
+        couponDiscount: 0,
+        gst: 0,
+        shippingCharge: 20,
+        finalPrice: 0,
+        message: 'Please log in to view this page.',
+      });
     }
+
+    const orders = await Order.find({
+      orderId,
+      userId: new mongoose.Types.ObjectId(userId),
+      status: 'failed',
+    }).populate('product');
+
+    if (!orders || orders.length === 0) {
+      return res.status(STATUS_CODES.NOT_FOUND).render('page-STATUS_CODES.NOT_FOUND', {
+        message: 'No failed orders found for this order ID.',
+      });
+    }
+
+    const totalPrice = orders.reduce((sum, order) => sum + order.totalPrice, 0);
+    const discount = totalPrice > 1500 ? totalPrice * 0.1 : 0;
+    let couponDiscount = 0;
+    const gst = totalPrice > 2000 ? 10 : 0;
+    const shippingCharge = 20;
+
+    if (orders[0].couponApplied && orders[0].couponCode) {
+      const coupon = await Coupon.findOne({ name: orders[0].couponCode });
+      if (coupon && totalPrice >= coupon.minimumPrice) {
+        couponDiscount = coupon.offerPrice;
+      }
+    }
+
+    const finalPrice = totalPrice - discount - couponDiscount + gst + shippingCharge;
+
+    res.render('order-failed', {
+      orders,
+      totalPrice,
+      discount,
+      couponDiscount,
+      gst,
+      shippingCharge,
+      finalPrice,
+      message: 'Payment failed. Please try again or choose a different payment method.',
+    });
+  } catch (err) {
+    console.error('Error loading order failure page:', err);
+    res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).render('user/500', {
+      message: 'Something went wrong while loading the failure page.',
+    });
+  }
 };
 
 const getOrderConfirmation = async (req, res) => {
@@ -1226,109 +1220,109 @@ const cancelAllOrders = async (req, res) => {
 };
 
 const newaddress = async (req, res) => {
-    try {
-        const userId = req.session.user;
+  try {
+    const userId = req.session.user;
 
-        if (!userId) {
-            return res.status(STATUS_CODES.UNAUTHORIZED).json({
-                success: false,
-                message: 'User not authenticated',
-            });
-        }
-
-        const { addressType, name, city, landMark, state, pincode, phone, altPhone, isPrimary } = req.body;
-
-        if (!name || !city || !landMark || !state || !pincode || !phone) {
-            return res.status(STATUS_CODES.BAD_REQUEST).json({
-                success: false,
-                message: 'All required fields must be filled',
-            });
-        }
-
-        const newAddressData = {
-            addressType,
-            name,
-            city,
-            landMark,
-            state,
-            pincode,
-            phone,
-            altPhone: altPhone || '',
-            isPrimary: !!isPrimary
-        };
-
-        let useraddress = await Address.findOne({ userId });
-
-        if (useraddress) {
-            if (isPrimary) {
-                useraddress.address.forEach(addr => (addr.isPrimary = false));
-            }
-            useraddress.address.push(newAddressData);
-            await useraddress.save();
-        } else {
-            const newAddress = new Address({
-                userId,
-                address: [newAddressData]
-            });
-            await newAddress.save();
-        }
-
-        res.redirect('/checkout');
-    } catch (error) {
-        console.error('Error adding address:', error);
-        res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({
-            success: false,
-            message: 'An error occurred while adding the address',
-        });
+    if (!userId) {
+      return res.status(STATUS_CODES.UNAUTHORIZED).json({
+        success: false,
+        message: 'User not authenticated',
+      });
     }
+
+    const { addressType, name, city, landMark, state, pincode, phone, altPhone, isPrimary } = req.body;
+
+    if (!name || !city || !landMark || !state || !pincode || !phone) {
+      return res.status(STATUS_CODES.BAD_REQUEST).json({
+        success: false,
+        message: 'All required fields must be filled',
+      });
+    }
+
+    const newAddressData = {
+      addressType,
+      name,
+      city,
+      landMark,
+      state,
+      pincode,
+      phone,
+      altPhone: altPhone || '',
+      isPrimary: !!isPrimary
+    };
+
+    let useraddress = await Address.findOne({ userId });
+
+    if (useraddress) {
+      if (isPrimary) {
+        useraddress.address.forEach(addr => (addr.isPrimary = false));
+      }
+      useraddress.address.push(newAddressData);
+      await useraddress.save();
+    } else {
+      const newAddress = new Address({
+        userId,
+        address: [newAddressData]
+      });
+      await newAddress.save();
+    }
+
+    res.redirect('/checkout');
+  } catch (error) {
+    console.error('Error adding address:', error);
+    res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: 'An error occurred while adding the address',
+    });
+  }
 };
 
 const editAddressCheckout = async (req, res) => {
-    try {
-        const userId = req.session.user;
-        if (!userId) {
-            return res.status(STATUS_CODES.UNAUTHORIZED).json({ success: false, message: 'Unauthorized' });
-        }
-
-        const addressId = req.params.id;
-        const addressData = {
-            addressType: req.body.addressType || '',
-            name: req.body.name,
-            city: req.body.city,
-            landMark: req.body.landMark,
-            state: req.body.state,
-            pincode: req.body.pincode,
-            phone: req.body.phone,
-            altPhone: req.body.altPhone || '',
-            isPrimary: req.body.isPrimary === 'true' || req.body.isPrimary === true
-        };
-
-        if (!addressData.name || !addressData.city || !addressData.landMark || !addressData.state || !addressData.pincode || !addressData.phone) {
-            return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: 'All required fields must be filled' });
-        }
-
-        const addressDoc = await Address.findOne({ userId });
-        if (!addressDoc) {
-            return res.status(STATUS_CODES.NOT_FOUND).json({ success: false, message: 'Address document not found' });
-        }
-
-        const address = addressDoc.address.id(addressId);
-        if (!address) {
-            return res.status(STATUS_CODES.NOT_FOUND).json({ success: false, message: 'Address not found' });
-        }
-
-        if (addressData.isPrimary) {
-            addressDoc.address.forEach(addr => (addr.isPrimary = false));
-        }
-
-        address.set(addressData);
-        await addressDoc.save();
-
-        res.redirect('/checkout');
-    } catch (error) {
-        console.error('Error updating address:', error);
-        res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({ success: false, message: 'Error updating address' });
+  try {
+    const userId = req.session.user;
+    if (!userId) {
+      return res.status(STATUS_CODES.UNAUTHORIZED).json({ success: false, message: 'Unauthorized' });
     }
+
+    const addressId = req.params.id;
+    const addressData = {
+      addressType: req.body.addressType || '',
+      name: req.body.name,
+      city: req.body.city,
+      landMark: req.body.landMark,
+      state: req.body.state,
+      pincode: req.body.pincode,
+      phone: req.body.phone,
+      altPhone: req.body.altPhone || '',
+      isPrimary: req.body.isPrimary === 'true' || req.body.isPrimary === true
+    };
+
+    if (!addressData.name || !addressData.city || !addressData.landMark || !addressData.state || !addressData.pincode || !addressData.phone) {
+      return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: 'All required fields must be filled' });
+    }
+
+    const addressDoc = await Address.findOne({ userId });
+    if (!addressDoc) {
+      return res.status(STATUS_CODES.NOT_FOUND).json({ success: false, message: 'Address document not found' });
+    }
+
+    const address = addressDoc.address.id(addressId);
+    if (!address) {
+      return res.status(STATUS_CODES.NOT_FOUND).json({ success: false, message: 'Address not found' });
+    }
+
+    if (addressData.isPrimary) {
+      addressDoc.address.forEach(addr => (addr.isPrimary = false));
+    }
+
+    address.set(addressData);
+    await addressDoc.save();
+
+    res.redirect('/checkout');
+  } catch (error) {
+    console.error('Error updating address:', error);
+    res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({ success: false, message: 'Error updating address' });
+  }
 };
 
 const loadAboutPage = (req, res) => {
@@ -1356,7 +1350,14 @@ const generateInvoice = async (req, res) => {
     const html = await ejs.renderFile(templatePath, { order });
     console.log(html)
 
-    const browser = await puppeteer.launch({ headless: true });
+    const browser = await puppeteer.launch({
+      headless: true,
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox'
+      ]
+    });
+
     const page = await browser.newPage();
 
     await page.setContent(html, { waitUntil: "networkidle0" });
@@ -1396,35 +1397,35 @@ const generateInvoice = async (req, res) => {
 };
 
 const getCartTotal = async (req, res) => {
-    const userId = req.session.user;
+  const userId = req.session.user;
 
-    try {
-        if (!userId) {
-            return res.status(STATUS_CODES.UNAUTHORIZED).json({ success: false, message: 'Please login to view cart.' });
-        }
-
-        const cart = await Cart.findOne({ userId }).populate('cart.productId');
-        if (!cart || cart.cart.length === 0) {
-            return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: 'Your cart is empty.' });
-        }
-
-        let totalPrice = 0;
-        for (const item of cart.cart) {
-            if (item.productId) {
-                totalPrice += item.productId.salePrice * item.quantity;
-            }
-        }
-
-        console.log('getCartTotal: Calculated total', { userId, totalPrice });
-
-        return res.status(STATUS_CODES.OK).json({
-            success: true,
-            totalPrice,
-        });
-    } catch (error) {
-        console.error('getCartTotal: Error calculating total:', error);
-        return res.status(500).json({ success: false, message: 'Failed to calculate cart total.' });
+  try {
+    if (!userId) {
+      return res.status(STATUS_CODES.UNAUTHORIZED).json({ success: false, message: 'Please login to view cart.' });
     }
+
+    const cart = await Cart.findOne({ userId }).populate('cart.productId');
+    if (!cart || cart.cart.length === 0) {
+      return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: 'Your cart is empty.' });
+    }
+
+    let totalPrice = 0;
+    for (const item of cart.cart) {
+      if (item.productId) {
+        totalPrice += item.productId.salePrice * item.quantity;
+      }
+    }
+
+    console.log('getCartTotal: Calculated total', { userId, totalPrice });
+
+    return res.status(STATUS_CODES.OK).json({
+      success: true,
+      totalPrice,
+    });
+  } catch (error) {
+    console.error('getCartTotal: Error calculating total:', error);
+    return res.status(500).json({ success: false, message: 'Failed to calculate cart total.' });
+  }
 };
 
 const getWalletBalance = async (req, res) => {
