@@ -780,13 +780,7 @@
                                     <span class="text-gray-600">Subtotal</span>
                                     <span class="text-gray-800">₹<%= totalPrice ? totalPrice.toFixed(2) : '0.00' %></span>
                                 </div>
-                                <div>
-                                    <span class="tooltips text-gray-600">
-                                        Discount <i class="fas fa-info-circle text-black-500" style="font-size: 10px;"></i>
-                                        <span class="tooltip-text">10% off for orders above ₹1500</span>
-                                    </span>
-                                    <span id="discount" class="text-green-600">₹<%= discount.toFixed(2) %></span>
-                                </div>
+                               
                                 <div id="couponDiscountRow" style="<%= couponDiscount > 0 ? 'display: flex;' : 'display: none;' %>">
                                     <span class="text-gray-600">Coupon Discount</span>
                                     <span id="couponDiscountAmount" class="text-green-600">₹<%= couponDiscount.toFixed(2) %></span>
@@ -1313,11 +1307,11 @@
                 console.log('fetchCartTotal: Response', response);
                 if (response.success) {
                     totalPrice = response.totalPrice;
-                    currentDiscount = totalPrice > 1500 ? totalPrice * 0.1 : 0;
+                    currentDiscount = 0;
                     currentGst = totalPrice > 2000 ? 10 : 0;
                     currentShipping = 20;
                     currentCouponDiscount = appliedCoupon ? appliedCoupon.offerPrice : 0;
-                    finalPrice = totalPrice - currentDiscount - currentCouponDiscount + currentGst + currentShipping;
+                    finalPrice = totalPrice   - currentCouponDiscount + currentGst + currentShipping;
 
                     $('#finalTotal').text(`₹${finalPrice.toFixed(2)}`);
                     $('#totalAmountInput').val(finalPrice);

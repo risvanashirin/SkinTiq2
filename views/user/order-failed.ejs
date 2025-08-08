@@ -155,7 +155,7 @@
                 <h2 class="text-sm font-medium text-gray-700 mb-2">Order Details</h2>
                 <% 
                     let totalPrice = orders.reduce((sum, order) => sum + (order.totalPrice || 0), 0);
-                    let baseDiscount = totalPrice > 1500 ? totalPrice * 0.1 : 0;
+                    let baseDiscount =  0;
                     let totalDiscount = orders.reduce((sum, order) => sum + (order.discount || 0), 0);
                     let couponDiscount = totalDiscount - baseDiscount > 0 ? totalDiscount - baseDiscount : 0;
                     let gst = totalPrice > 2000 ? 10 : 0;

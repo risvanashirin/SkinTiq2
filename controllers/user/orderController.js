@@ -162,7 +162,7 @@ const loadCheckout = async (req, res) => {
       usedBy: { $ne: new mongoose.Types.ObjectId(userId) }
     }).sort({ endDate: 1 });
 
-    const discount = newPrice > 1500 ? newPrice * 0.1 : 0;
+    const discount =  0;
     const appliedCoupon = req.session.appliedCoupon || null;
     const couponDiscount = appliedCoupon && newPrice >= appliedCoupon.minimumPrice ? appliedCoupon.offerPrice : 0;
     const gst = newPrice > 2000 ? 10 : 0;
@@ -226,7 +226,7 @@ const applyCoupon = async (req, res) => {
       minimumPrice: coupon.minimumPrice
     };
 
-    const discount = cartTotal > 1500 ? cartTotal * 0.1 : 0;
+    const discount =  0;
     const gst = cartTotal > 2000 ? 10 : 0;
     const shippingCharge = 20;
     const finalPrice = cartTotal - discount - coupon.offerPrice + gst + shippingCharge;
@@ -265,7 +265,7 @@ const removeCoupon = async (req, res) => {
     }
 
     const totalPrice = cart.cart.reduce((sum, item) => sum + (item.productId.salePrice * item.quantity), 0);
-    const discount = totalPrice > 1500 ? totalPrice * 0.1 : 0;
+    const discount = 0;
     const gst = totalPrice > 2000 ? 10 : 0;
     const shippingCharge = 20;
     const finalPrice = totalPrice - discount + gst + shippingCharge;
@@ -435,7 +435,7 @@ const placeorder = async (req, res) => {
 
     // Calculate totals
     const totalPrice = cart.cart.reduce((sum, item) => sum + item.productId.salePrice * item.quantity, 0);
-    const baseDiscount = totalPrice > 1500 ? totalPrice * 0.1 : 0;
+    const baseDiscount =  0;
     const gst = totalPrice > 2000 ? 10 : 0;
     const shippingCharge = 20;
 
@@ -799,7 +799,7 @@ const loadOrderFailed = async (req, res) => {
     }
 
     const totalPrice = orders.reduce((sum, order) => sum + order.totalPrice, 0);
-    const discount = totalPrice > 1500 ? totalPrice * 0.1 : 0;
+    const discount =  0;
     let couponDiscount = 0;
     const gst = totalPrice > 2000 ? 10 : 0;
     const shippingCharge = 20;
@@ -871,7 +871,7 @@ const getOrderConfirmation = async (req, res) => {
     }
 
     const totalPrice = orders.reduce((sum, order) => sum + order.totalPrice, 0);
-    const discount = totalPrice > 1500 ? totalPrice * 0.1 : 0;
+    const discount =  0;
     const gst = totalPrice > 2000 ? 10 : 0;
     const shippingCharge = 20;
     let couponDiscount = 0;
@@ -1037,7 +1037,7 @@ const getOrderDetails = async (req, res) => {
     }
 
     const totalPrice = orders.reduce((sum, order) => sum + order.totalPrice, 0);
-    const discount = totalPrice > 1500 ? totalPrice * 0.1 : 0;
+    const discount =  0;
     const gst = totalPrice > 2000 ? 10 : 0;
     const shippingCharge = 20;
     let couponDiscount = 0;
@@ -1108,14 +1108,15 @@ const cancelOrder = async (req, res) => {
     await order.save();
 
     if (order.paymentMethod !== 'COD') {
+      const charge = order.finalAmount - order.finalAmountWithoutTax
       const wallet = await Wallet.findOneAndUpdate(
         { userId },
         {
-          $inc: { balance: order.finalAmount },
+          $inc: { balance: (order.finalAmount - charge) },
           $push: {
             transactions: {
               type: 'Credit',
-              amount: order.finalAmount,
+              amount: (order.finalAmount - charge),
               description: `Refund for order #${order.orderId} cancellation`,
               status: 'Completed',
             },
@@ -1568,7 +1569,7 @@ const retryOrderCheckout = async (req, res) => {
     }
 
     const totalPrice = orders.reduce((sum, order) => sum + (order.price * order.quantity), 0);
-    const discount = totalPrice > 1500 ? totalPrice * 0.1 : 0;
+    const discount =  0;
     const gst = totalPrice > 2000 ? 10 : 0;
     const shippingCharge = 20;
     const couponDiscount = 0;
