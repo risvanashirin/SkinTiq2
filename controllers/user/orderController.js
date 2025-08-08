@@ -1354,6 +1354,7 @@ const generateInvoice = async (req, res) => {
 
     const templatePath = path.join(__dirname, "../../views/user/invoice-template.ejs");
     const html = await ejs.renderFile(templatePath, { order });
+    console.log(html)
 
     const browser = await puppeteer.launch({ headless: true });
     const page = await browser.newPage();
