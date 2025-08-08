@@ -642,7 +642,7 @@
       </div>
 
       <!-- Reviews -->
-      <div class="reviews">
+      <!-- <div class="reviews">
         <h3>Customer Reviews</h3>
         <div class="review">
           <strong>Ayesha R.</strong>
@@ -656,11 +656,12 @@
           <strong>Sneha P.</strong>
           <p>★★★★★ - Visible results in just a week! Totally loving it. Will order again.</p>
         </div>
-      </div>
+      </div> -->
     </div>
   </div>
 </div>
 
+<%if(relatedProducts.length !=0){%>
 <section class="related-product-area">
   <div class="max-w-7xl mx-auto px-4">
     <h2 class="related-title">Explore Related Products</h2>
@@ -712,7 +713,7 @@
     </div>
   </div>
 </section>
-
+<%}%>
 <script>
   // Ensure SweetAlert is loaded
   if (typeof Swal === 'undefined') {
@@ -800,21 +801,7 @@
             <i class="fas fa-heart"></i> Wishlist
           </button>
         </div>
-        <div class="reviews">
-          <h3>Customer Reviews</h3>
-          <div class="review">
-            <strong>Ayesha R.</strong>
-            <p>★★★★★ - Leaves my skin feeling soft and glowing! Highly recommend for daily use.</p>
-          </div>
-          <div class="review">
-            <strong>Neha S.</strong>
-            <p>★★★★ - Great product, natural fragrance is amazing. Works well for sensitive skin.</p>
-          </div>
-          <div class="review">
-            <strong>Sneha P.</strong>
-            <p>★★★★★ - Visible results in just a week! Totally loving it. Will order again.</p>
-          </div>
-        </div>
+       
       `;
       $productInfo.append(productHtml);
       $productInfo.fadeIn(200);

@@ -72,7 +72,7 @@ const addProducts = async (req, res) => {
       });
     }
 
-    // Make sure the image upload directory exists
+    // image upload directory exists
     const uploadDir = path.join(__dirname, "../../public/uploads/product-images");
     if (!fs.existsSync(uploadDir)) {
       fs.mkdirSync(uploadDir, { recursive: true });
@@ -374,6 +374,151 @@ const geteditProduct = async (req, res) => {
 
 
 
+// const updateProduct = async (req, res) => {
+//   try {
+//     const productId = req.params.id;
+//     if (!mongoose.isValidObjectId(productId)) {
+//       return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: "Invalid product ID" });
+//     }
+
+//     const {
+//       productName,
+//       description,
+//       category,
+//       brand,
+//       regularPrice,
+//       quantity,
+//       skinType,
+//       skinConcern,
+//       deletedImages,
+//     } = req.body;
+
+//     if (!productName || !description || !category || !brand || !regularPrice || !quantity || !skinType || !skinConcern) {
+//       return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: "All required fields must be provided" });
+//     }
+
+//     if (!mongoose.isValidObjectId(category) || !mongoose.isValidObjectId(brand)) {
+//       return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: "Invalid category or brand ID" });
+//     }
+
+//     if (parseFloat(regularPrice) <= 0) {
+//       return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: "Regular price must be greater than 0" });
+//     }
+
+//     if (parseInt(quantity) < 0) {
+//       return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: "Quantity cannot be negative" });
+//     }
+
+//     let deletedImagesArray = [];
+//     try {
+//       deletedImagesArray = deletedImages ? JSON.parse(deletedImages) : [];
+//     } catch (error) {
+//       console.error("Error parsing deletedImages:", error.message);
+//       return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: "Invalid deletedImages format" });
+//     }
+
+//     const product = await Product.findById(productId);
+//     if (!product) {
+//       return res.status(STATUS_CODES. NOT_FOUND).json({ success: false, message: "Product not found" });
+//     }
+
+//     const foundCategory = await Category.findById(category);
+//     const foundBrand = await Brand.findById(brand);
+//     if (!foundCategory || !foundBrand) {
+//       return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: "Category or brand not found" });
+//     }
+
+//     // Remove deleted images with retry mechanism
+//     if (deletedImagesArray.length > 0) {
+//       for (const imageUrl of deletedImagesArray) {
+//         const imagePath = path.join(__dirname, "../../public", imageUrl);
+//         let deleted = false;
+//         let attempts = 0;
+
+//         while (!deleted && attempts < 3) {
+//           try {
+//             if (fs.existsSync(imagePath)) {
+//               await fs.promises.unlink(imagePath);
+//             }
+//             deleted = true;
+//           } catch (err) {
+//             if (err.code === 'EBUSY') {
+//               console.warn(`Image ${imagePath} is busy, retrying...`);
+//               await new Promise((resolve) => setTimeout(resolve, STATUS_CODES.  INTERNAL_SERVER_ERROR)); // wait before retry
+//               attempts++;
+//             } else {
+//               console.error(`Failed to delete image ${imagePath}:`, err.message);
+//               break;
+//             }
+//           }
+//         }
+
+//         product.productImage = product.productImage.filter((img) => img !== imageUrl);
+//       }
+//     }
+
+//     // Process new images with Sharp
+//     const uploadDir = path.join(__dirname, "../../public/uploads/product-images");
+//     if (!fs.existsSync(uploadDir)) {
+//       fs.mkdirSync(uploadDir, { recursive: true });
+//     }
+
+//     const newImages = [];
+//     if (req.files && req.files.length > 0) {
+//       for (const file of req.files) {
+//         const isCropped = file.originalname.startsWith('cropped-image-');
+//         const filename = `${Date.now()}-${file.originalname.replace(/\s/g, "")}.webp`;
+//         const outputFilePath = path.join(uploadDir, filename);
+
+//         await sharp(file.path)
+//           .resize(800, 800, {
+//             fit: "inside",
+//             withoutEnlargement: true,
+//           })
+//           .webp({ quality: 80 })
+//           .toFile(outputFilePath);
+
+//         // Only add the image to newImages if it's a cropped image
+//         if (isCropped) {
+//           newImages.push(`/uploads/product-images/${filename}`);
+//         }
+
+//         // Always delete the temporary uploaded file
+//         fs.unlinkSync(file.path);
+//       }
+//     }
+
+//     // Update images: keep existing images (minus deleted ones) and add new cropped images
+//     const updatedImages = [...product.productImage, ...newImages];
+
+//     if (updatedImages.length < 4) {
+//       return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: "At least 4 images are required" });
+//     }
+//     if (updatedImages.length > 8) {
+//       return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: "Cannot upload more than 8 images" });
+//     }
+
+//     // Update product fields
+//     product.productName = productName;
+//     product.description = description;
+//     product.category = category;
+//     product.brand = brand;
+//     product.regularPrice = parseFloat(regularPrice);
+//     product.quantity = parseInt(quantity);
+//     product.skinType = skinType;
+//     product.skinConcern = skinConcern;
+//     product.productImage = updatedImages;
+
+//     const updatedProduct = await product.save();
+
+//     res.json({ success: true, message: "Product updated successfully", product: updatedProduct });
+//   } catch (error) {
+//     console.error("Error updating product:", error.message);
+//     res.status(STATUS_CODES.  INTERNAL_SERVER_ERROR).json({ success: false, message: "Error updating product" });
+//   }
+// };
+
+
 const updateProduct = async (req, res) => {
   try {
     const productId = req.params.id;
@@ -517,6 +662,8 @@ const updateProduct = async (req, res) => {
     res.status(STATUS_CODES.  INTERNAL_SERVER_ERROR).json({ success: false, message: "Error updating product" });
   }
 };
+
+
 
 const deleteSingleImage = async (req, res) => {
   try {

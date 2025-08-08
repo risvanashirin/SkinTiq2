@@ -466,7 +466,7 @@
           });
 
           fetch(`/admin/editBrand/${id}`, {
-            method: 'POST',
+            method: 'PUT',
             body: result.value,
           })
             .then(response => response.json())

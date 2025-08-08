@@ -261,7 +261,7 @@
         modalSubmit.innerText = 'Updating...';
         console.log(`Sending update status request for order ${orderId}`);
         fetch('/admin/order/update-status', {
-          method: 'POST',
+          method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ orderId, status }),
         })

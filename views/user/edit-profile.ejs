@@ -990,7 +990,7 @@
 
             try {
                 const response = await fetch('/editprofile/editresendOtp', {
-                    method: 'POST',
+                    method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email, type: 'new-email' }),
                     credentials: 'include'
@@ -1033,7 +1033,7 @@
 
             try {
                 const response = await fetch('/change-password', {
-                    method: 'POST',
+                    method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ currentPassword, newPassword }),
                     credentials: 'include'
@@ -1144,7 +1144,7 @@
 
             try {
                 const response = await fetch('/update-profile', {
-                    method: 'POST',
+                    method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ name: username }),
                     credentials: 'include'

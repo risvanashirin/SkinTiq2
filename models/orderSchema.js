@@ -56,6 +56,11 @@ const orderSchema = new Schema(
       required: true,
       min: 0,
     },
+    finalAmountWithoutTax: {
+      type: Number,
+      required: true,
+      min: 0,
+    },
     address: {
       type: {
         name: { type: String },

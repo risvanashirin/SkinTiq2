@@ -60,7 +60,7 @@ router.get('/userProfile', userAuth, profileController.userProfile);
 
 // Edit Profile
 router.get('/edit-profile', userAuth, editController.renderEditProfile);
-router.post('/update-profile', userAuth, editController.updateProfile);
+router.put('/update-profile', userAuth, editController.updateProfile);
 router.post('/upload-profile-photo', userAuth, ProfileUpload.single('profilePhoto'), profileController.uploadProfilePhoto);
 
 router.post('/send-otp', userAuth, editController.sendOtp);
@@ -69,10 +69,10 @@ router.post('/editprofile/resendotp', userAuth, editController.resendOtp);
 router.post('/edit/verify-otp', userAuth, editController.verifyOtp);
 router.post('/confirm-new/email', userAuth, editController.newMailConfirmation); 
 router.post('/send-otp-new-email', userAuth, editController.sendOtpForNewEmail);
-router.post('/editprofile/editresendOtp', userAuth, editController.editresendOtp);
+router.put('/editprofile/editresendOtp', userAuth, editController.editresendOtp);
 
 
-router.post('/change-password', userAuth, editController.changePassword);
+router.put('/change-password', userAuth, editController.changePassword);
 router.post('/verify-password-otp', userAuth, editController.verifyPasswordOtp);
 router.post('/resend-password-otp', userAuth, editController.resendPasswordOtp);
 
@@ -94,7 +94,7 @@ router.get('/cart/total', userAuth, orderController.getCartTotal);
 // Address
 router.get('/addresses', userAuth, addressController.loadAddressPage);
 router.post('/add-address', userAuth, addressController.addAddress);
-router.post('/delete-address/:id', userAuth, addressController.deleteAddress);
+router.delete('/delete-address/:id', userAuth, addressController.deleteAddress);
 router.post('/edit-address/:id', userAuth, addressController.updateAddress);
 router.post('/set-primary-address/:id', userAuth, addressController.setPrimaryAddress);
 router.get('/primary-address', userAuth, addressController.getPrimaryAddress);
@@ -117,7 +117,7 @@ router.get('/contact',userController.getContactPage)
 
 
   router.post('/apply-coupon', userAuth, orderController.applyCoupon); 
-  router.post('/remove-coupon', userAuth, orderController.removeCoupon); 
+  router.delete('/remove-coupon', userAuth, orderController.removeCoupon); 
 
 
 router.post('/place-order', userAuth, formParser.none(), orderController.placeorder);

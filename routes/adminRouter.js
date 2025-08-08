@@ -40,10 +40,10 @@ router.post('/unblockCustomer', adminAuth, customerController.customerunBlocked)
 // Category management
 router.get('/category', adminAuth, categoryController.categoryInfo);
 router.post('/addCategory', adminAuth, categoryController.addCategory);
-router.post('/editCategory/:id', adminAuth, categoryController.editCategory);
+router.put('/editCategory/:id', adminAuth, categoryController.editCategory);
 router.post('/addCategoryOffer', adminAuth, categoryController.addCategoryOffer);
-router.post('/editCategoryOffer', adminAuth, categoryController.editCategoryOffer);
-router.post('/removeCategoryOffer', adminAuth, categoryController.removeCategoryOffer);
+router.put('/editCategoryOffer', adminAuth, categoryController.editCategoryOffer);
+router.delete('/removeCategoryOffer', adminAuth, categoryController.removeCategoryOffer);
 router.post('/listCategory', adminAuth, categoryController.getListCategory);
 router.post('/unListCategory', adminAuth, categoryController.getUnlistCategory);
 
@@ -51,26 +51,26 @@ router.post('/unListCategory', adminAuth, categoryController.getUnlistCategory);
 router.get('/addProducts', adminAuth, productController.getProductAddPage);
 router.post('/addProducts', adminAuth, productUpload.array('images', 8), productController.addProducts);
 router.post('/addProductOffer', adminAuth, productController.addProductOffer);
-router.post('/editProductOffer', adminAuth, productController.editProductOffer);
-router.post('/removeProductOffer', adminAuth, productController.removeProductOffer);
+router.put('/editProductOffer', adminAuth, productController.editProductOffer);
+router.delete('/removeProductOffer', adminAuth, productController.removeProductOffer);
 router.get('/products', adminAuth, productController.getAllProducts);
 router.get('/blockProduct', adminAuth, productController.blockProduct);
 router.get('/unblockProduct', adminAuth, productController.unblockProduct);
 router.get('/editProducts', adminAuth, productController.geteditProduct);
 router.post('/editProduct/:id', productUpload.array('images', 8), productController.updateProduct);
-router.post('/deleteImage', adminAuth, productController.deleteSingleImage);
+router.delete('/deleteImage', adminAuth, productController.deleteSingleImage);
 
 // Order management
 router.get('/order', adminAuth, orderController.getOrders);
 router.get('/order/:id', adminAuth, orderController.getOrderDetails);
-router.post('/order/update-status', adminAuth, orderController.updateOrderStatus);
+router.put('/order/update-status', adminAuth, orderController.updateOrderStatus);
 router.post('/order/cancel', adminAuth, orderController.cancelOrder);
 router.post('/order/return', adminAuth, orderController.handleReturnRequest);
 
 // Coupon management
 router.get('/coupon', adminAuth, couponController.getCoupons);
 router.post('/coupon/add', adminAuth, couponController.addCoupon);
-router.post('/coupon/edit/:id', adminAuth, couponController.editCoupon);
+router.put('/coupon/edit/:id', adminAuth, couponController.editCoupon);
 router.post('/coupon/toggle/:id', adminAuth, couponController.toggleCouponStatus);
 router.delete('/coupon/delete/:id', adminAuth, couponController.deleteCoupon);
 
@@ -84,7 +84,7 @@ router.post('/api/sales-report', adminAuth, salesController.getSalesReport);
 // Brand management
 router.get('/brand', adminAuth, brandController.loadBrandPage);
 router.post('/addBrand', adminAuth, brandUpload.single('brandImage'), brandController.addBrand);
-router.post('/editBrand/:id', adminAuth, brandUpload.single('brandImage'), brandController.editBrand);
+router.put('/editBrand/:id', adminAuth, brandUpload.single('brandImage'), brandController.editBrand);
 router.post('/unlistBrand', adminAuth, brandController.unlistBrand);
 router.post('/listBrand', adminAuth, brandController.listBrand);
 

@@ -11,7 +11,7 @@
       --light-gray: #dfe6e9;
       --background-color: #f5f6fa;
       --white: #ffffff;
-      --shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+      --shadow: 0 10px 20px rgba(0, 0, 0, 0.05 sns);
       --transition: all 0.3s ease;
     }
     body {
@@ -63,11 +63,6 @@
       color: #9ca3af;
       cursor: not-allowed;
       pointer-events: none;
-    }
-    .pagination-container .page-indicator {
-      font-size: 0.875rem;
-      color: #374151;
-      font-weight: 500;
     }
     @media (max-width: 768px) {
       body { margin-left: 0; }
@@ -259,9 +254,15 @@
               <tr>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order ID</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subtotal</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-red-500 uppercase tracking-wider">Discount</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-green-500 uppercase tracking-wider">Charges</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Discount</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cr/Dr</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Profit</th>
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200"></tbody>
@@ -275,7 +276,6 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
 <script>
-  // Load Chart.js with fallback to local copy if CDN fails
   let chartJsLoaded = false;
   function loadChartJs(callback) {
     const script = document.createElement('script');
@@ -314,25 +314,21 @@
     document.head.appendChild(script);
   }
 
-  // Disable animations for reduced motion
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     if (window.Chart) Chart.defaults.animation = false;
   }
 
-  // Chart filter handling
   document.querySelector('select[name="reportType"]').addEventListener('change', function(e) {
     const customDates = document.querySelectorAll('.custom-dates');
     customDates.forEach(el => el.classList.toggle('hidden', e.target.value !== 'custom'));
   });
 
-  // Form submission for chart update
   document.getElementById('dashboardForm').addEventListener('submit', async function(e) {
     e.preventDefault();
     await fetchChartData();
     await fetchLedgerData();
   });
 
-  // Fetch chart data
   async function fetchChartData() {
     const chartError = document.getElementById('chartError');
     const chartErrorMessage = document.getElementById('chartErrorMessage');
@@ -374,7 +370,6 @@
     }
   }
 
-  // Update chart
   function updateChartData(data) {
     const canvas = document.getElementById('salesChart');
     if (!canvas || !canvas.getContext('2d')) {
@@ -478,7 +473,6 @@
     }
   }
 
-  // Fetch ledger data
   async function fetchLedgerData(page = 1) {
     const ledgerTable = document.getElementById('ledgerTable');
     const ledgerBody = ledgerTable.querySelector('tbody');
@@ -511,14 +505,19 @@
           row.innerHTML = `
             <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-600">${new Date(order.invoiceDate).toISOString().split('T')[0]}</td>
             <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-600">${order.orderId.slice(-12)}</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-600">${order.customerName}</td>
             <td class="px-4 py-2 text-sm text-gray-600">${order.product?.productName || 'Unknown'}</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-600">₹${Math.round(order.subtotal).toLocaleString()}</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-red-600">₹${Math.round(order.discount).toLocaleString()}</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-green-600">₹${Math.round(order.charges).toLocaleString()}</td>
             <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-600">₹${Math.round(order.finalAmount).toLocaleString()}</td>
-            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-600">₹${Math.round(order.discount).toLocaleString()}</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-600">${order.type}</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-600">${order.creditDebit}</td>
+            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-600">₹${Math.round(order.finalAmount).toLocaleString()}</td>
           `;
           ledgerBody.appendChild(row);
         });
         ledgerTable.classList.remove('hidden');
-        // Render pagination
         if (data.pagination && data.pagination.totalPages > 1) {
           const { currentPage, totalPages } = data.pagination;
           const baseUrl = '/admin';
@@ -561,7 +560,6 @@
     }
   }
 
-  // Ledger book download
   function generateLedger() {
     const formData = new FormData(document.getElementById('dashboardForm'));
     const params = new URLSearchParams(formData);
@@ -570,14 +568,12 @@
     window.location.href = `/admin/api/ledger?${params.toString()}`;
   }
 
-  // Initialize dashboard
   function initializeDashboard() {
     console.log('Initializing dashboard...');
     fetchChartData();
     fetchLedgerData();
   }
 
-  // Load Chart.js and initialize
   loadChartJs(initializeDashboard);
 </script>
 <%- include("../partials/admin/footer") %>

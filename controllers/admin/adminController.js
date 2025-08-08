@@ -9,7 +9,6 @@ const bcrypt = require('bcrypt');
 const PDFDocument = require('pdfkit');
 const moment = require('moment');
 
-
 const pageerror = async (req, res) => {
   res.render('admin-error');
 };
@@ -51,8 +50,6 @@ const logout = async (req, res) => {
     res.redirect('/pageerror');
   }
 };
-
-
 
 const loadDashboard = async (req, res) => {
   try {
@@ -177,11 +174,10 @@ const getChartData = async (req, res) => {
         retries -= 1;
         if (retries === 0) throw error;
         console.warn(`Retrying chart data fetch (${retries} attempts left)...`);
-        await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds before retry
+        await new Promise(resolve => setTimeout(resolve, 2000));
       }
     }
 
-    // Fill in missing dates
     const labels = [];
     const values = [];
     let currentDate = new Date(startDate);
@@ -214,20 +210,6 @@ const getChartData = async (req, res) => {
   }
 };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 const generateLedger = async (req, res) => {
   try {
     const reportType = req.query.reportType || 'monthly';
@@ -255,26 +237,51 @@ const generateLedger = async (req, res) => {
 
     const query = {
       invoiceDate: { $gte: startDate, $lte: endDate },
-      status: { $ne: 'cancelled' }
+      // Removed status: { $ne: 'cancelled' } to include cancelled orders
     };
 
-    // For JSON response (web interface), apply pagination
     if (format === 'json') {
       const totalOrders = await Order.countDocuments(query);
       const totalPages = Math.ceil(totalOrders / limit);
 
       const orders = await Order.find(query)
         .populate('product')
+        .populate('userId', 'name')
         .sort({ invoiceDate: -1 })
         .skip((page - 1) * limit)
         .limit(limit);
 
       return res.json({
-        orders: orders.map(order => ({
-          ...order._doc,
-          finalAmount: Math.round(order.finalAmount || 0),
-          discount: Math.round(order.discount || 0)
-        })),
+        orders: orders.map(order => {
+          const subtotal = Math.round((order.price * order.quantity) || 0);
+          const charges = Math.round((order.finalAmount - ((order.price * order.quantity) - order.discount)) || 0);
+          let type;
+          if (order.status === 'cancelled') {
+            type = 'Cancelled';
+          } else if (['returned', 'return request'].includes(order.status)) {
+            type = 'Return';
+          } else {
+            type = 'Order';
+          }
+          const creditDebit = type === 'Return' || type === 'Cancelled' ? 'Debit' : 'Credit';
+
+const profit = type === 'Return' || type === 'Cancelled'
+  ? 0
+  : Math.round((order.finalAmount - (order.price * order.quantity * 0.7)) || 0);
+
+
+          return {
+            ...order._doc,
+            customerName: order.userId?.name || 'Unknown',
+            subtotal,
+            charges,
+            type,
+            creditDebit,
+            profit,
+            finalAmount: Math.round(order.finalAmount || 0),
+            discount: Math.round(order.discount || 0)
+          };
+        }),
         pagination: {
           currentPage: page,
           totalPages,
@@ -283,9 +290,9 @@ const generateLedger = async (req, res) => {
         }
       });
     } else if (format === 'pdf') {
-      // For PDF, fetch all orders without pagination
       const allOrders = await Order.find(query)
         .populate('product')
+        .populate('userId', 'name')
         .sort({ invoiceDate: -1 });
 
       const doc = new PDFDocument();
@@ -299,16 +306,13 @@ const generateLedger = async (req, res) => {
       doc.fontSize(10);
       let y = 120;
 
-      // Write headers
-      const headers = ['Date', 'Order ID', 'Product', 'Amount', 'Discount'];
-      let xPositions = [50, 150, 250, 350, 450];
+      const headers = ['Date', 'Order ID', 'Customer', 'Product', 'Subtotal', 'Discount', 'Charges', 'Amount', 'Type', 'Cr/Dr', 'Profit'];
+      let xPositions = [30, 90, 150, 230, 310, 360, 410, 460, 510, 550, 590];
       headers.forEach((header, i) => {
         doc.text(header, xPositions[i], 100);
       });
 
-      // Write orders
       allOrders.forEach((order, index) => {
-        // Add page break if needed (approx 30 rows per page)
         if (y > 700) {
           doc.addPage();
           y = 100;
@@ -318,11 +322,32 @@ const generateLedger = async (req, res) => {
           y = 120;
         }
 
+        const subtotal = Math.round((order.price * order.quantity) || 0);
+        const charges = Math.round((order.finalAmount - ((order.price * order.quantity) - order.discount)) || 0);
+        let type;
+        if (order.status === 'cancelled') {
+          type = 'Cancelled';
+        } else if (['returned', 'return request'].includes(order.status)) {
+          type = 'Return';
+        } else {
+          type = 'Order';
+        }
+        const creditDebit = type === 'Return' || type === 'Cancelled' ? 'Debit' : 'Credit';
+      const profit = type === 'Return' || type === 'Cancelled'
+  ? 0
+  : Math.round((order.finalAmount - (order.price * order.quantity * 0.7)) || 0);
+
         doc.text(moment(order.invoiceDate).format('YYYY-MM-DD'), xPositions[0], y);
         doc.text(order.orderId.slice(-12), xPositions[1], y);
-        doc.text(order.product?.productName || 'Unknown', xPositions[2], y);
-        doc.text(`₹${Math.round(order.finalAmount).toLocaleString()}`, xPositions[3], y);
-        doc.text(`₹${Math.round(order.discount).toLocaleString()}`, xPositions[4], y);
+        doc.text(order.userId?.name || 'Unknown', xPositions[2], y, { width: 70, ellipsis: true });
+        doc.text(order.product?.productName || 'Unknown', xPositions[3], y, { width: 70, ellipsis: true });
+        doc.text(`₹${subtotal.toLocaleString()}`, xPositions[4], y);
+        doc.text(`₹${Math.round(order.discount).toLocaleString()}`, xPositions[5], y);
+        doc.text(`₹${charges.toLocaleString()}`, xPositions[6], y);
+        doc.text(`₹${Math.round(order.finalAmount).toLocaleString()}`, xPositions[7], y);
+        doc.text(type, xPositions[8], y);
+        doc.text(creditDebit, xPositions[9], y);
+        doc.text(`₹${profit.toLocaleString()}`, xPositions[10], y);
         y += 20;
       });
 

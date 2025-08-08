@@ -450,7 +450,7 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     fetch(`/admin/editProductOffer`, {
-                        method: 'POST',
+                        method: 'PUT',
                         headers: {
                             'Content-Type': 'application/json'
                         },
@@ -496,7 +496,7 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     fetch(`/admin/removeProductOffer`, {
-                        method: 'POST',
+                        method: 'DELETE',
                         headers: {
                             'Content-Type': 'application/json'
                         },

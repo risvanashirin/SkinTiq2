@@ -526,11 +526,14 @@
                 <div class="col-md-6 col-sm-8">
                   <h5><%= item.productName || 'Unknown Product' %></h5>
                   <p>Quantity: <%= item.quantity %></p>
-                  <p>Price: ₹<%= item.price.toFixed(2) %></p>
-                  <p>Final Amount: ₹<%= item.finalAmount.toFixed(2) %></p>
-                  <% if (item.couponApplied) { %>
-                    <p>Coupon: <%= item.couponCode %> (Discount: ₹<%= item.discount.toFixed(2) %>)</p>
+                  <p>Price: ₹<%= item.price.toFixed(2) * item.quantity %></p>
+                  <% if (item.couponApplied||item.discount) { %>
+                  <p>Charges (GST + Delivery): ₹<%= (item.finalAmount - ((item.price * item.quantity) - item.discount)).toFixed(2) %></p>
+                    <p> Discount:₹<%= item.discount.toFixed(2)%></p>
+                    <p> Final Amount:₹<%=(item.price.toFixed(2) * item.quantity).toFixed(2) - item.discount.toFixed(2)%></p>
+
                   <% } %>
+
                   <span class="status-badge 
                     <%= item.status === 'delivered' ? 'bg-success' :
                         item.status === 'cancelled' ? 'bg-danger' :
@@ -598,7 +601,7 @@
   </div>
   <div class="summary-item mt-2 pt-2 border-top">
     <span class="total-label">Order Total</span>
-    <span class="total-value">₹<%= (totalPrice - discount - couponDiscount + gst + shippingCharge).toFixed(2) %></span>
+    <span class="total-value">₹<%= orders.reduce((sum, item) => sum + item.finalAmount, 0).toFixed(2) %></span>
   </div>
 </div>
           <!-- Additional Details -->

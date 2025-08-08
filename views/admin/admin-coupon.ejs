@@ -536,7 +536,7 @@
 
         try {
             const res = await fetch(`/admin/coupon/edit/${form.querySelector('#editId').value}`, {
-                method: 'POST',
+                method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
             });
