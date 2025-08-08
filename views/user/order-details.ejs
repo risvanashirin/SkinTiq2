@@ -528,7 +528,7 @@
                   <p>Quantity: <%= item.quantity %></p>
                   <p>Price: ₹<%= item.price.toFixed(2) * item.quantity %></p>
                   <% if (item.couponApplied||item.discount) { %>
-                  <p>Charges (GST + Delivery): ₹<%= (item.finalAmount - ((item.price * item.quantity) - item.discount)).toFixed(2) %></p>
+                  <!-- <p>Charges (GST + Delivery): ₹<%= (item.finalAmount - ((item.price * item.quantity) - item.discount)).toFixed(2) %></p> -->
                     <p> Discount:₹<%= item.discount.toFixed(2)%></p>
                     <p> Final Amount:₹<%=(item.price.toFixed(2) * item.quantity).toFixed(2) - item.discount.toFixed(2)%></p>
 
