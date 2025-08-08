@@ -1392,7 +1392,6 @@
             return;
         }
 
-        // 🔹 STEP 2: Refresh session if needed
         await fetch('/refresh-session', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
