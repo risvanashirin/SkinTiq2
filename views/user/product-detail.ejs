@@ -589,17 +589,7 @@
         <div><strong>Skin Concern:</strong> <span><%= product.skinConcern || 'Not specified' %></span></div>
       </div>
 
-      <!-- Rating -->
-      <div class="rating">
-        <span class="stars">
-          <i class="fa fa-star"></i>
-          <i class="fa fa-star"></i>
-          <i class="fa fa-star"></i>
-          <i class="fa fa-star"></i>
-          <i class="fa fa-star-half-alt"></i>
-        </span>
-        <span>(4.5/5)</span>
-      </div>
+    
 
       <!-- Price & Offer -->
       <div class="price-container">
@@ -641,22 +631,7 @@
         </button>
       </div>
 
-      <!-- Reviews -->
-      <!-- <div class="reviews">
-        <h3>Customer Reviews</h3>
-        <div class="review">
-          <strong>Ayesha R.</strong>
-          <p>★★★★★ - Leaves my skin feeling soft and glowing! Highly recommend for daily use.</p>
-        </div>
-        <div class="review">
-          <strong>Neha S.</strong>
-          <p>★★★★ - Great product, natural fragrance is amazing. Works well for sensitive skin.</p>
-        </div>
-        <div class="review">
-          <strong>Sneha P.</strong>
-          <p>★★★★★ - Visible results in just a week! Totally loving it. Will order again.</p>
-        </div>
-      </div> -->
+
     </div>
   </div>
 </div>
@@ -765,16 +740,7 @@
           <div><strong>Skin Type:</strong> <span>${product.skinType || 'Not specified'}</span></div>
           <div><strong>Skin Concern:</strong> <span>${product.skinConcern || 'Not specified'}</span></div>
         </div>
-        <div class="rating">
-          <span class="stars">
-            <i class="fa fa-star"></i>
-            <i class="fa fa-star"></i>
-            <i class="fa fa-star"></i>
-            <i class="fa fa-star"></i>
-            <i class="fa fa-star-half-alt"></i>
-          </span>
-          <span>(4.5/5)</span>
-        </div>
+       
         <div class="price-container">
           <span class="price-sale">₹${product.salePrice.toFixed(2)}</span>
           ${product.maxOffer > 0 ? `<span class="price-original"><del>₹${product.regularPrice.toFixed(2)}</del></span>` : ''}
