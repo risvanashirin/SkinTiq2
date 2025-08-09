@@ -132,17 +132,6 @@ const renderSalesReport = async (req, res) => {
     const spltotalDiscounts = Math.round(splquwery.reduce((sum, sale) => sum + (sale.discount || 0), 0));
     const spltotalCoupons = Math.round(splquwery.reduce((sum, sale) => sum + (sale.couponDiscount || 0), 0));
 
-    ///////////////////
-    // const totalOrder = await Order.find({ ...query, status: 'delivered' });
-    // const newtotalSales = Math.round(
-    //   totalOrder.reduce((sum, sale) => sum + (sale.finalAmount || 0), 0)
-    // );
-    // const newtotalDiscounts = Math.abs(Math.round(
-    //   totalOrder.reduce((sum, sale) => sum + (sale.discount || 0), 0)
-    // ));
-
-    ///////////////////////
-
 
     const salesData = {
       sales: validSales.map(sale => ({
@@ -341,7 +330,6 @@ const generatePDF = async (res, salesData, query) => {
   res.setHeader('Content-Disposition', 'attachment; filename=sales-report.pdf');
   doc.pipe(res);
 
-  // === Title & Summary (fixed styling) ===
   doc.font('Helvetica-Bold').fontSize(20).fillColor('#222').text('Sales Report', { align: 'center' });
   doc.moveDown(0.5);
 
@@ -353,19 +341,16 @@ const generatePDF = async (res, salesData, query) => {
     .text(`Total Charges:  ₹${Math.round(salesData.totalCharges || 0).toLocaleString()}`);
   doc.moveDown(1);
 
-  // Fetch sales (you already had this logic)
   const allSales = await Sale.find(query)
     .populate({ path: 'orderId', select: 'orderId status quantity paymentMethod' })
     .sort({ date: -1 });
 
   const validSales = allSales.filter(sale => sale.orderId && sale.orderId.orderId);
-  // If no rows, just end after summary
   if (!validSales.length) {
     doc.end();
     return;
   }
 
-  // === Column definitions (labels + minimums/weights) ===
   const headers = [
     { key: 'date', label: 'Date' },
     { key: 'orderId', label: 'Order ID' },
@@ -383,7 +368,6 @@ const generatePDF = async (res, salesData, query) => {
   const pageRight = doc.page.margins.right;
   const usableWidth = doc.page.width - pageLeft - pageRight;
 
-  // Helper to extract string values for each column from sale
   const cellValue = (sale, key) => {
     switch (key) {
       case 'date': return new Date(sale.date).toLocaleDateString();
@@ -405,7 +389,6 @@ const generatePDF = async (res, salesData, query) => {
     }
   };
 
-  // Truncate text to fit width (binary search on characters)
   const truncateToWidth = (text, maxWidth, fontName, fontSize) => {
     doc.font(fontName).fontSize(fontSize);
     if (doc.widthOfString(text) <= maxWidth) return text;
@@ -420,24 +403,21 @@ const generatePDF = async (res, salesData, query) => {
     return text.slice(0, low) + ell;
   };
 
-  // Try to find a font size that fits horizontally AND vertically
   let tableFont = 'Helvetica';
   let headerFont = 'Helvetica-Bold';
-  let fontSize = 10;         // start
-  const minFontSize = 6;     // don't go below this
+  let fontSize = 10;         
+  const minFontSize = 6;     
   let colWidths = [];
   let rowHeight = 0;
   let fits = false;
 
-  // We need starting y (where table begins) because summary already printed
   const tableStartY = doc.y + 6;
-  const bottomLimit = doc.page.height - doc.page.margins.bottom - 20; // small bottom margin for safety
+  const bottomLimit = doc.page.height - doc.page.margins.bottom - 20; 
   const availableHeight = () => bottomLimit - tableStartY;
 
   while (fontSize >= minFontSize && !fits) {
     doc.font(tableFont).fontSize(fontSize);
 
-    // measure header widths and each cell's widest content
     colWidths = headers.map(h => {
       const headerW = doc.widthOfString(h.label);
       let maxCellW = headerW;
@@ -446,16 +426,14 @@ const generatePDF = async (res, salesData, query) => {
         const w = doc.widthOfString(text);
         if (w > maxCellW) maxCellW = w;
       }
-      const padding = 10; // left + right padding inside column
+      const padding = 10; 
       return Math.ceil(maxCellW + padding);
     });
 
     const totalWidth = colWidths.reduce((s, w) => s + w, 0);
 
-    // row height single-line
     rowHeight = Math.ceil(fontSize + 8);
 
-    // how many rows can we fit vertically (after header)
     const headerBarHeight = Math.ceil(fontSize + 8);
     const rowsPossible = Math.floor((availableHeight() - headerBarHeight) / rowHeight);
 
@@ -464,15 +442,12 @@ const generatePDF = async (res, salesData, query) => {
       break;
     }
 
-    // if totalWidth too big, shrink font and retry
     fontSize -= 0.5;
   }
 
-  // If not fits even at minFontSize, we'll still use minFontSize and allow pagination.
   if (!fits) {
     fontSize = Math.max(fontSize, minFontSize);
     doc.font(tableFont).fontSize(fontSize);
-    // recompute colWidths one last time (so columns are sized consistently)
     colWidths = headers.map(h => {
       const headerW = doc.widthOfString(h.label);
       let maxCellW = headerW;
@@ -485,20 +460,17 @@ const generatePDF = async (res, salesData, query) => {
     });
   }
 
-  // If total width still > usableWidth, scale widths proportionally to usableWidth
   let totalWidth = colWidths.reduce((s, w) => s + w, 0);
   if (totalWidth > usableWidth) {
     const scale = usableWidth / totalWidth;
     colWidths = colWidths.map(w => Math.floor(w * scale));
     totalWidth = colWidths.reduce((s, w) => s + w, 0);
-    // fix tiny rounding diff by adding leftover pixels to last column
     if (totalWidth < usableWidth) {
       colWidths[colWidths.length - 1] += (usableWidth - totalWidth);
       totalWidth = usableWidth;
     }
   }
 
-  // === Render header bar ===
   let x = pageLeft;
   let y = tableStartY;
 
@@ -506,7 +478,6 @@ const generatePDF = async (res, salesData, query) => {
   doc.rect(x - 2, y - 2, usableWidth + 4, headerBarHeight + 4).fill('#4CAF50');
   doc.fillColor('#fff').font(headerFont).fontSize(Math.max(fontSize, 9));
 
-  // Draw header labels
   for (let i = 0; i < headers.length; i++) {
     const h = headers[i];
     const w = colWidths[i];
@@ -515,24 +486,18 @@ const generatePDF = async (res, salesData, query) => {
     x += w;
   }
 
-  // Prepare for rows
   y += headerBarHeight + 6;
   doc.font(tableFont).fontSize(fontSize).fillColor('#000');
 
-  // Row rendering with alternating backgrounds, truncation, and pagination fallback
   let rowIndex = 0;
   const maxYPerPage = doc.page.height - doc.page.margins.bottom - 10;
 
   for (const sale of validSales) {
-    // If row doesn't fit vertically on current page, add new page (only if we had to paginate)
     if (y + rowHeight > maxYPerPage) {
-      // If we originally fit everything on a single page (fits true) we tried to avoid pagination.
-      // But if not possible we allow pagination now.
+     
       doc.addPage({ size: 'A4', layout: 'portrait', margin: doc.page.margins });
-      // reset x and y (title/summary not repeated); keep table header on new page
       x = doc.page.margins.left;
       y = doc.page.margins.top;
-      // draw header on new page
       doc.rect(x - 2, y - 2, usableWidth + 4, headerBarHeight + 4).fill('#4CAF50');
       doc.fillColor('#fff').font(headerFont).fontSize(Math.max(fontSize, 9));
       for (let i = 0; i < headers.length; i++) {
@@ -546,17 +511,15 @@ const generatePDF = async (res, salesData, query) => {
       doc.font(tableFont).fontSize(fontSize).fillColor('#000');
     }
 
-    // alternating row bg
     const bg = rowIndex % 2 === 0 ? '#f9f9f9' : '#ffffff';
     doc.rect(doc.page.margins.left - 2, y - 2, usableWidth + 4, rowHeight + 4).fill(bg).fillColor('#000');
 
-    // render columns (single-line; truncated if needed)
     x = doc.page.margins.left;
     for (let i = 0; i < headers.length; i++) {
       const h = headers[i];
       const w = colWidths[i];
       const raw = cellValue(sale, h.key);
-      const maxTextWidth = w - 8; // small padding
+      const maxTextWidth = w - 8; 
       const textToDraw = (doc.widthOfString(raw) <= maxTextWidth) ? raw : truncateToWidth(raw, maxTextWidth, tableFont, fontSize);
       const align = ['total', 'charges', 'final', 'discount'].includes(h.key) ? 'right' : (h.key === 'qty' ? 'center' : 'left');
       doc.text(textToDraw, x + 4, y + (rowHeight - fontSize) / 2, { width: w - 8, align });

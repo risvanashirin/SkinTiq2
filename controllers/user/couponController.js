@@ -26,7 +26,6 @@ const applyCoupon = async (req, res) => {
         const { name } = req.body; 
         const userId = req.session.user;
 
-        // Validate coupon and calculate discount
         const currentDate = new Date();
         const coupon = await Coupon.findOne({
             name: name,
@@ -52,7 +51,6 @@ const applyCoupon = async (req, res) => {
         let shipping = calculateShipping(subTotal);
         let totalAmount = discountedTotal + shipping;
 
-        // Update the coupon usage
         await Coupon.updateOne({ _id: coupon._id }, { $addToSet: { usedBy: userId } });
 
         return res.json({ success: true, totalAmount, discountAmount, shipping, subTotal });

@@ -25,7 +25,7 @@ const getOrders = async (req, res) => {
       : 'createdAt';
     const direction = req.query.direction === 'asc' ? 1 : -1;
 
-    // Build query
+    
     const query = {};
     if (search) {
       const users = await User.find({
@@ -48,7 +48,6 @@ const getOrders = async (req, res) => {
       query.status = status;
     }
 
-    // Build sort options
     const sortOptions = {};
     if (sort === 'userName') {
       sortOptions['userId.name'] = direction;
@@ -56,7 +55,6 @@ const getOrders = async (req, res) => {
       sortOptions[sort] = direction;
     }
 
-    // Fetch orders
     const totalOrders = await Order.countDocuments(query);
     const orders = await Order.find(query)
       .populate("userId")

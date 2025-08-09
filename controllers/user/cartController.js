@@ -109,7 +109,6 @@ const getCartData = async (req, res) => {
     const unlistedCategoryProductNames = [];
     const outOfStockProductNames = [];
 
-    // Recalculate total price and check quantities
     let newPrice = 0;
     for (let item of cart.cart) {
       const product = item.productId;
@@ -137,34 +136,29 @@ const getCartData = async (req, res) => {
         continue;
       }
 
-      // Check if cart quantity exceeds available stock
       if (item.quantity > product.quantity) {
         adjustedQuantities.push({
           name: product.productName,
           oldQuantity: item.quantity,
           newQuantity: product.quantity,
         });
-        item.quantity = product.quantity; // Adjust to available stock
+        item.quantity = product.quantity; 
       }
 
-      // Add to total price using current salePrice
       newPrice += product.salePrice * item.quantity;
     }
 
-    // Remove invalid items
     if (itemsToRemove.length > 0) {
       await Cart.updateOne(
         { userId },
         { $pull: { cart: { productId: { $in: itemsToRemove } } } }
       );
 
-      // Refetch cart after removing items
       cart = await Cart.findOne({ userId }).populate({
         path: 'cart.productId',
         populate: { path: 'category brand' },
       });
 
-      // Recalculate price again if cart still exists
       newPrice = 0;
       if (cart && cart.cart) {
         for (const item of cart.cart) {
@@ -181,7 +175,6 @@ const getCartData = async (req, res) => {
       await cart.save();
     }
 
-    // Construct error message
     if (blockedProductNames.length > 0) {
       errorMessage += `${blockedProductNames.join(', ')} ${
         blockedProductNames.length > 1 ? 'have' : 'has'
@@ -290,7 +283,6 @@ const shopaddToCart = async (req, res) => {
 
       userCart.cart.push({ productId, quantity });
 
-      // Recalculate total price
       let newPrice = 0;
       for (const item of userCart.cart) {
         const product = await Product.findById(item.productId);
@@ -388,7 +380,6 @@ const getCart = async (req, res) => {
     });
 
     if (!cart) {
-      // Render cart page with empty cart instead of error
       return res.render("cart", { cart: null, error: null, adjustedQuantities: null });
     }
 
@@ -398,7 +389,6 @@ const getCart = async (req, res) => {
     const outOfStockProductNames = [];
     const adjustedQuantityProductNames = [];
 
-    // Recalculate total price and check quantities
     let newPrice = 0;
     for (let item of cart.cart) {
       const product = item.productId;
@@ -426,7 +416,6 @@ const getCart = async (req, res) => {
         continue;
       }
 
-      // Check if cart quantity exceeds available stock
       if (item.quantity > product.quantity) {
         adjustedQuantityProductNames.push({
           name: product.productName,
@@ -436,24 +425,20 @@ const getCart = async (req, res) => {
         item.quantity = product.quantity; 
       }
 
-      // Add to total price using current salePrice
       newPrice += product.salePrice * item.quantity;
     }
 
-    // Remove invalid items
     if (itemsToRemove.length > 0) {
       await Cart.updateOne(
         { userId },
         { $pull: { cart: { productId: { $in: itemsToRemove } } } }
       );
 
-      // Refetch cart after removing items
       cart = await Cart.findOne({ userId }).populate({
         path: "cart.productId",
         populate: { path: "category" },
       });
 
-      // Recalculate price again if cart still exists
       newPrice = 0;
       if (cart && cart.cart) {
         for (const item of cart.cart) {
@@ -470,7 +455,6 @@ const getCart = async (req, res) => {
       await cart.save();
     }
 
-    // Construct error message
     let errorMessage = "";
     if (blockedProductNames.length > 0) {
       errorMessage += `${blockedProductNames.join(", ")} ${
@@ -504,7 +488,6 @@ const getCart = async (req, res) => {
       errorMessage += `${blockedProductNames.length > 0 || unlistedCategoryProductNames.length > 0 || outOfStockProductNames.length > 0 ? " " : ""}${quantityMessages.join(" ")}`;
     }
 
-    // Pass adjusted quantities to the front-end for SweetAlert
     res.render("cart", {
       cart,
       error: errorMessage || null,
@@ -554,7 +537,6 @@ const removeFromCart = async (req, res) => {
 
     cart.cart.splice(itemIndex, 1);
 
-    // Recalculate total price
     let newPrice = 0;
     for (const item of cart.cart) {
       if (item.productId && item.productId.salePrice) {

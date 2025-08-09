@@ -151,7 +151,6 @@ const verifyPasswordOtp = async (req, res) => {
   }
 };
 
-// Resend OTP for password change
 const resendPasswordOtp = async (req, res) => {
   try {
     const userId = req.session.user;

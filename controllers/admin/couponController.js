@@ -87,8 +87,7 @@ const addCoupon = async (req, res) => {
             return res.status(STATUS_CODES .BAD_REQUEST).json({ success: false, message: 'Start date must be before or on end date' });
         }
         
-
-        
+     
 
         if (parseInt(offerPrice) < 1 || parseInt(minimumPrice) < 1) {
             return res.status(STATUS_CODES .BAD_REQUEST).json({ success: false, message: 'Discount and minimum purchase must be at least 1' });

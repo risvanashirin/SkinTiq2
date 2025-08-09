@@ -2,7 +2,6 @@ const Address = require('../../models/addressSchema');
 const STATUS_CODES = require('../../helpers/statusCodes');
 
 
-// Load address page  
 const loadAddressPage = async (req, res) => {
     try {
       const userId = req.session.user;
@@ -22,7 +21,6 @@ const loadAddressPage = async (req, res) => {
   };
   
 
-// Add new address
 const addAddress = async (req, res) => {
     try {
         
@@ -165,7 +163,6 @@ const getAddresses = async (req, res) => {
   }
 };
 
-// Update address
 const updateAddress = async (req, res) => {
     try {
         const userId = req.session.user;
@@ -186,35 +183,28 @@ const updateAddress = async (req, res) => {
             isPrimary: req.body.isPrimary === 'true' || req.body.isPrimary === true
         };
 
-        // Validate required fields
         if (!addressData.name || !addressData.city || !addressData.landMark || !addressData.state || !addressData.pincode || !addressData.phone) {
             return res.status(STATUS_CODES .BAD_REQUEST).json({ success: false, message: 'All required fields must be filled' });
         }
 
-        // Find the address document for the user
         const addressDoc = await Address.findOne({ userId });
         if (!addressDoc) {
             return res.status(STATUS_CODES .NOT_FOUND).json({ success: false, message: 'Address document not found' });
         }
 
-        // Find the specific address in the array
         const address = addressDoc.address.id(addressId);
         if (!address) {
             return res.status(STATUS_CODES .NOT_FOUND).json({ success: false, message: 'Address not found' });
         }
 
-        // If setting as primary, unset other primary addresses
         if (addressData.isPrimary) {
             addressDoc.address.forEach(addr => (addr.isPrimary = false));
         }
 
-        // Update the address fields
         address.set(addressData);
 
-        // Save the updated document
         await addressDoc.save();
 
-        // Redirect to the addresses page
         res.redirect('/addresses');
     } catch (error) {
         console.error('Error updating address:', error);
@@ -223,7 +213,6 @@ const updateAddress = async (req, res) => {
 };
 
 
-// Delete address
 const deleteAddress = async (req, res) => {
   
         try {
@@ -261,13 +250,11 @@ const setPrimaryAddress = async (req, res) => {
             return res.status(STATUS_CODES .NOT_FOUND).json({ success: false, message: 'Address not found' });
         }
 
-        // Set isPrimary to false for all addresses, then true for the selected one
         addressDoc.address.forEach(addr => (addr.isPrimary = false));
         address.isPrimary = true;
 
         await addressDoc.save();
 
-        // Redirect to the addresses page
         res.redirect('/addresses');
     } catch (error) {
         console.error('Error setting primary address:', error);

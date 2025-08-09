@@ -390,7 +390,6 @@ const placeorder = async (req, res) => {
       addressType: selectedAddressData.addressType || '',
     };
 
-    // Fetch user for customer name
     const user = await User.findById(userId);
     if (!user) {
       return res.status(STATUS_CODES.BAD_REQUEST).json({
@@ -400,7 +399,6 @@ const placeorder = async (req, res) => {
       });
     }
 
-    // Fetch cart
     const cart = await Cart.findOne({ userId }).populate('cart.productId');
     if (!cart || cart.cart.length === 0) {
       return res.status(STATUS_CODES.BAD_REQUEST).json({
@@ -410,7 +408,6 @@ const placeorder = async (req, res) => {
       });
     }
 
-    // Validate stock
     for (const item of cart.cart) {
       if (!item.productId) continue;
       if (item.productId.quantity < item.quantity) {
@@ -424,7 +421,6 @@ const placeorder = async (req, res) => {
       }
     }
 
-    // Validate COD limit
     if (paymentMethod === 'COD' && totalAmount > 1000) {
       return res.status(STATUS_CODES.BAD_REQUEST).json({
         success: false,
@@ -433,13 +429,11 @@ const placeorder = async (req, res) => {
       });
     }
 
-    // Calculate totals
     const totalPrice = cart.cart.reduce((sum, item) => sum + item.productId.salePrice * item.quantity, 0);
     const baseDiscount =  0;
     const gst = totalPrice > 2000 ? 10 : 0;
     const shippingCharge = 20;
 
-    // Handle coupon
     let couponDiscount = 0;
     let effectiveCouponCode = null;
     let couponApplied = false;
@@ -474,7 +468,6 @@ const placeorder = async (req, res) => {
       }
     }
 
-    // Check for existing orders
     const existingOrders = await Order.find({ orderId: sharedOrderId, userId });
     const hasNonFailedOrders = existingOrders.some((order) => order.status !== 'failed');
 
